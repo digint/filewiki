@@ -1,0 +1,11 @@
+<div id="bottom">
+<div id="copyright">
+&copy; [% copyright %]
+</div>
+<div id="mdate">
+Updated [% MTIME %]
+</div>
+<div id="bottom_links">
+<a class="actionlink" href="#top">&nbsp;Top&nbsp;</a>
+</div>
+</div>

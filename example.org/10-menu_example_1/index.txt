@@ -1,0 +1,13 @@
+<filewiki_vars>
+INDEX=00
+title=Menu Example 1
+#menu=$title
+</filewiki_vars>
+
+Within this Directory, the index of the files are not in the filename
+(like xx-myfile.txt), but rather explicitely set in by the variable
+`INDEX` in `filewiki_vars`.
+
+Note that no `menu` variable is set in `filewiki_vars`. This way the
+page does not get a separate entry in the menu (compared to
+Menu-Example-2, where it does).

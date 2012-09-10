@@ -1,0 +1,22 @@
+<filewiki_vars>
+title=FileWiki Editor
+REF=$title
+filewiki_controls=1
+INDEX=99
+</filewiki_vars>
+
+
+FileWiki Editor
+===============
+
+This is an demonstration of the FileWiki Web Frontend.  It is intended
+to give you an idea on how pages can be managed using FileWiki.
+
+Use the "Edit", "CMS", "Vars", "Map" and debug buttons above to
+navigate.
+
+**Editing is not functional on this page!**
+
+Purists don't use this. They check out the web page sources from the
+repository, edit the source files with a text editor, and install the
+site using the FileWiki command line client.

@@ -1,0 +1,43 @@
+<filewiki_vars>
+title=Welcome
+menu=$title
+menu_title=$menu
+</filewiki_vars>
+
+
+
+Welcome to FileWiki
+===================
+ 
+This site is intended to give you an overview over the capabilites of
+FileWiki.
+
+In order to correctly build this site for local browsing, type the
+following command in your shell:
+
+    filewiki `pwd`/example.org
+
+The `pwd` command makes sure that the `BASEDIR` variable becomes an
+absolute path, so that the links are build correctly.
+
+Note that you need to comment out the `URI_PREFIX` variable in
+`example.org/tree.vars` when using the FileWiki Apache Handler (or set it
+to a valid prefix, likes "/filewiki_test/").
+
+
+----------
+
+Try the FileWiki buttons on top of the site (they have been activated
+by the "filewiki_controls" variable). Note that the full functionality
+is only available when running the FileWiki Apache Handler.
+
+- **Edit**: Here you can see the source file of the current page.
+
+- **CMS**: This executes a user-defined command (`CMD_*` variables in
+  `example.org/tree.vars`).
+
+- **Vars**: Shows the vars propagated to the current page.
+
+- **Map**: Shows the site map.
+
+- **E W I D T**: Show different logger levels.

@@ -1,0 +1,18 @@
+<filewiki_vars>
+title=Filewiki HelloWorld Example
+</filewiki_vars>
+
+Hello to the FileWiki world!
+----------------------------
+
+If you see this in HTML, you typed:
+
+    filewiki helloworld.org
+
+and pointed your browser to:
+
+    helloworld.org.out/index.html
+
+
+
+(if not, try it!)

@@ -1,0 +1,9 @@
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="author" content="[% author %]" />
+<title>[% head_title_prefix %][% title || NAME %]</title>
+<link rel="stylesheet" href="[% stylesheet %]" type="text/css" />
+[% IF filewiki_controls %]
+<link rel="stylesheet" href="[% stylesheet_filewiki %]" type="text/css" />
+[% END %]
+</head>

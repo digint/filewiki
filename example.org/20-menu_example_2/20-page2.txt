@@ -1,0 +1,19 @@
+<filewiki_vars>
+title=Page 2
+menu=$title
+</filewiki_vars>
+
+Lorem Ipsum
+===========
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras ligula
+lacus, luctus quis, egestas vitae, scelerisque non, libero. Aliquam
+nec ipsum. Nam tempus, risus id ultrices pulvinar, sapien mi vehicula
+felis, et hendrerit leo velit non nibh. Sed in magna. Vestibulum vel
+neque quis nisi vestibulum hendrerit. Pellentesque ac velit eget erat
+mattis blandit. [Nunc diam](mylink). Integer mattis. Proin erat libero,
+dignissim ut, tempus mollis, fringilla nec, erat. Ut consectetur purus
+eu mauris. Etiam congue nibh eget felis. Pellentesque in turpis at
+lacus rutrum convallis. Pellentesque feugiat, diam id ullamcorper
+accumsan, lorem libero commodo quam, aliquet vulputate pede justo nec
+nibh.

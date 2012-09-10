@@ -1,0 +1,10 @@
+<filewiki_vars>
+title=Reference Example 2
+menu=$title
+REF=Reference2
+</filewiki_vars>
+
+Here, we set the `REF=` variable, providing an easy way to get global
+references to sites.
+
+Jump to [Reference1].

@@ -1,0 +1,107 @@
+Variables
+=========
+
+Flexible variable declaration and propagation is the heart of the
+FileWiki system.  While some variables affect the FileWiki system,
+they are basically used as input to the template processor. Every page
+merges its `vars` from various locations (see [Variable
+Propagation](#variablepropagation) below).
+
+
+Declaration
+-----------
+
+Variables are declared in a simple "key=value" or "key value"
+format. Already defined variables (and some [system variables]) can
+be reused in the declaration by the '$' (dollar) sign.
+
+- Lines starting with '#' (hash) are ignored
+- Trailing whitespaces are cut off
+- Values can be quoted
+
+  [system variables]: system_variables.html
+
+Example:
+
+    title=Summary
+    menu=$title
+
+This results in both "title" and "menu" variables to have the value
+"Summary". This is equivalent to:
+
+    title  "Summary"
+    menu   $title
+
+
+
+
+Propagation
+-----------
+
+#### tree vars
+
+Parsed from file "tree.vars" in every directory.
+
+`tree.vars` are propagated to `dir.vars` and `page.vars`, and are
+persistent within sub-directories. In sub-directories, they supersede
+the `tree.vars` of the parent directory.
+
+
+#### dir vars
+
+Parsed from file "dir.vars" in every directory.
+
+Used for the directory node. Consider the `dir.vars` as metadata for the
+directory they are located in.  `dir.vars` are not propagated, but are
+accessible on a page via the `DIR` variable.
+
+
+#### page vars
+
+Parsed from file "&lt;source_file&gt;.vars".
+
+`page.vars` supersede the `tree.vars` for a page.  Consider the
+`page.vars` as metadata for a page. Every source page can have
+`page.vars`.
+
+
+#### nested vars
+
+Parsed from within source files.
+
+Nested vars supersede the `page.vars`. FileWiki starts to parse
+nested variables from the source file after it first encounters a line
+starting with `<filewiki_vars>` or `[filewiki_vars]`,
+until `</filewiki_vars>` or `[/filewiki_vars]` is
+encountered.
+
+Note that the `nested.vars` are stripped off the source file when
+processing the input filters.
+
+Example:
+
+    Page text...
+
+    <filewiki_vars>
+    key=value
+    ...
+    </filewiki_vars>
+
+    Page text...
+
+
+As a special feature for pages which are also parsed outside FileWiki
+(e.g. perl modules), a "comment" character can be defined by the first
+character preceding <code>&lt;filewiki_vars&gt;</code>.
+
+Example (equivalent to example above):
+
+    File text (e.g. Perl code)...
+    #<filewiki_vars>
+    #key=value
+    #...
+    #</filewiki_vars>
+    File text...
+
+In this example, the "comment" character is set to '#', and all
+variables are parsed.

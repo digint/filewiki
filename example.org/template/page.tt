@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+[% USE FileWiki %]
+[% PROCESS filewiki/functions.tt %]
+
+[% PROCESS head.tt %]
+
+<body[% PROCESS filewiki/onload.tt %]>
+<a name="top"></a>
+
+<div id="wrap_all">
+[% PROCESS siteheader.tt %]
+[% PROCESS filewiki/controls.tt %]
+[% PROCESS mainbox.tt %]
+[% PROCESS bottom.tt %]
+</div>
+
+[%# NOTE: It is important to call FileWiki.Log at the very end,  %]
+[%# in order to see log messages produced by Template::FileWiki. %]
+[% PROCESS filewiki/log.tt %]
+
+</body>
+</html>

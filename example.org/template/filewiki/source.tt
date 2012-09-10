@@ -1,0 +1,16 @@
+<div id="filewiki_edit" style="display:none">
+<form action="[% URI %]" method="post">
+<h1>Edit Page Source</h1>
+<p>File: [% SRC_FILE | html %]</p>
+<!-- <p>[% TARGET_FILE | html %]</p> -->
+<textarea cols="80" rows="24" name="filewiki_submit_text">
+[% SRC_TEXT | html %]
+</textarea>
+<p>
+<input type="hidden" value="[% SRC_FILE %]" name="filewiki_submit_file"/>
+<input type="submit" value="preview" name="filewiki_preview"/>
+&nbsp;
+<input type="submit" value="save" name="filewiki_save"/>
+</p>
+</form>
+</div>

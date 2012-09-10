@@ -1,0 +1,7 @@
+<div id="content">
+[% PROCESS content_header.tt %]
+<div class="[% class %]">
+[% TEMPLATE_INPUT %]
+</div>
+[% PROCESS prevnext.tt %]
+</div>

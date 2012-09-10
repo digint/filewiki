@@ -1,0 +1,5 @@
+[% IF filewiki_controls %]
+<div class="filewiki_log">
+[% FileWiki.Log %]
+</div>
+[% END %]

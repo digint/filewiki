@@ -1,0 +1,81 @@
+[% BLOCK toggle_button %]
+<span id="[% id %]_action" class="filewiki_action" onclick="toggle('[% id %]','[% id %]_action')">&nbsp;[% text %]&nbsp;</span>
+[% END %]
+
+
+[% IF filewiki_controls %]
+<script type="text/javascript" language="javascript">
+<!--
+function toggle(id,btnId) {
+  var e = document.getElementById(id);
+  var btn = document.getElementById(btnId);
+
+  if(e.style.display == 'none') {
+    e.style.display = 'block';
+    btn.style.backgroundColor = '#AAAAAA';
+  } else {
+    e.style.display = 'none';
+    btn.style.backgroundColor = 'transparent';
+  }
+}
+
+function setDisplayByClass(className,display)
+{
+  var ee = document.getElementsByClassName(className);
+  var n = ee.length;
+  for (var i = 0; i < n; i++) {
+    var e = ee[i];
+    e.style.display = display;
+  }
+}
+
+function toggleLog(levelName, level) 
+{
+  var btn = document.getElementById('filewiki_action_log_'+levelName);
+
+  if(btn.style.backgroundColor == 'transparent') {
+    if(level >= 0) { document.getElementById('filewiki_action_log_e').style.backgroundColor = '#AAAAAA'; setDisplayByClass('log_e', 'block'); }
+    if(level >= 1) { document.getElementById('filewiki_action_log_w').style.backgroundColor = '#AAAAAA'; setDisplayByClass('log_w', 'block'); }
+    if(level >= 2) { document.getElementById('filewiki_action_log_i').style.backgroundColor = '#AAAAAA'; setDisplayByClass('log_i', 'block'); }
+    if(level >= 3) { document.getElementById('filewiki_action_log_d').style.backgroundColor = '#AAAAAA'; setDisplayByClass('log_d', 'block'); }
+    if(level >= 4) { document.getElementById('filewiki_action_log_t').style.backgroundColor = '#AAAAAA'; setDisplayByClass('log_t', 'block'); }
+  } else {
+    if(level <= 0) { document.getElementById('filewiki_action_log_e').style.backgroundColor = 'transparent'; setDisplayByClass('log_e', 'none'); }
+    if(level <= 1) { document.getElementById('filewiki_action_log_w').style.backgroundColor = 'transparent'; setDisplayByClass('log_w', 'none'); }
+    if(level <= 2) { document.getElementById('filewiki_action_log_i').style.backgroundColor = 'transparent'; setDisplayByClass('log_i', 'none'); }
+    if(level <= 3) { document.getElementById('filewiki_action_log_d').style.backgroundColor = 'transparent'; setDisplayByClass('log_d', 'none'); }
+    if(level <= 4) { document.getElementById('filewiki_action_log_t').style.backgroundColor = 'transparent'; setDisplayByClass('log_t', 'none'); }
+  }
+}
+
+function toggleClass(className, btnId) 
+{
+  var btn = document.getElementById(btnId);
+
+  if(btn.style.backgroundColor == 'transparent') {
+    setDisplayByClass(className, 'block');
+    btn.style.backgroundColor = '#AAAAAA';
+  } else {
+    setDisplayByClass(className, 'none');
+    btn.style.backgroundColor = 'transparent';
+  }
+}
+
+function showHideText(boxId,className) 
+{
+  var box = document.getElementById(boxId);
+  var ee = document.getElementsByClassName(className);
+  var n = ee.length;
+  for (var i = 0; i < n; i++) {
+    var e = ee[i];
+
+    if(box.checked) {
+      e.style.display = 'block';
+    } else {
+      e.style.display = 'none';
+    }
+  }
+}
+//-->
+</script> 
+[% END %]

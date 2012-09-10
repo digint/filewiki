@@ -1,0 +1,16 @@
+[% IF filewiki_controls %]
+<br/><br/>
+<div id="filewiki_actions">
+[% INCLUDE toggle_button id="filewiki_edit"      text="Edit" %]
+[% INCLUDE toggle_button id="filewiki_cms"       text="CMS" %]
+[%# INCLUDE toggle_button id="filewiki_result"    text="HTML" %]
+[% INCLUDE toggle_button id="filewiki_vars"      text="Vars" %]
+[% INCLUDE toggle_button id="filewiki_sitemap"   text="Map"  %]
+&nbsp;&nbsp;
+<span id="filewiki_action_log_e" class="filewiki_action" style='background-color:transparent;' onclick="toggleLog('e',0)">&nbsp;E&nbsp;</span>
+<span id="filewiki_action_log_w" class="filewiki_action" style='background-color:transparent;' onclick="toggleLog('w',1)">&nbsp;W&nbsp;</span>
+<span id="filewiki_action_log_i" class="filewiki_action" style='background-color:transparent;' onclick="toggleLog('i',2)">&nbsp;I&nbsp;</span>
+<span id="filewiki_action_log_d" class="filewiki_action" style='background-color:transparent;' onclick="toggleLog('d',3)">&nbsp;D&nbsp;</span>
+<span id="filewiki_action_log_t" class="filewiki_action" style='background-color:transparent;' onclick="toggleLog('t',4)">&nbsp;T&nbsp;</span>
+</div>
+[% END %]

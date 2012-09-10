@@ -1,0 +1,17 @@
+[%# displays prev/next links %]
+
+[% IF prevnext %]
+<div class="prevnext">
+[% IF PAGE_PREV %]
+<a href=[% PAGE_PREV.URI %]>&laquo; prev</a>
+[% ELSE %]
+<span>&laquo; prev</span>
+[% END %]
+|
+[% IF PAGE_NEXT %]
+<a href=[% PAGE_NEXT.URI %]>next &raquo;</a>
+[% ELSE %]
+<span>next &raquo;</span>
+[% END %]
+</div>
+[% END %]

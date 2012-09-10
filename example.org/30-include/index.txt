@@ -1,0 +1,14 @@
+<filewiki_vars>
+title=Include Example
+INDEX=0
+</filewiki_vars>
+
+This section includes the FileWiki documentation folder, by setting
+"INCLUDE=$BASEDIR/../doc[doc]" in the dir.vars.
+
+Note the files "doc.dir.vars" and "doc.tree.vars": these define the
+vars of the included directory marked as "[doc]".
+
+"doc.tree.vars" sets the "subdoc_root" variable, which is evaluated in
+"template/content_header.tt" and generates the documentation menu on
+top of the page.

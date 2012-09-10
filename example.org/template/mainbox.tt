@@ -1,0 +1,4 @@
+<div id="mainbox">
+[% PROCESS sidebar.tt %]
+[% PROCESS content.tt %]
+</div>

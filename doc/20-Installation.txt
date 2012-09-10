@@ -1,0 +1,60 @@
+Installation
+============
+
+FileWiki comes with a command-line based interface, as well as a
+(rather experimental) web interface.
+
+
+Prerequisites
+-------------
+
+As all Perl programs, FileWiki depends on some standard modules, which
+are available on CPAN. The Makefile will complain about missing modules.
+
+Depending on what markup language you want to use, you will need:
+
+- Text::Markdown (needed for the example sites)
+- Text::Textile
+- Pod::Simple::HTML
+- ...
+
+
+Instructions
+------------
+
+First, [download] the newest FileWiki release.
+Unzip the tarball, go to the filewiki directory and type:
+
+    perl Makefile.PL
+    make install
+
+This will install the `filewiki` executable along with the FileWiki
+Perl modules to your system. The Makefile will warn you about missing
+Perl modules.
+
+That's it! Now you can build FileWiki sites:
+
+    filewiki helloworld.org
+
+This will build the `helloworld.org` example site to the target directory
+`helloworld.org.out`.
+
+Have a look at the more complex `example.org` site, this is intended to
+give you an idea on how FileWiki works.
+
+  [download]: http://digint.ch/download/filewiki/
+
+
+###Apache Handler
+
+An example on how to configure FileWiki as a HTTP PerlResponseHandler
+is provided in the `Apache::FileWiki::Handler` perl module
+documentation. Refer to the [Apache HTTP Handlers] documentation for
+detailed information.
+
+Note that this is rather experimental, and *very insecure*, so make
+sure you don't install this on a publicly available location!
+
+
+  [Apache HTTP Handlers]: https://perl.apache.org/docs/2.0/user/handlers/http.html
+

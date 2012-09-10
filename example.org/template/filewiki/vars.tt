@@ -1,0 +1,52 @@
+[% BLOCK edit_vars %]
+[% FOREACH vars_file IN list.split("\n") %]
+
+<h2>[% vars_file.replace(BASEDIR _ '/?', '') %]</h2>
+
+<form action="[% URI %]" method="post">
+
+<textarea cols="80" rows="10" name="filewiki_submit_text">
+[% TRY %]
+[% INSERT $vars_file %]
+[% file_exists = 1 %]
+[% CATCH %]
+[% file_exists = 0 %]
+[% END %]
+</textarea>
+<br/>
+<input type="hidden" value="[% vars_file %]" name="filewiki_submit_file"/>
+<input type="submit" value="[% file_exists == 1 ? 'update' : 'create' %]" name="filewiki_save"/>
+
+</form>
+[% END %]
+[% END %]
+
+
+<div id="filewiki_vars" style="display:none">
+<h1>Page Vars</h1>
+[% INCLUDE toggle_button id="filewiki_page_vars_list" text="List" %]
+[% INCLUDE toggle_button id="filewiki_page_vars_edit" text="Edit" %]
+<div id="filewiki_page_vars_edit" style="display:none">
+[% INCLUDE edit_vars  list = VARS_FILES %]
+</div>
+<div id="filewiki_page_vars_list" style="display:none">
+<pre>[% FileWiki.DumpVars %]</pre>
+</div>
+
+<h1>Dir Vars</h1>
+[% INCLUDE toggle_button id="filewiki_dir_vars_list" text="List" %]
+[% INCLUDE toggle_button id="filewiki_dir_vars_edit" text="Edit" %]
+<div id="filewiki_dir_vars_edit" style="display:none">
+[% INCLUDE edit_vars  list = DIR.VARS_FILES %]
+</div>
+<div id="filewiki_dir_vars_list" style="display:none">
+<pre>[% FileWiki.DumpVars( DIR ) %]</pre>
+</div>
+
+<h1>System Environment</h1>
+[% INCLUDE toggle_button id="filewiki_env_list" text="List" %]
+<div id="filewiki_env_list" style="display:none">
+<pre>[% FileWiki.DumpVars( ENV ) %]</pre>
+</div>
+
+</div>

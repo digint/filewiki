@@ -1,0 +1,9 @@
+[% IF subdoc_root %]
+<div id="content_header">
+[% FileWiki.PageTree( ROOT => subdoc_root,
+                      text_key => "NAME",
+		      regexp => { match => '_', replace => ' ' }
+                    )
+%]
+</div>
+[% END %]

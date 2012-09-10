@@ -1,0 +1,70 @@
+Introduction
+============
+
+<q>Everything is a file!</q>
+
+FileWiki is a simple but powerful web site generator, written in Perl.
+It parses a directory tree and generates static web pages defined by
+templates, which make use of variables seeded within the directories.
+
+The idea behind this is that you manage your web site source files on
+a location which is not accessible by the webserver, and have FileWiki
+generate and deploy the web site from there. This has several
+advantages:
+
+- **Flexible content management**: By design, FileWiki does not rely on any
+  [content management system]. You can use any system you like to
+  manage your web site source files.
+
+- **Simplicity**: No need of any interpreter (like Java, PHP, Perl, ...)
+  in your web server software. Instead, you can use a [lightweight web
+  server], reducing performance requirements on your server.
+
+- **Security**: Potential security issues are vastly reduced, as your web
+  server only serves static pages and thus does not inherit
+  vulnerabilities from the interpreter plugins.
+
+
+HTML Conversion
+---------------
+
+FileWiki relies on external tools to process source text. The
+processing steps from the source file to the target page are defined
+by filter chains.
+
+Web content is composed in text files using a markup language
+([Markdown], [Textile] or others). They are converted to HTML using
+the markup language processor, then processed by [Template Toolkit], a
+very powerful and comprehensive template system. FileWiki provides
+template plug-ins, e.g. for menu generation in web pages.
+
+Note that it is very easy to add support for other markup languages or
+template processors.
+
+
+  [markdown]:         http://daringfireball.net/projects/markdown/
+  [textile]:          http://textile.thresholdstate.com
+  [template toolkit]: http://template-toolkit.org/index.html
+
+
+
+Motivation
+----------
+
+So why *another* wiki system? All Wikis out there (at least the ones I
+know of) are either blown-up or not powerful enough. They keep state
+information in databases while the templates are in files (how the
+hell am I going to manage/backup this?), and they usually combine the
+editing and the displaying portion, often relying on PHP which has a
+long history of security issues.
+
+<q>Keep it simple, Stupid!</q>
+
+The motivation for FileWiki is to have a framework based on a simple
+concept, leaving all options open in regard of content management
+systems.
+
+
+  [content management system]: http://en.wikipedia.org/wiki/Content_management_system
+  [lightweight web server]:    http://en.wikipedia.org/wiki/Comparison_of_lightweight_web_servers
+

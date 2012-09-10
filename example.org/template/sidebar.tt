@@ -1,0 +1,10 @@
+<div id="sidebar">
+<div id="left_menu">
+[% FileWiki.PageTree(text_key => "menu",
+                     depth => 2,
+                     collapse => 1,
+                     highlight_parents => 1,
+                    )
+%]
+</div>
+</div>

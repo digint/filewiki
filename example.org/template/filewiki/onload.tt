@@ -1,0 +1,1 @@
+[% IF filewiki_controls %] onload="toggleLog('w',1)"[% END %]

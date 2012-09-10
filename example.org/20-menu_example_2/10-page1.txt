@@ -1,0 +1,17 @@
+<filewiki_vars>
+title=Page 1
+menu=$title
+</filewiki_vars>
+
+Lorem Ipsum
+===========
+
+Ut sapien. Suspendisse vel orci vel leo eleifend fringilla. Quisque
+nec massa. Quisque eget turpis. Nunc eleifend, neque et pellentesque
+rhoncus, ligula augue bibendum magna, ut consectetur lacus ligula at
+est. _Vestibulum elementum_. Class aptent taciti sociosqu ad litora
+torquent per conubia nostra, per inceptos himenaeos. Vivamus ultrices
+aliquam felis. Vivamus et dui sed leo blandit facilisis. Vestibulum
+cursus interdum dui. __Morbi lorem__. In urna mauris, eleifend sit amet,
+semper cursus, pellentesque vel, elit. Aenean ante pede, pharetra ut,
+vulputate ut, sollicitudin a, pede.

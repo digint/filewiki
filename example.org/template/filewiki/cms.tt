@@ -1,0 +1,38 @@
+<div id="filewiki_cms" style="display:none">
+<h1>Content Management</h1>
+<p>Run a configured command.</p>
+
+<form action="[% URI %]" method="post">
+CMS_USERNAME:
+<input type="text" name="CMS_USERNAME" value="[% CMS_USERNAME %]"/>
+<br/>
+CMS_PASSWORD:
+<input type="password" name="CMS_PASSWORD" value="[% CMS_PASSWORD %]"/>
+<br/><br/>
+CMS_TEXT:
+<br/>
+<textarea cols="80" rows="10" name="CMS_TEXT">
+[% CMS_TEXT %]
+</textarea>
+<br/><br/>
+
+<input type="submit" value="update" name="filewiki_dummy"/>
+Update variable expansion below
+
+<h2>Commit</h2>
+<p>
+<code>[% VARS_PRE_EXPAND.CMD_COMMIT | html %]</code></br>
+<code class="filewiki_command">[% CMD_COMMIT | html %]</code>
+</p>
+<input type="submit" value="commit" name="filewiki_command"/>
+
+<h2>Install</h2>
+<p>
+<code>[% VARS_PRE_EXPAND.CMD_INSTALL | html %]</code></br>
+<code class="filewiki_command">[% CMD_INSTALL | html %]</code>
+</p>
+<input type="submit" value="install" name="filewiki_command"/>
+
+</form>
+</div>
+

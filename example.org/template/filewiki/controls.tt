@@ -1,0 +1,20 @@
+[% IF filewiki_controls %]
+<div id="filewiki_controls">
+
+[% IF filewiki_error_msg %]
+<div class="filewiki_error">[% filewiki_error_msg | html %]</div>
+[% END %]
+[% IF filewiki_info_msg %]
+<div class="filewiki_info">[% filewiki_info_msg | html %]</div>
+[% END %]
+[% IF filewiki_cmd_output %]
+<div class="filewiki_cmd_output"><pre>[% filewiki_cmd_output | html %]</pre></div>
+[% END %]
+
+[% PROCESS filewiki/source.tt %]
+[% PROCESS filewiki/cms.tt %]
+[% PROCESS filewiki/vars.tt %]
+[% PROCESS filewiki/sitemap.tt %]
+
+</div>
+[% END %]

@@ -1,0 +1,4 @@
+<div id="filewiki_sitemap" style="display:none">
+<h1>Site Map</h1>
+[% FileWiki.Sitemap %]
+</div>

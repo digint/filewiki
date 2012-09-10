@@ -1,0 +1,123 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+filewiki - FileWiki command line tool
+
+=head1 SYNOPSIS
+
+    filewiki --help
+
+    filewiki example.org
+    filewiki -c install example.org URI_PREFIX=/testsite
+
+=head1 DESCRIPTION
+
+Uses FileWiki to create a web site.
+
+The full FileWiki documentation is available at L<http://www.digint.ch/filewiki/>.
+
+=head1 AUTHOR
+
+Axel Burri <axel@tty0.ch>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2011-2012 Axel Burri. All rights reserved.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+=cut
+
+
+#use lib "lib";
+
+use strict;
+use warnings FATAL => qw( all );
+
+use FileWiki;
+use FileWiki::Logger;
+use Getopt::Std;
+
+our $VERSION = "0.10";
+
+my $filewiki_home = '<http://www.digint.ch/filewiki/>';
+
+sub VERSION_MESSAGE
+{
+  print STDERR "filewiki command line client, version $VERSION (FileWiki version: $FileWiki::VERSION)\n";
+  print STDERR "\n";
+}
+
+sub HELP_MESSAGE
+{
+  print STDERR "usage: $0 [options] [basedir] [key=value...]\n";
+  print STDERR "\n";
+  print STDERR "options:\n";
+  print STDERR "   -h, --help  display this help message\n";
+  print STDERR "   --version   display version information\n";
+  print STDERR "   -c COMMAND  run command from config after create\n";
+  print STDERR "   -d          run only the parser (don't create output)\n";
+  print STDERR "   -l LEVEL    set the logging level [0..4]\n";
+  print STDERR "\n";
+  print STDERR "For additional information, see $filewiki_home\n";
+}
+
+$Getopt::Std::STANDARD_HELP_VERSION = 1;
+$FileWiki::Logger::loglevel = $FileWiki::Logger::level{info};
+
+my %opts;
+getopts('hc:l:d', \%opts);
+
+if($opts{h}) {
+  VERSION_MESSAGE();
+  HELP_MESSAGE(0);
+  exit 0;
+}
+
+$FileWiki::Logger::loglevel = exists($FileWiki::Logger::level{$opts{l}}) ? $FileWiki::Logger::level{$opts{l}} : $opts{l} if(defined $opts{l});
+
+# read "key=value" arguments
+my %vars;
+$vars{BASEDIR} = $ARGV[0] if(defined($ARGV[0]) && not ($ARGV[0] =~ m/^(\S+?)=(\S+)$/));
+foreach my $var (@ARGV) {
+  $vars{$1} = $2 if($var =~ m/^(\S+?)=(\S+)$/);
+}
+
+unless($vars{BASEDIR}) {
+  print STDERR "Error: no BASEDIR provided\n";
+  HELP_MESSAGE();
+  exit 1;
+}
+
+TRACE "$0: vars passed to FileWiki:"; INDENT 1;
+TRACE FileWiki::dump_vars(\%vars); INDENT -1;
+
+my $filewiki = FileWiki->new(%vars);
+
+if($opts{d}) {
+  my $sitemap = $filewiki->sitemap();
+  print "\nOption -d is active, printing sitemap:\n";
+  print "\nSitemap:\n";
+  print $sitemap;
+  print "\n";
+  exit 0;
+}
+
+$filewiki->create();
+$filewiki->command($opts{c}) if($opts{c});
+
+exit 0;
+
+1;

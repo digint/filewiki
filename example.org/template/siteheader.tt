@@ -1,0 +1,5 @@
+<div id="siteheader">
+<div id="header_links">
+[% PROCESS filewiki/actions.tt %]
+</div>
+</div>
