@@ -531,7 +531,16 @@ sub _site_tree
 
   my @raw_copy = split(/[,;]\s*/, $dir_vars{RAW_COPY}) if($dir_vars{RAW_COPY});
 
-  my @files = <$src_dir/*>;
+  my @files;
+  opendir(my $dh, $src_dir) or die $!; ;
+  while(readdir($dh)) {
+    if(/^\./) {
+      TRACE "skipping dot-file: $src_dir/$_";
+      next;
+    }
+    push @files, "$src_dir/$_";
+  }
+  closedir $dh;
 
   # include files/dirs specified in INCLUDE
   if($dir_vars{INCLUDE}) {
@@ -539,6 +548,7 @@ sub _site_tree
     my @includes = split(/[,;]\s*/, $dir_vars{INCLUDE});
     foreach my $include (@includes) {
       $include =~ s/\[(\w+)\]//;
+
       $tree_vars{INCLUDE_VARS}->{$include} = "$src_dir/$1" if($1);
       push @files, $include;
     }
