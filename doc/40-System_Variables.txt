@@ -18,7 +18,7 @@ Mandatory. Points to the top-level directory of the website. This must
 be set as function parameter to the FileWiki calls.
 
 
-###TARGET_DIR
+###OUTPUT_DIR
 
 Target (output) directory of the website. Mandatory for the
 `FileWiki::create()` function.
@@ -67,7 +67,7 @@ Command being executed by `FileWiki::command($command)` function.
 
 Example:
 
-    CMD_INSTALL=rsync -rvz --delete -e "ssh -l webmaster" ${TARGET_DIR}/ www.example.org:/var/www/htdocs
+    CMD_INSTALL=rsync -rvz --delete -e "ssh -l webmaster" ${OUTPUT_DIR}/ www.example.org:/var/www/htdocs
 
 This installs the page to the host www.example.org when typing:
 

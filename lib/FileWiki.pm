@@ -31,6 +31,7 @@ our $default_time_format = '%C';
 our %doctype = (
   markdown => { match  => '\.(markdown|txt)$',
                 filter => [
+                           \&read_source,
                            \&sanitize_newlines,
                            \&strip_nested_vars,
                            \&strip_xml_comments,
@@ -41,6 +42,7 @@ our %doctype = (
               },
   textile  => { match  => '\.(textile)$',
                 filter => [
+                           \&read_source,
                            \&sanitize_newlines,
                            \&strip_nested_vars,
                            \&strip_xml_comments,
@@ -51,6 +53,7 @@ our %doctype = (
                },
   template =>  { match  => '\.(tt)$',
                  filter => [
+                            \&read_source,
                             \&sanitize_newlines,
                             \&strip_nested_vars,
                             \&transform_template,
@@ -60,6 +63,7 @@ our %doctype = (
                },
   pod      =>  { match  => '\.(pod|pm|pl)$',
                  filter => [
+                            \&read_source,
                             \&sanitize_newlines,
                             \&transform_pod,
                             \&apply_template,
@@ -67,8 +71,16 @@ our %doctype = (
                  nested_vars => 1,
                },
   html      => { filter => [
+                            \&read_source,
                             \&sanitize_newlines,
                             \&apply_template,
+                           ],
+               },
+  gallery   =>  { match  => '\.(jpg|JPG|jpeg|JPEG)$',
+                  filter => [
+                             \&gallery_create_thumb,
+                             \&gallery_create_scaled,
+                             \&apply_template,
                            ],
                },
  );
@@ -248,6 +260,36 @@ sub read_vars
 }
 
 
+sub read_source
+{
+  my $self = shift;
+  my $in = shift;
+  my $page = shift;
+
+  if($page->{SRC_TEXT})
+  {
+    DEBUG "Got " . length($page->{SRC_TEXT}) . " bytes of dynamic data, ignoring input file.";
+    return $page->{SRC_TEXT};
+  }
+  else
+  {
+    my $data;
+    my $sfile = $page->{SRC_FILE};
+    DEBUG "Reading file: $sfile";
+    open(INFILE, "<$sfile") or die "Failed to open file \"$sfile\": $!";
+    {
+      local $/;			# slurp the file
+      $data = <INFILE>;
+    }
+    close(INFILE);
+
+    WARN "Overwriting " . length($in) . " bytes of data with page source" if($in);
+
+    return $data;
+  }
+}
+
+
 sub strip_nested_vars
 {
   my $self = shift;
@@ -346,6 +388,51 @@ sub transform_template
   return $out;
 }
 
+
+sub gallery_create_thumb
+{
+  my $self = shift;
+  my $in = shift;
+  my $page = shift;
+
+  my $thumb_file = $page->{GALLERY_THUMB_TARGET_FILE};
+  die unless($thumb_file);
+
+  my $cmd = 'convert -scale 256x256 "' . $page->{SRC_FILE} . '" "' . $thumb_file . '"';
+
+  if(-e $thumb_file) {
+    INFO "Skipping thumbnail generation: $thumb_file";
+  }
+  else {
+    INFO "Generating thumbnail: $thumb_file";
+    `$cmd`;
+  }
+
+  return $in;
+}
+
+sub gallery_create_scaled
+{
+  my $self = shift;
+  my $in = shift;
+  my $page = shift;
+
+  my $scaled_file = $page->{GALLERY_SCALED_TARGET_FILE};
+  die unless($scaled_file);
+
+  my $cmd = 'convert -scale 1280x720 "' . $page->{SRC_FILE} . '" "' . $scaled_file . '"';
+
+  if(-e $scaled_file) {
+    INFO "Skipping scaled image generation: $scaled_file";
+  }
+  else {
+    INFO "Generating scaled image: $scaled_file";
+    `$cmd`;
+  }
+
+  return $in;
+}
+
 sub apply_template
 {
   my $self = shift;
@@ -389,31 +476,14 @@ sub process_page
 {
   my $self = shift;
   my $page = shift;
-  my $data = shift;
+  my $data = shift || "";
   my $root = $self->site_tree();
 
-  my $sfile = $page->{SRC_FILE};
-
-  return unless($sfile);
+  return unless($page->{SRC_FILE});
 
   INFO "Processing page: $page->{URI}"; INDENT 1;
 
-  if($data)
-  {
-    DEBUG "Got " . length($data) . " bytes of dynamic data, ignoring input file.";
-  }
-  else
-  {
-    DEBUG "Reading file: $sfile";
-    open(INFILE, "<$sfile") or die "Failed to open file \"$sfile\": $!";
-    {
-      local $/;			# slurp the file
-      $data = <INFILE>;
-    }
-    close(INFILE);
-  }
-
-  $page->{SRC_TEXT} = $data;
+  $page->{SRC_TEXT} = $data if($data);
 
   unless($page->{SRC_TYPE} eq 'RAW')
   {
@@ -465,7 +535,7 @@ sub _site_tree
   my %dir_vars;
 
   my $dir_index = $uri_dir;
-  if($uri_dir =~ s/(\d*)-([^.]+)$/$2/) {
+  if($uri_dir =~ s/(\d+)-([^.]+)$/$2/) {
     $dir_index = $1;
     DEBUG "Directory index prefix found: $dir_index";
   }
@@ -532,7 +602,7 @@ sub _site_tree
   my @raw_copy = split(/[,;]\s*/, $dir_vars{RAW_COPY}) if($dir_vars{RAW_COPY});
 
   my @files;
-  opendir(my $dh, $src_dir) or die $!; ;
+  opendir(my $dh, $src_dir) || die("uups, failed to open directory: $src_dir");
   while(readdir($dh)) {
     if(/^\./) {
       TRACE "skipping dot-file: $src_dir/$_";
@@ -616,7 +686,7 @@ sub _site_tree
 
     # sort menu by filename as default
     my $index;
-    if ($name =~ s/^(\d*)-//) {
+    if ($name =~ s/^(\d+)-//) {
       $index = $1;
       DEBUG "File index prefix found: $index";
     }
@@ -657,8 +727,7 @@ sub _site_tree
 
     my $uri_unprefixed = set_uri(\%page);
     my $target_file = undef;
-    $target_file = $page{TARGET_DIR} . $uri_unprefixed if($page{TARGET_DIR});
-
+    $target_file = $page{OUTPUT_DIR} . $uri_unprefixed if($page{OUTPUT_DIR});
 
     my $target_mtime_epoch = undef;
     if($page{TARGET_MTIME}) {
@@ -682,6 +751,21 @@ sub _site_tree
              SRC_FILE_MTIME => $stat[9],
              SRC_FILE_CTIME => $stat[10],
             );
+
+
+    # gallery vars
+#    if($page->{GALLERY})
+    {
+      my $thumb_name = $page{NAME} . '_thumb.jpg';
+      my $scaled_name = $page{NAME} . '_scaled.jpg';
+      my (undef, $target_dirname, undef) = splitpath($page{TARGET_FILE});
+      my (undef, $uri_dirname, undef) = splitpath($page{URI});
+
+      $page{GALLERY_THUMB_TARGET_FILE} = $target_dirname . $thumb_name;
+      $page{GALLERY_THUMB_URI} = $uri_dirname . $thumb_name;
+      $page{GALLERY_SCALED_TARGET_FILE} = $target_dirname . $scaled_name;
+      $page{GALLERY_SCALED_URI} = $uri_dirname . $scaled_name;
+    }
 
     push @pagetree, \%page;
 
@@ -910,17 +994,19 @@ sub create
   INFO "Creating output files:"; INDENT 1;
   foreach my $page (values %{$root->{PAGEHASH}}) {
     next if(@uri_filter && !grep(/^$page->{URI}$/, @uri_filter));
-    my $html = $self->process_page($page);
     my $dfile = $page->{TARGET_FILE};
-    die "unknown destination file (maybe you forgot to set \"TARGET_DIR\" in \"$tree_vars_filename\"?)" unless($dfile);
+    die "unknown destination file (maybe you forgot to set \"OUTPUT_DIR\" in \"$tree_vars_filename\"?)" unless($dfile);
 
     # create directory
-    my (undef, $dir, undef) = splitpath($page->{TARGET_FILE});
+    my (undef, $dir, undef) = splitpath($dfile);
     unless (grep(/^$dir$/, @dir_created)) {
       DEBUG "Creating directory: $dir";
       mkpath($dir);
       push(@dir_created, $dir);
     }
+
+    # process page
+    my $html = $self->process_page($page);
 
     # write page to file
     DEBUG "Writing file: $dfile";
