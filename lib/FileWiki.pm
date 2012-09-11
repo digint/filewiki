@@ -1,96 +1,3 @@
-package FileWiki;
-
-use strict;
-use warnings;
-
-use FileWiki::Logger;
-
-use Date::Format qw(time2str);
-use Time::Piece;
-use File::Path qw(mkpath);
-use File::Spec::Functions qw(splitpath);
-
-use Template;
-
-our $VERSION = "0.20-pre1";
-
-# Defaults
-our $dir_vars_filename = 'dir.vars';
-our $tree_vars_filename = 'tree.vars';
-our $default_target_type = 'html';
-our $default_time_format = '%C';
-
-#
-# Source type definition:
-#
-#  - match: regular expression (defaults to the hash key as file ending)
-#  - filter: arrayref of chained filter functions
-#  - target_type: target file extension (defaults to 'html')
-#  - nested_vars: if true, parse the <filewiki_vars> section in the document
-#
-our %doctype = (
-  markdown => { match  => '\.(markdown|txt)$',
-                filter => [
-                           \&read_source,
-                           \&sanitize_newlines,
-                           \&strip_nested_vars,
-                           \&strip_xml_comments,
-                           \&transform_markdown,
-                           \&apply_template,
-                          ],
-                nested_vars => 1,
-              },
-  textile  => { match  => '\.(textile)$',
-                filter => [
-                           \&read_source,
-                           \&sanitize_newlines,
-                           \&strip_nested_vars,
-                           \&strip_xml_comments,
-                           \&transform_textile,
-                           \&apply_template,
-                          ],
-                 nested_vars => 1,
-               },
-  template =>  { match  => '\.(tt)$',
-                 filter => [
-                            \&read_source,
-                            \&sanitize_newlines,
-                            \&strip_nested_vars,
-                            \&transform_template,
-                            \&apply_template,
-                           ],
-                 nested_vars => 1,
-               },
-  pod      =>  { match  => '\.(pod|pm|pl)$',
-                 filter => [
-                            \&read_source,
-                            \&sanitize_newlines,
-                            \&transform_pod,
-                            \&apply_template,
-                           ],
-                 nested_vars => 1,
-               },
-  html      => { filter => [
-                            \&read_source,
-                            \&sanitize_newlines,
-                            \&apply_template,
-                           ],
-               },
-  gallery   =>  { match  => '\.(jpg|JPG|jpeg|JPEG)$',
-                  filter => [
-                             \&gallery_create_thumb,
-                             \&gallery_create_minithumb,
-                             \&gallery_create_scaled,
-                             \&apply_template,
-                           ],
-               },
-  gallery_dir =>  {
-                  filter => [
-                             \&apply_template,
-                           ],
-               },
- );
-
 =head1 NAME
 
 FileWiki - File based web site generator
@@ -142,6 +49,87 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
 
+
+package FileWiki;
+
+use strict;
+use warnings;
+
+use FileWiki::Logger;
+
+use Date::Format qw(time2str);
+use Time::Piece;
+use File::Path qw(mkpath);
+use File::Spec::Functions qw(splitpath);
+
+use Template;
+
+our $VERSION = "0.20-pre1";
+
+# Defaults
+our $dir_vars_filename = 'dir.vars';
+our $tree_vars_filename = 'tree.vars';
+our $default_time_format = '%C';
+
+#
+# Source type definition:
+#
+#  - match: regular expression (defaults to the hash key as file ending)
+#  - filter: arrayref of chained filter functions
+#  - target_type: target file extension (defaults to 'html')
+#  - nested_vars: if true, parse the <filewiki_vars> section in the document
+#
+# our %doctype = (
+#   markdown => { match  => '\.(markdown|txt)$',
+#                 filter => [
+#                            \&read_source,
+#                            \&sanitize_newlines,
+#                            \&strip_nested_vars,
+#                            \&strip_xml_comments,
+#                            \&transform_markdown,
+#                            \&apply_template,
+#                           ],
+#                 nested_vars => 1,
+#               },
+#   textile  => { match  => '\.(textile)$',
+#                 filter => [
+#                            \&read_source,
+#                            \&sanitize_newlines,
+#                            \&strip_nested_vars,
+#                            \&strip_xml_comments,
+#                            \&transform_textile,
+#                            \&apply_template,
+#                           ],
+#                  nested_vars => 1,
+#                },
+#   template =>  { match  => '\.(tt)$',
+#                  filter => [
+#                             \&read_source,
+#                             \&sanitize_newlines,
+#                             \&strip_nested_vars,
+#                             \&transform_template,
+#                             \&apply_template,
+#                            ],
+#                  nested_vars => 1,
+#                },
+#   pod      =>  { match  => '\.(pod|pm|pl)$',
+#                  filter => [
+#                             \&read_source,
+#                             \&sanitize_newlines,
+#                             \&transform_pod,
+#                             \&apply_template,
+#                            ],
+#                  nested_vars => 1,
+#                },
+#   html      => { filter => [
+#                             \&read_source,
+#                             \&sanitize_newlines,
+#                             \&apply_template,
+#                            ],
+#                },
+#  );
+
+
 sub new
 {
   my ($class, %vars) = @_;
@@ -170,7 +158,7 @@ sub new
 sub eval_module
 {
   my $module = shift;
-  my $msg = shift;
+  my $msg = shift || "";
   unless(eval "require $module;") {
     ERROR "Perl module \"$module\" not found! $msg";
     DEBUG "$@";
@@ -266,244 +254,19 @@ sub read_vars
 }
 
 
-sub read_source
-{
-  my $self = shift;
-  my $in = shift;
-  my $page = shift;
-
-  if($page->{SRC_TEXT})
-  {
-    DEBUG "Got " . length($page->{SRC_TEXT}) . " bytes of dynamic data, ignoring input file.";
-    return $page->{SRC_TEXT};
-  }
-  else
-  {
-    my $data;
-    my $sfile = $page->{SRC_FILE};
-    DEBUG "Reading file: $sfile";
-    open(INFILE, "<$sfile") or die "Failed to open file \"$sfile\": $!";
-    {
-      local $/;			# slurp the file
-      $data = <INFILE>;
-    }
-    close(INFILE);
-
-    WARN "Overwriting " . length($in) . " bytes of data with page source" if($in);
-
-    return $data;
-  }
-}
-
-
-sub strip_nested_vars
-{
-  my $self = shift;
-  my $in = shift;
-  my $page = shift;
-  return $in unless(exists($doctype{$page->{SRC_TYPE}}) && 
-                    $doctype{$page->{SRC_TYPE}}->{nested_vars});
-  DEBUG "Stripping page nested vars";
-
-  $in =~ s/^.?[<\[]filewiki_vars[>\]].*?^.?[<\[]\/filewiki_vars[>\]]//ms;
-
-  return $in;
-}
-
-
-sub strip_xml_comments
-{
-  my $self = shift;
-  my $in = shift;
-  my $page = shift;
-  DEBUG "Stripping xml-style comments";
-
-  $in =~ s/<!----.*?---->//sg;
-
-  return $in;
-}
-
-
-sub sanitize_newlines
-{
-  my $self = shift;
-  my $in = shift;
-  DEBUG "Sanitizing newlines";
-  $in =~ s/\r\n/\n/g;
-  return $in;
-}
-
-
-sub transform_markdown
-{
-  my $self = shift;
-  my $in = shift;
-  my $r = $self->refs();
-  my %refs = %$r; # make a copy, markdown modifies these
-
-  DEBUG "Converting Markdown";
-
-  return $in unless(eval_module('Text::Markdown', 'Skipping Markdown conversion.'));
-  return Text::Markdown::markdown($in, { urls => \%refs });
-}
-
-sub transform_textile
-{
-  my $self = shift;
-  my $in = shift;
-  DEBUG "Converting Textile";
-
-  return $in unless(eval_module('Text::Textile', 'Skipping Textile conversion.'));
-  return $in unless(eval_module('FileWiki::TextileWrapper', 'Skipping Textile conversion.'));
-
-  my $refs = $self->refs();
-  my $ti = Text::Textile::DefaultLinks->new();
-  # set the link references for Textile
-  $ti->{default_links}{$_} = { url => $refs->{$_}, title => undef } foreach (keys %$refs);
-  return $ti->process($in);
-}
-
-sub transform_pod
-{
-  my $self = shift;
-  my $in = shift;
-  DEBUG "Converting POD";
-
-  return $in unless(eval_module('Pod::Simple::HTML', 'Skipping POD conversion.'));
-
-  my $out = '';
-  my $parser = Pod::Simple::HTML->new();
-
-  $parser->output_string(\$out);
-  $parser->parse_string_document($in);
-
-  $out =~ s/.*\<\!-- start doc --\>//ms;
-  $out =~ s/\<\!-- end doc --\>.*//ms;
-  return $out;
-}
-
-sub transform_template
-{
-  my $self = shift;
-  my $in = shift;
-  my $page = shift;
-
-  DEBUG "Converting template"; INDENT 1;
-  my $out = _apply_template(\$in, $page);
-  INDENT -1;
-  return $out;
-}
-
-sub gallery_resize_image
-{
-  my $infile = shift;
-  my $outfile = shift;
-  my $geometry = shift;
-
-  die unless($infile && $outfile && $geometry);
-
-  if(-e $outfile) {
-    INFO "Skipping image resize: $outfile";
-  }
-  else {
-    INFO "Generating image resize: $outfile";
-    my $cmd = "convert -scale $geometry \"$infile\" \"$outfile\"";
-    `$cmd`;
-  }
-}
-
-sub gallery_create_thumb
-{
-  my $self = shift;
-  my $in = shift;
-  my $page = shift;
-  gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_THUMB_TARGET_FILE}, $page->{GALLERY_THUMB_SIZE});
-  return $in;
-}
-
-sub gallery_create_minithumb
-{
-  my $self = shift;
-  my $in = shift;
-  my $page = shift;
-  gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_MINITHUMB_TARGET_FILE}, $page->{GALLERY_MINITHUMB_SIZE});
-  return $in;
-}
-
-sub gallery_create_scaled
-{
-  my $self = shift;
-  my $in = shift;
-  my $page = shift;
-  gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_SCALED_TARGET_FILE}, $page->{GALLERY_SCALED_SIZE});
-  return $in;
-}
-
-sub apply_template
-{
-  my $self = shift;
-  my $in = shift;
-  my $page = shift;
-
-  unless($page->{TEMPLATE}) {
-    ERROR "'TEMPLATE' variable not specified: $page->{SRC_FILE}";
-    return $in;
-  }
-
-  $page->{TEMPLATE_INPUT} = $in;
-  my $template = $page->{IS_DIR} ? $page->{DIR_PAGE_TEMPLATE} : $page->{TEMPLATE};
-  DEBUG "Processing template: $template"; INDENT 1;
-  my $out = _apply_template($template, $page);
-
-  INDENT -1;
-  return $out;
-}
-
-sub _apply_template
-{
-  my $process_in = shift;
-  my $page = shift;
-
-  my %tt_opt;
-  foreach my $key (keys %$page) {
-    next unless $key =~ /^TT_/;
-    my $val = $page->{$key};
-    $key =~ s/^TT_//;
-    $tt_opt{$key} = $val;
-    TRACE "TemplateToolkit option: $key=$val";
-  }
-
-  my $tt = Template->new(\%tt_opt);
-
-  my $out = "";
-  $tt->process($process_in, $page, \$out) or ERROR("Template Error: " . $tt->error());
-  return $out;
-}
-
 sub process_page
 {
   my $self = shift;
   my $page = shift;
   my $data = shift || "";
 
-  return unless($page->{SRC_FILE});
-
   INFO "Processing page: $page->{URI}"; INDENT 1;
 
   $page->{SRC_TEXT} = $data if($data);
 
-  unless($page->{SRC_TYPE} eq 'RAW')
-  {
-    # process the filter chain
-    DEBUG "Processing filter chain \"$page->{SRC_TYPE}\""; INDENT 1;
-    foreach my $filter_function (@{$doctype{$page->{SRC_TYPE}}->{filter}})
-    {
-      TRACE "Data length=" . length($data);
-      $data = &$filter_function($self, $data, $page);
-    }
-    TRACE "Data length=" . length($data);
-    INDENT -1;
-  }
+#  unless($page->{SRC_TYPE} eq 'RAW')  # TODO
+
+  $data = $page->{DOCTYPE_HANDLER}->process_page($self, $page);
 
   INDENT -1;
   return $data;
@@ -521,14 +284,42 @@ sub set_uri
 
   my $uri = $page->{URI_DIR} . '/';
   unless($page->{IS_DIR}) {
-    my $name = $page->{NAME}               || die("No NAME specified");
-    my $target_type = $page->{TARGET_TYPE} || die("No TARGET_TYPE specified");
-    $uri .= $name . '.' . $target_type;
+    $uri .= $page->{DOCTYPE_HANDLER}->get_uri_filename($page);
+
+
+#    my $name = $page->{NAME}               || die("No NAME specified");
+#    my $target_type = $page->{TARGET_TYPE} || die("No TARGET_TYPE specified");
+#    $uri .= $name . '.' . $target_type;
   }
   $uri = lc($uri) if($page->{URI_TRANSFORM_LC});
 
   $page->{URI} = $page->{URI_PREFIX} . $uri;
   return $uri;
+}
+
+sub get_doctype_handler
+{
+  my $plugins = shift;
+  my $file = shift;
+  my $type = shift;
+  my $handler;
+
+  foreach (split(/[,;]\s*/, $plugins)) {
+    my $plugin = "FileWiki::Plugin::$_";
+
+    unless(eval "require $plugin;") {
+      ERROR "FileWiki plugin \"$plugin\" not found!";
+      DEBUG "$@";
+      return undef;;
+    }
+
+    $handler = $plugin->new($file, $type);
+    if($handler) {
+      TRACE "Plugin '$plugin' matched: $file";
+      last;
+    }
+  }
+  return $handler;
 }
 
 
@@ -592,14 +383,17 @@ sub _site_tree
                 IS_DIR   => 1,
                );
 
+  # set the handler and vars needed for a directory index page
+  if($dir_vars{DIR_PAGE}) {
+    my $dir_doctype_handler = get_doctype_handler($dir_vars{PLUGINS}, $src_dir, "dir");
+    $dir_vars{DOCTYPE_HANDLER} = $dir_doctype_handler;
+    $dir_vars{TARGET_FILE} = "$dir_vars{OUTPUT_DIR}$dir_vars{URI_DIR}/$dir_vars{DIR_PAGE}";
+  }
+
   # override $uri_dir with dir_vars{URI_DIR} if set (propagates to subdirs!)
   $uri_dir = set_uri(\%dir_vars);
 
-  # set the vars needed for a directory index page if requested
-  if($dir_vars{DIR_PAGE}) {
-    $dir_vars{TARGET_FILE} = "$dir_vars{OUTPUT_DIR}/$dir_vars{URI_DIR}/$dir_vars{DIR_PAGE}";
-    $dir_vars{SRC_TYPE} = $dir_vars{DIR_SRC_TYPE};
-  }
+
 
   TRACE "Dir vars:" ; INDENT 1;
   TRACE dump_vars(\%dir_vars);
@@ -664,36 +458,39 @@ sub _site_tree
     my $name = $file_name;
     $file_ext = $1 if($name =~ s/\.([^.]+)$//);  # remove file extension
 
-    my $src_type = '';
-    my $target_type;
+#    my $src_type = '';
+#    my $target_type;
+    my $doctype_handler = get_doctype_handler($dir_vars{PLUGINS}, $file_name, "file");
 
-    if(grep(/^$file_ext$/, @raw_copy))
-    {
-      TRACE "Matched type=$file_ext in dir_vars{RAW_COPY}: $file";
-      $src_type = 'RAW';
-      $target_type = $file_ext;
-    }
-    else
-    {
-      foreach my $key (keys %doctype) {
-        my $match = $doctype{$key}->{match} || '\.' . $key . '$';
-        $src_type = $key if($file_name =~ m/$match/);
-        if($src_type)
-        {
-          $target_type = $doctype{$key}->{target_type} || $default_target_type;
-          TRACE "Matched '$match' for doctype{$key}: $file";
-          last;
-        }
-      }
-    }
+# TODO
+#    if(grep(/^$file_ext$/, @raw_copy))
+#    {
+#      TRACE "Matched type=$file_ext in dir_vars{RAW_COPY}: $file";
+#      $src_type = 'RAW';
+#      $target_type = $file_ext;
+#    }
+#    else
 
-    unless($src_type && $target_type)
+      # foreach my $key (keys %doctype) {
+      #   my $match = $doctype{$key}->{match} || '\.' . $key . '$';
+      #   $src_type = $key if($file_name =~ m/$match/);
+      #   if($src_type)
+      #   {
+      #     $target_type = $doctype{$key}->{target_type} || $default_target_type;
+      #     TRACE "Matched '$match' for doctype{$key}: $file";
+      #     last;
+      #   }
+      # }
+#    }
+
+
+    unless($doctype_handler)
     {
       TRACE "No match, ignoring file: $file";
       next;
     }
 
-    DEBUG "Source File \[$src_type\]: $file"; INDENT 1;
+    DEBUG "Source File \[$doctype_handler->{name}\]: $file"; INDENT 1;
 
     # get file stats
     my @stat = stat $file;
@@ -711,8 +508,8 @@ sub _site_tree
     my $build_date = time2str($time_format, $tree_vars{BUILD_TIME});
 
     # page vars default to tree_vars
-    my %page = ( NAME        => $name,
-                 TARGET_TYPE => $target_type,
+    my %page = ( DOCTYPE_HANDLER => $doctype_handler,
+                 NAME        => $name,
                  URI_DIR     => $uri_dir,
                  MTIME       => $mtime,
                  BUILD_DATE  => $build_date,
@@ -726,7 +523,7 @@ sub _site_tree
                       vars => \%page) if($vars_overlay);
 
     # page nested vars file supersede the page vars
-    if(exists($doctype{$src_type}) && $doctype{$src_type}->{nested_vars})
+    if($doctype_handler->{nested_vars})
     {
       %page = read_vars(file => $file,
                         vars => \%page,
@@ -752,7 +549,6 @@ sub _site_tree
     %page = (INDEX       => $index || $uri_unprefixed,  # default index
              %page,
              SRC_FILE    => $file,
-             SRC_TYPE    => $src_type,
              TARGET_FILE => $target_file,
              TARGET_MTIME_EPOCH => $target_mtime_epoch,
              LEVEL       => $level,
@@ -767,28 +563,9 @@ sub _site_tree
              SRC_FILE_CTIME => $stat[10],
             );
 
-
-    # gallery vars
-#    if($page->{GALLERY})
-    {
-      my $thumb_name = $page{NAME} . '_thumb.jpg';
-      my $minithumb_name = $page{NAME} . '_minithumb.jpg';
-      my $scaled_name = $page{NAME} . '_scaled.jpg';
-      my (undef, $target_dirname, undef) = splitpath($page{TARGET_FILE});
-      my (undef, $uri_dirname, undef) = splitpath($page{URI});
-
-      $page{GALLERY_THUMB_TARGET_FILE} = $target_dirname . $thumb_name;
-      $page{GALLERY_THUMB_URI} = $uri_dirname . $thumb_name;
-      $page{GALLERY_MINITHUMB_TARGET_FILE} = $target_dirname . $minithumb_name;
-      $page{GALLERY_MINITHUMB_URI} = $uri_dirname . $minithumb_name;
-      $page{GALLERY_SCALED_TARGET_FILE} = $target_dirname . $scaled_name;
-      $page{GALLERY_SCALED_URI} = $uri_dirname . $scaled_name;
-
-      my $gallery_src_file = $file;
-      $gallery_src_file =~ s/^$page{BASEDIR}/$page{GALLERY_ORIGINAL_URI_PREFIX}/;
-      $page{GALLERY_SRC_FILE} = $gallery_src_file;
-
-
+    foreach (split(',', $page{PLUGINS})) {
+      my $plugin = "FileWiki::Plugin::$_";
+      $plugin->set_page_vars(\%page);
     }
 
     push @pagetree, \%page;
@@ -1028,11 +805,8 @@ sub create
       sub {
         my $page = shift;
         return "" if(@uri_filter && !grep(/^$page->{URI}$/, @uri_filter));
+        return "" if($page->{IS_DIR} && (not $page->{DIR_PAGE}));
         my $dfile = $page->{TARGET_FILE};
-
-        use Data::Dumper;
-        ERROR dump_vars($page) unless($dfile);
-
         die "unknown destination file (maybe you forgot to set \"OUTPUT_DIR\" in \"$tree_vars_filename\"?)" unless($dfile);
 
         # create directory
