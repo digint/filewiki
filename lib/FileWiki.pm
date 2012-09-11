@@ -12,7 +12,7 @@ use File::Spec::Functions qw(splitpath);
 
 use Template;
 
-our $VERSION = "0.10";
+our $VERSION = "0.20-pre1";
 
 # Defaults
 our $dir_vars_filename = 'dir.vars';
@@ -79,7 +79,13 @@ our %doctype = (
   gallery   =>  { match  => '\.(jpg|JPG|jpeg|JPEG)$',
                   filter => [
                              \&gallery_create_thumb,
+                             \&gallery_create_minithumb,
                              \&gallery_create_scaled,
+                             \&apply_template,
+                           ],
+               },
+  gallery_dir =>  {
+                  filter => [
                              \&apply_template,
                            ],
                },
@@ -388,26 +394,39 @@ sub transform_template
   return $out;
 }
 
+sub gallery_resize_image
+{
+  my $infile = shift;
+  my $outfile = shift;
+  my $geometry = shift;
+
+  die unless($infile && $outfile && $geometry);
+
+  if(-e $outfile) {
+    INFO "Skipping image resize: $outfile";
+  }
+  else {
+    INFO "Generating image resize: $outfile";
+    my $cmd = "convert -scale $geometry \"$infile\" \"$outfile\"";
+    `$cmd`;
+  }
+}
 
 sub gallery_create_thumb
 {
   my $self = shift;
   my $in = shift;
   my $page = shift;
+  gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_THUMB_TARGET_FILE}, $page->{GALLERY_THUMB_SIZE});
+  return $in;
+}
 
-  my $thumb_file = $page->{GALLERY_THUMB_TARGET_FILE};
-  die unless($thumb_file);
-
-  my $cmd = 'convert -scale 256x256 "' . $page->{SRC_FILE} . '" "' . $thumb_file . '"';
-
-  if(-e $thumb_file) {
-    INFO "Skipping thumbnail generation: $thumb_file";
-  }
-  else {
-    INFO "Generating thumbnail: $thumb_file";
-    `$cmd`;
-  }
-
+sub gallery_create_minithumb
+{
+  my $self = shift;
+  my $in = shift;
+  my $page = shift;
+  gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_MINITHUMB_TARGET_FILE}, $page->{GALLERY_MINITHUMB_SIZE});
   return $in;
 }
 
@@ -416,20 +435,7 @@ sub gallery_create_scaled
   my $self = shift;
   my $in = shift;
   my $page = shift;
-
-  my $scaled_file = $page->{GALLERY_SCALED_TARGET_FILE};
-  die unless($scaled_file);
-
-  my $cmd = 'convert -scale 1280x720 "' . $page->{SRC_FILE} . '" "' . $scaled_file . '"';
-
-  if(-e $scaled_file) {
-    INFO "Skipping scaled image generation: $scaled_file";
-  }
-  else {
-    INFO "Generating scaled image: $scaled_file";
-    `$cmd`;
-  }
-
+  gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_SCALED_TARGET_FILE}, $page->{GALLERY_SCALED_SIZE});
   return $in;
 }
 
@@ -444,9 +450,11 @@ sub apply_template
     return $in;
   }
 
-  DEBUG "Processing template: $page->{TEMPLATE}"; INDENT 1;
   $page->{TEMPLATE_INPUT} = $in;
-  my $out = _apply_template($page->{TEMPLATE}, $page);
+  my $template = $page->{IS_DIR} ? $page->{DIR_PAGE_TEMPLATE} : $page->{TEMPLATE};
+  DEBUG "Processing template: $template"; INDENT 1;
+  my $out = _apply_template($template, $page);
+
   INDENT -1;
   return $out;
 }
@@ -477,7 +485,6 @@ sub process_page
   my $self = shift;
   my $page = shift;
   my $data = shift || "";
-  my $root = $self->site_tree();
 
   return unless($page->{SRC_FILE});
 
@@ -487,8 +494,8 @@ sub process_page
 
   unless($page->{SRC_TYPE} eq 'RAW')
   {
-    DEBUG "Processing filter chain \"$page->{SRC_TYPE}\""; INDENT 1;
     # process the filter chain
+    DEBUG "Processing filter chain \"$page->{SRC_TYPE}\""; INDENT 1;
     foreach my $filter_function (@{$doctype{$page->{SRC_TYPE}}->{filter}})
     {
       TRACE "Data length=" . length($data);
@@ -587,6 +594,13 @@ sub _site_tree
 
   # override $uri_dir with dir_vars{URI_DIR} if set (propagates to subdirs!)
   $uri_dir = set_uri(\%dir_vars);
+
+  # set the vars needed for a directory index page if requested
+  if($dir_vars{DIR_PAGE}) {
+    $dir_vars{TARGET_FILE} = "$dir_vars{OUTPUT_DIR}/$dir_vars{URI_DIR}/$dir_vars{DIR_PAGE}";
+    $dir_vars{SRC_TYPE} = $dir_vars{DIR_SRC_TYPE};
+  }
+
   TRACE "Dir vars:" ; INDENT 1;
   TRACE dump_vars(\%dir_vars);
   INDENT -1;
@@ -744,6 +758,7 @@ sub _site_tree
              LEVEL       => $level,
              IS_DIR      => 0,
 
+             SRC_FILE_NAME  => $file_name,
              SRC_FILE_UID   => $stat[4],
              SRC_FILE_GID   => $stat[5],
              SRC_FILE_SIZE  => $stat[7],
@@ -757,14 +772,23 @@ sub _site_tree
 #    if($page->{GALLERY})
     {
       my $thumb_name = $page{NAME} . '_thumb.jpg';
+      my $minithumb_name = $page{NAME} . '_minithumb.jpg';
       my $scaled_name = $page{NAME} . '_scaled.jpg';
       my (undef, $target_dirname, undef) = splitpath($page{TARGET_FILE});
       my (undef, $uri_dirname, undef) = splitpath($page{URI});
 
       $page{GALLERY_THUMB_TARGET_FILE} = $target_dirname . $thumb_name;
       $page{GALLERY_THUMB_URI} = $uri_dirname . $thumb_name;
+      $page{GALLERY_MINITHUMB_TARGET_FILE} = $target_dirname . $minithumb_name;
+      $page{GALLERY_MINITHUMB_URI} = $uri_dirname . $minithumb_name;
       $page{GALLERY_SCALED_TARGET_FILE} = $target_dirname . $scaled_name;
       $page{GALLERY_SCALED_URI} = $uri_dirname . $scaled_name;
+
+      my $gallery_src_file = $file;
+      $gallery_src_file =~ s/^$page{BASEDIR}/$page{GALLERY_ORIGINAL_URI_PREFIX}/;
+      $page{GALLERY_SRC_FILE} = $gallery_src_file;
+
+
     }
 
     push @pagetree, \%page;
@@ -806,13 +830,18 @@ sub _site_tree
   # set default index page to first page (used by the menu)
   unless(defined($dir_vars{INDEX_PAGE}))
   {
-    foreach my $p (@pagetree) {
-      next if($p->{IS_DIR});
-      $dir_vars{INDEX_PAGE} = $p->{URI};
-      DEBUG "Setting INDEX_PAGE=$p->{URI} for directory: $dir_vars{URI}";
-      last;
+    if($dir_vars{DIR_PAGE}) {
+      $dir_vars{INDEX_PAGE} = $dir_vars{URI} . $dir_vars{DIR_PAGE};
     }
-    WARN "No index page found for directory: $dir_vars{URI}" unless(defined($dir_vars{INDEX_PAGE}));
+    else {
+      foreach my $p (@pagetree) {
+        next if($p->{IS_DIR});
+        $dir_vars{INDEX_PAGE} = $p->{URI};
+        DEBUG "Setting INDEX_PAGE=$p->{URI} for directory: $dir_vars{URI}";
+        last;
+      }
+      WARN "No index page found for directory: $dir_vars{URI}" unless(defined($dir_vars{INDEX_PAGE}));
+    }
   }
 
   return \%dir_vars;
@@ -992,37 +1021,81 @@ sub create
   my @dir_created;
 
   INFO "Creating output files:"; INDENT 1;
-  foreach my $page (values %{$root->{PAGEHASH}}) {
-    next if(@uri_filter && !grep(/^$page->{URI}$/, @uri_filter));
-    my $dfile = $page->{TARGET_FILE};
-    die "unknown destination file (maybe you forgot to set \"OUTPUT_DIR\" in \"$tree_vars_filename\"?)" unless($dfile);
 
-    # create directory
-    my (undef, $dir, undef) = splitpath($dfile);
-    unless (grep(/^$dir$/, @dir_created)) {
-      DEBUG "Creating directory: $dir";
-      mkpath($dir);
-      push(@dir_created, $dir);
-    }
+  return traverse(
+    { ROOT => $root,
+      CALLBACK =>
+      sub {
+        my $page = shift;
+        return "" if(@uri_filter && !grep(/^$page->{URI}$/, @uri_filter));
+        my $dfile = $page->{TARGET_FILE};
 
-    # process page
-    my $html = $self->process_page($page);
+        use Data::Dumper;
+        ERROR dump_vars($page) unless($dfile);
 
-    # write page to file
-    DEBUG "Writing file: $dfile";
-    if(open(OUTFILE, ">$dfile")) {
-      print OUTFILE $html;
-      close(OUTFILE);
+        die "unknown destination file (maybe you forgot to set \"OUTPUT_DIR\" in \"$tree_vars_filename\"?)" unless($dfile);
 
-      # update mtime if TARGET_MTIME is set
-      if($page->{TARGET_MTIME_EPOCH}) {
-        DEBUG "Setting file ATIME=MTIME='$page->{TARGET_MTIME}' ($page->{TARGET_MTIME_EPOCH})";
-        utime($page->{TARGET_MTIME_EPOCH}, $page->{TARGET_MTIME_EPOCH}, $dfile);
-      }
-    } else {
-      ERROR "Failed to write file \"$dfile\": $!";
-    }
-  }
+        # create directory
+        my (undef, $dir, undef) = splitpath($dfile);
+        unless (grep(/^$dir$/, @dir_created)) {
+          DEBUG "Creating directory: $dir";
+          mkpath($dir);
+          push(@dir_created, $dir);
+        }
+
+        # process page
+        my $html = $self->process_page($page);
+
+        # write page to file
+        DEBUG "Writing file: $dfile";
+        if (open(OUTFILE, ">$dfile")) {
+          print OUTFILE $html;
+          close(OUTFILE);
+
+          # update mtime if TARGET_MTIME is set
+          if ($page->{TARGET_MTIME_EPOCH}) {
+            DEBUG "Setting file ATIME=MTIME='$page->{TARGET_MTIME}' ($page->{TARGET_MTIME_EPOCH})";
+            utime($page->{TARGET_MTIME_EPOCH}, $page->{TARGET_MTIME_EPOCH}, $dfile);
+          }
+        } else {
+          ERROR "Failed to write file \"$dfile\": $!";
+        }
+        return "";
+      },
+    } );
+
+
+  # foreach my $page (values %{$root->{PAGEHASH}}) {
+  #   next if(@uri_filter && !grep(/^$page->{URI}$/, @uri_filter));
+  #   my $dfile = $page->{TARGET_FILE};
+  #   die "unknown destination file (maybe you forgot to set \"OUTPUT_DIR\" in \"$tree_vars_filename\"?)" unless($dfile);
+
+  #   # create directory
+  #   my (undef, $dir, undef) = splitpath($dfile);
+  #   unless (grep(/^$dir$/, @dir_created)) {
+  #     DEBUG "Creating directory: $dir";
+  #     mkpath($dir);
+  #     push(@dir_created, $dir);
+  #   }
+
+  #   # process page
+  #   my $html = $self->process_page($page);
+
+  #   # write page to file
+  #   DEBUG "Writing file: $dfile";
+  #   if(open(OUTFILE, ">$dfile")) {
+  #     print OUTFILE $html;
+  #     close(OUTFILE);
+
+  #     # update mtime if TARGET_MTIME is set
+  #     if($page->{TARGET_MTIME_EPOCH}) {
+  #       DEBUG "Setting file ATIME=MTIME='$page->{TARGET_MTIME}' ($page->{TARGET_MTIME_EPOCH})";
+  #       utime($page->{TARGET_MTIME_EPOCH}, $page->{TARGET_MTIME_EPOCH}, $dfile);
+  #     }
+  #   } else {
+  #     ERROR "Failed to write file \"$dfile\": $!";
+  #   }
+  # }
 
   INDENT -1;
   return 1;
