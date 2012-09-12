@@ -34,6 +34,8 @@ use warnings;
 use FileWiki::Logger;
 
 
+our $VERSION = "0.20";
+
 sub process_page
 {
   my $self = shift;
@@ -59,15 +61,15 @@ sub get_uri_filename
 {
   my $self = shift;
   my $page = shift;
-  my $name = $page->{NAME}               || die("No NAME specified");
-  my $target_type = $self->{target_type} || die("No target_type specified");
+  my $name = $page->{NAME} || die("No NAME specified");
+  my $target_file_ext = $self->{target_file_ext} || die("No target_file_ext specified: $self");
 
-  return $name . '.' . $target_type;
+  return $name . '.' . $target_file_ext;
 }
 
-sub set_page_vars
+sub update_vars
 {
-  TRACE "empty set_page_vars() called";
+  TRACE "empty update_vars() called";
 }
 
 1;

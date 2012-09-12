@@ -418,7 +418,7 @@ sub page_info
   $ret .= $page->{SRC_FILE};
   $ret .= "</td>";
   $ret .= "<td>";
-  $ret .= $page->{IS_DIR} ? "[DIR]" : "[$page->{DOCTYPE_HANDLER}->{name}]";
+  $ret .= $page->{IS_DIR} ? "[DIR]" : "[$page->{HANDLER}->{name}]";
   $ret .= "</td>";
   $ret .= "</tr>";
 

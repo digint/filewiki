@@ -114,7 +114,7 @@ sub apply_template
   }
 
   $page->{TEMPLATE_INPUT} = $in;
-  my $template = $page->{IS_DIR} ? $page->{DIR_PAGE_TEMPLATE} : $page->{TEMPLATE};
+  my $template = $page->{TEMPLATE};
   DEBUG "Processing template: $template"; INDENT 1;
   my $out = _apply_template($template, $page);
 

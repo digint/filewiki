@@ -36,19 +36,19 @@ use base qw( FileWiki::Plugin );
 use FileWiki::Logger;
 use FileWiki::Filter;
 
-our $VERSION = "0.10";
+our $VERSION = "0.20";
 
 
 sub new
 {
   my $class = shift;
-  my $file = shift;
-  my $type = shift;
+  my $page = shift;
 
-  return undef unless($type eq "dir");
+  return undef unless($page->{IS_DIR});
 
   my $self = {
     name => $class,
+    dirpage_name => 'index.html',
     filter => [
       \&FileWiki::Filter::apply_template,
      ],
@@ -56,6 +56,21 @@ sub new
 
   bless $self, ref($class) || $class;
   return $self;
+}
+
+
+sub update_vars
+{
+  my $self = shift;
+  my $page = shift;
+
+  $page->{TEMPLATE} = $page->{GALLERYINDEX_TEMPLATE} if($page->{GALLERYINDEX_TEMPLATE});
+}
+
+sub get_uri_filename
+{
+  my $self = shift;
+  return $self->{dirpage_name};
 }
 
 1;

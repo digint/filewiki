@@ -38,23 +38,18 @@ use FileWiki::Filter;
 
 use Text::Markdown;
 
-our $VERSION = "0.10";
-
-my $match_default = '\.(tt)$';
+our $VERSION = "0.20";
 
 sub new
 {
   my $class = shift;
-  my $file = shift;
-  my $type = shift;
-  my $match = shift || $match_default;
+  my $page = shift;
 
-  return undef unless($type eq "file");
-  return undef unless($file =~ m/$match/);
+  return undef if($page->{IS_DIR});
 
   my $self = {
     name => $class,
-    target_type => 'html',
+    target_file_ext => 'html',
     nested_vars => 1,
     filter => [
       \&FileWiki::Filter::read_source,

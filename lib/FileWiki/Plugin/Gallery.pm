@@ -39,23 +39,18 @@ use FileWiki::Filter;
 use File::Spec::Functions qw(splitpath);
 
 
-our $VERSION = "0.10";
-
-my $match_default = '\.(jpg|JPG|jpeg|JPEG)$';
+our $VERSION = "0.20";
 
 sub new
 {
   my $class = shift;
-  my $file = shift;
-  my $type = shift;
-  my $match = shift || $match_default;
+  my $page = shift;
 
-  return undef unless($type eq "file");
-  return undef unless($file =~ m/$match/);
+  return undef if($page->{IS_DIR});
 
   my $self = {
     name => $class,
-    target_type => 'html',
+    target_file_ext => 'html',
     filter => [
       \&gallery_create_thumb,
       \&gallery_create_minithumb,
@@ -68,6 +63,30 @@ sub new
   return $self;
 }
 
+sub update_vars
+{
+  my $self = shift;
+  my $page = shift;
+
+  my $thumb_name = $page->{NAME} . '_thumb.jpg';
+  my $minithumb_name = $page->{NAME} . '_minithumb.jpg';
+  my $scaled_name = $page->{NAME} . '_scaled.jpg';
+  my (undef, $target_dirname, undef) = splitpath($page->{TARGET_FILE});
+  my (undef, $uri_dirname, undef) = splitpath($page->{URI});
+
+  $page->{GALLERY_THUMB_TARGET_FILE}     = $target_dirname . $thumb_name;
+  $page->{GALLERY_THUMB_URI}             = $uri_dirname    . $thumb_name;
+  $page->{GALLERY_MINITHUMB_TARGET_FILE} = $target_dirname . $minithumb_name;
+  $page->{GALLERY_MINITHUMB_URI}         = $uri_dirname    . $minithumb_name;
+  $page->{GALLERY_SCALED_TARGET_FILE}    = $target_dirname . $scaled_name;
+  $page->{GALLERY_SCALED_URI}            = $uri_dirname    . $scaled_name;
+
+  my $gallery_src_file = $page->{SRC_FILE};
+  $gallery_src_file =~ s/^$page->{BASEDIR}/$page->{GALLERY_ORIGINAL_URI_PREFIX}/;
+  $page->{GALLERY_SRC_FILE} = $gallery_src_file;
+}
+
+
 sub gallery_resize_image
 {
   my $infile = shift;
@@ -77,7 +96,7 @@ sub gallery_resize_image
   die unless($infile && $outfile && $geometry);
 
   if(-e $outfile) {
-    INFO "Skipping image resize: $outfile";
+    DEBUG "Skipping image resize: $outfile";
   }
   else {
     INFO "Generating image resize: $outfile";
@@ -111,29 +130,6 @@ sub gallery_create_scaled
   my $page = shift;
   gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_SCALED_TARGET_FILE}, $page->{GALLERY_SCALED_SIZE});
   return $in;
-}
-
-sub set_page_vars
-{
-  my $self = shift;
-  my $page = shift;
-
-  my $thumb_name = $page->{NAME} . '_thumb.jpg';
-  my $minithumb_name = $page->{NAME} . '_minithumb.jpg';
-  my $scaled_name = $page->{NAME} . '_scaled.jpg';
-  my (undef, $target_dirname, undef) = splitpath($page->{TARGET_FILE});
-  my (undef, $uri_dirname, undef) = splitpath($page->{URI});
-
-  $page->{GALLERY_THUMB_TARGET_FILE} = $target_dirname . $thumb_name;
-  $page->{GALLERY_THUMB_URI} = $uri_dirname . $thumb_name;
-  $page->{GALLERY_MINITHUMB_TARGET_FILE} = $target_dirname . $minithumb_name;
-  $page->{GALLERY_MINITHUMB_URI} = $uri_dirname . $minithumb_name;
-  $page->{GALLERY_SCALED_TARGET_FILE} = $target_dirname . $scaled_name;
-  $page->{GALLERY_SCALED_URI} = $uri_dirname . $scaled_name;
-
-  my $gallery_src_file = $page->{SRC_FILE};
-  $gallery_src_file =~ s/^$page->{BASEDIR}/$page->{GALLERY_ORIGINAL_URI_PREFIX}/;
-  $page->{GALLERY_SRC_FILE} = $gallery_src_file;
 }
 
 1;

@@ -71,65 +71,6 @@ our $dir_vars_filename = 'dir.vars';
 our $tree_vars_filename = 'tree.vars';
 our $default_time_format = '%C';
 
-#
-# Source type definition:
-#
-#  - match: regular expression (defaults to the hash key as file ending)
-#  - filter: arrayref of chained filter functions
-#  - target_type: target file extension (defaults to 'html')
-#  - nested_vars: if true, parse the <filewiki_vars> section in the document
-#
-# our %doctype = (
-#   markdown => { match  => '\.(markdown|txt)$',
-#                 filter => [
-#                            \&read_source,
-#                            \&sanitize_newlines,
-#                            \&strip_nested_vars,
-#                            \&strip_xml_comments,
-#                            \&transform_markdown,
-#                            \&apply_template,
-#                           ],
-#                 nested_vars => 1,
-#               },
-#   textile  => { match  => '\.(textile)$',
-#                 filter => [
-#                            \&read_source,
-#                            \&sanitize_newlines,
-#                            \&strip_nested_vars,
-#                            \&strip_xml_comments,
-#                            \&transform_textile,
-#                            \&apply_template,
-#                           ],
-#                  nested_vars => 1,
-#                },
-#   template =>  { match  => '\.(tt)$',
-#                  filter => [
-#                             \&read_source,
-#                             \&sanitize_newlines,
-#                             \&strip_nested_vars,
-#                             \&transform_template,
-#                             \&apply_template,
-#                            ],
-#                  nested_vars => 1,
-#                },
-#   pod      =>  { match  => '\.(pod|pm|pl)$',
-#                  filter => [
-#                             \&read_source,
-#                             \&sanitize_newlines,
-#                             \&transform_pod,
-#                             \&apply_template,
-#                            ],
-#                  nested_vars => 1,
-#                },
-#   html      => { filter => [
-#                             \&read_source,
-#                             \&sanitize_newlines,
-#                             \&apply_template,
-#                            ],
-#                },
-#  );
-
-
 sub new
 {
   my ($class, %vars) = @_;
@@ -260,15 +201,17 @@ sub process_page
   my $page = shift;
   my $data = shift || "";
 
-  INFO "Processing page: $page->{URI}"; INDENT 1;
+  if($page->{HANDLER})
+  {
+    INFO "Processing page: $page->{URI}"; INDENT 1;
 
-  $page->{SRC_TEXT} = $data if($data);
+    $page->{SRC_TEXT} = $data if($data);
 
-#  unless($page->{SRC_TYPE} eq 'RAW')  # TODO
+    $data = $page->{HANDLER}->process_page($self, $page);
 
-  $data = $page->{DOCTYPE_HANDLER}->process_page($self, $page);
+    INDENT -1;
+  }
 
-  INDENT -1;
   return $data;
 }
 
@@ -279,43 +222,42 @@ sub set_uri
 
   # sanitize
   $page->{URI_DIR} =~ s/\/+$//;
+  $page->{URI_DIR} .= '/';
   $page->{URI_PREFIX} =~ s/\/+$//;
   $page->{URI_PREFIX} =~ s/^([^\/])/\/$1/;
 
-  my $uri = $page->{URI_DIR} . '/';
-  unless($page->{IS_DIR}) {
-    $uri .= $page->{DOCTYPE_HANDLER}->get_uri_filename($page);
-
-
-#    my $name = $page->{NAME}               || die("No NAME specified");
-#    my $target_type = $page->{TARGET_TYPE} || die("No TARGET_TYPE specified");
-#    $uri .= $name . '.' . $target_type;
-  }
+  my $uri = $page->{URI_DIR};
+  $uri .= $page->{HANDLER}->get_uri_filename($page) if($page->{HANDLER});
   $uri = lc($uri) if($page->{URI_TRANSFORM_LC});
 
   $page->{URI} = $page->{URI_PREFIX} . $uri;
   return $uri;
 }
 
-sub get_doctype_handler
+
+sub get_handler
 {
-  my $plugins = shift;
-  my $file = shift;
-  my $type = shift;
+  my $page = shift;
   my $handler;
 
-  foreach (split(/[,;]\s*/, $plugins)) {
-    my $plugin = "FileWiki::Plugin::$_";
+  foreach (keys(%{$page})) {
+    next unless(m/^PLUGIN_(.*)/);
+    my $plugin = "FileWiki::Plugin::$1";
+    my $match = $page->{$_};
 
+    TRACE "Checking plugin '$plugin': $match";
+    next unless($page->{SRC_FILE} =~ m/$match/);
+
+    TRACE "Loading plugin '$plugin'";
     unless(eval "require $plugin;") {
       ERROR "FileWiki plugin \"$plugin\" not found!";
       DEBUG "$@";
       return undef;;
     }
 
-    $handler = $plugin->new($file, $type);
+    $handler = $plugin->new($page);
     if($handler) {
-      TRACE "Plugin '$plugin' matched: $file";
+      TRACE "Using plugin: $handler->{name}";
       last;
     }
   }
@@ -331,6 +273,8 @@ sub _site_tree
   my %pagehash;
   my %dirhash;
   my %dir_vars;
+
+  DEBUG "Entering directory: $src_dir";
 
   my $dir_index = $uri_dir;
   if($uri_dir =~ s/(\d+)-([^.]+)$/$2/) {
@@ -379,20 +323,22 @@ sub _site_tree
                 TREE     => \@pagetree,
                 PAGEHASH => \%pagehash,
                 DIRHASH  => \%dirhash,
-                SRC_FILE => $src_dir,
+                SRC_FILE => $src_dir . '/',
                 IS_DIR   => 1,
                );
 
   # set the handler and vars needed for a directory index page
-  if($dir_vars{DIR_PAGE}) {
-    my $dir_doctype_handler = get_doctype_handler($dir_vars{PLUGINS}, $src_dir, "dir");
-    $dir_vars{DOCTYPE_HANDLER} = $dir_doctype_handler;
-    $dir_vars{TARGET_FILE} = "$dir_vars{OUTPUT_DIR}$dir_vars{URI_DIR}/$dir_vars{DIR_PAGE}";
+  my $dir_handler = get_handler(\%dir_vars);
+  $dir_vars{HANDLER} = $dir_handler if($dir_handler);
+  my $dir_uri_unprefixed = set_uri(\%dir_vars);
+  if($dir_handler) {
+    $dir_vars{TARGET_FILE} = "$dir_vars{OUTPUT_DIR}$dir_uri_unprefixed" if($dir_vars{OUTPUT_DIR});
+    $dir_vars{INDEX_PAGE} = $dir_vars{URI};
+    $dir_handler->update_vars(\%dir_vars);
   }
 
   # override $uri_dir with dir_vars{URI_DIR} if set (propagates to subdirs!)
-  $uri_dir = set_uri(\%dir_vars);
-
+  $uri_dir = $dir_vars{URI_DIR};
 
 
   TRACE "Dir vars:" ; INDENT 1;
@@ -454,43 +400,11 @@ sub _site_tree
       next;
     }
 
+    DEBUG "Source File: $file"; INDENT 1;
+
     my $file_ext = '';
     my $name = $file_name;
     $file_ext = $1 if($name =~ s/\.([^.]+)$//);  # remove file extension
-
-#    my $src_type = '';
-#    my $target_type;
-    my $doctype_handler = get_doctype_handler($dir_vars{PLUGINS}, $file_name, "file");
-
-# TODO
-#    if(grep(/^$file_ext$/, @raw_copy))
-#    {
-#      TRACE "Matched type=$file_ext in dir_vars{RAW_COPY}: $file";
-#      $src_type = 'RAW';
-#      $target_type = $file_ext;
-#    }
-#    else
-
-      # foreach my $key (keys %doctype) {
-      #   my $match = $doctype{$key}->{match} || '\.' . $key . '$';
-      #   $src_type = $key if($file_name =~ m/$match/);
-      #   if($src_type)
-      #   {
-      #     $target_type = $doctype{$key}->{target_type} || $default_target_type;
-      #     TRACE "Matched '$match' for doctype{$key}: $file";
-      #     last;
-      #   }
-      # }
-#    }
-
-
-    unless($doctype_handler)
-    {
-      TRACE "No match, ignoring file: $file";
-      next;
-    }
-
-    DEBUG "Source File \[$doctype_handler->{name}\]: $file"; INDENT 1;
 
     # get file stats
     my @stat = stat $file;
@@ -508,8 +422,7 @@ sub _site_tree
     my $build_date = time2str($time_format, $tree_vars{BUILD_TIME});
 
     # page vars default to tree_vars
-    my %page = ( DOCTYPE_HANDLER => $doctype_handler,
-                 NAME        => $name,
+    my %page = ( NAME        => $name,
                  URI_DIR     => $uri_dir,
                  MTIME       => $mtime,
                  BUILD_DATE  => $build_date,
@@ -522,8 +435,18 @@ sub _site_tree
     %page = read_vars(file => "$vars_overlay.$name.vars",
                       vars => \%page) if($vars_overlay);
 
+
+    # attach plugin to the page
+    $page{SRC_FILE} = $file;
+    my $handler = get_handler(\%page);
+    unless($handler) {
+      TRACE "No match, ignoring file: $file"; INDENT -1;
+      next;
+    }
+    $page{HANDLER} = $handler;
+
     # page nested vars file supersede the page vars
-    if($doctype_handler->{nested_vars})
+    if($handler->{nested_vars})
     {
       %page = read_vars(file => $file,
                         vars => \%page,
@@ -563,10 +486,7 @@ sub _site_tree
              SRC_FILE_CTIME => $stat[10],
             );
 
-    foreach (split(',', $page{PLUGINS})) {
-      my $plugin = "FileWiki::Plugin::$_";
-      $plugin->set_page_vars(\%page);
-    }
+    $handler->update_vars(\%page);
 
     push @pagetree, \%page;
 
@@ -607,18 +527,13 @@ sub _site_tree
   # set default index page to first page (used by the menu)
   unless(defined($dir_vars{INDEX_PAGE}))
   {
-    if($dir_vars{DIR_PAGE}) {
-      $dir_vars{INDEX_PAGE} = $dir_vars{URI} . $dir_vars{DIR_PAGE};
+    foreach my $p (@pagetree) {
+      next if($p->{IS_DIR});
+      $dir_vars{INDEX_PAGE} = $p->{URI};
+      DEBUG "Setting INDEX_PAGE=$p->{URI} for directory: $dir_vars{URI}";
+      last;
     }
-    else {
-      foreach my $p (@pagetree) {
-        next if($p->{IS_DIR});
-        $dir_vars{INDEX_PAGE} = $p->{URI};
-        DEBUG "Setting INDEX_PAGE=$p->{URI} for directory: $dir_vars{URI}";
-        last;
-      }
-      WARN "No index page found for directory: $dir_vars{URI}" unless(defined($dir_vars{INDEX_PAGE}));
-    }
+    WARN "No index page found for directory: $dir_vars{URI}" unless(defined($dir_vars{INDEX_PAGE}));
   }
 
   return \%dir_vars;
@@ -805,7 +720,7 @@ sub create
       sub {
         my $page = shift;
         return "" if(@uri_filter && !grep(/^$page->{URI}$/, @uri_filter));
-        return "" if($page->{IS_DIR} && (not $page->{DIR_PAGE}));
+        return "" unless($page->{HANDLER});
         my $dfile = $page->{TARGET_FILE};
         die "unknown destination file (maybe you forgot to set \"OUTPUT_DIR\" in \"$tree_vars_filename\"?)" unless($dfile);
 
@@ -837,39 +752,6 @@ sub create
         return "";
       },
     } );
-
-
-  # foreach my $page (values %{$root->{PAGEHASH}}) {
-  #   next if(@uri_filter && !grep(/^$page->{URI}$/, @uri_filter));
-  #   my $dfile = $page->{TARGET_FILE};
-  #   die "unknown destination file (maybe you forgot to set \"OUTPUT_DIR\" in \"$tree_vars_filename\"?)" unless($dfile);
-
-  #   # create directory
-  #   my (undef, $dir, undef) = splitpath($dfile);
-  #   unless (grep(/^$dir$/, @dir_created)) {
-  #     DEBUG "Creating directory: $dir";
-  #     mkpath($dir);
-  #     push(@dir_created, $dir);
-  #   }
-
-  #   # process page
-  #   my $html = $self->process_page($page);
-
-  #   # write page to file
-  #   DEBUG "Writing file: $dfile";
-  #   if(open(OUTFILE, ">$dfile")) {
-  #     print OUTFILE $html;
-  #     close(OUTFILE);
-
-  #     # update mtime if TARGET_MTIME is set
-  #     if($page->{TARGET_MTIME_EPOCH}) {
-  #       DEBUG "Setting file ATIME=MTIME='$page->{TARGET_MTIME}' ($page->{TARGET_MTIME_EPOCH})";
-  #       utime($page->{TARGET_MTIME_EPOCH}, $page->{TARGET_MTIME_EPOCH}, $dfile);
-  #     }
-  #   } else {
-  #     ERROR "Failed to write file \"$dfile\": $!";
-  #   }
-  # }
 
   INDENT -1;
   return 1;
