@@ -40,12 +40,16 @@ use Text::Markdown;
 
 our $VERSION = "0.20";
 
+my $match_default = '\.(tt)$';
+
 sub new
 {
   my $class = shift;
   my $page = shift;
+  my $match = $page->{uc("PLUGIN_TEMPLATETOOLKIT_MATCH")} || $match_default;
 
   return undef if($page->{IS_DIR});
+  return undef unless($page->{SRC_FILE} =~ m/$match/);
 
   my $self = {
     name => $class,

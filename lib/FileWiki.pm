@@ -240,18 +240,15 @@ sub get_handler
   my $page = shift;
   my $handler;
 
-  foreach (keys(%{$page})) {
-    next unless(m/^PLUGIN_(.*)/);
-    my $plugin = "FileWiki::Plugin::$1";
-    my $match = $page->{$_};
+  my @plugins = split(/[,;]\s*/, $page->{PLUGINS});
 
-    TRACE "Checking plugin '$plugin': $match";
-    next unless($page->{SRC_FILE} =~ m/$match/);
+  foreach (@plugins) {
+    my $plugin = "FileWiki::Plugin::$_";
 
     TRACE "Loading plugin '$plugin'";
     unless(eval "require $plugin;") {
       ERROR "FileWiki plugin \"$plugin\" not found!";
-      DEBUG "$@";
+      ERROR "$@";
       return undef;;
     }
 

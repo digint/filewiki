@@ -41,12 +41,16 @@ use File::Spec::Functions qw(splitpath);
 
 our $VERSION = "0.20";
 
+my $match_default = '\.(jpg|JPG|jpeg|JPEG)$';
+
 sub new
 {
   my $class = shift;
   my $page = shift;
+  my $match = $page->{uc("PLUGIN_GALLERY_MATCH")} || $match_default;
 
   return undef if($page->{IS_DIR});
+  return undef unless($page->{SRC_FILE} =~ m/$match/);
 
   my $self = {
     name => $class,
