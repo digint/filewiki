@@ -38,7 +38,6 @@ use FileWiki::Filter;
 
 use File::Spec::Functions qw(splitpath);
 
-
 our $VERSION = "0.20";
 
 my $match_default = '\.(jpg|JPG|jpeg|JPEG)$';
@@ -72,6 +71,8 @@ sub update_vars
   my $self = shift;
   my $page = shift;
 
+  # set thumb information
+  # TODO: target stuff goes to self
   my $thumb_name = $page->{NAME} . '_thumb.jpg';
   my $minithumb_name = $page->{NAME} . '_minithumb.jpg';
   my $scaled_name = $page->{NAME} . '_scaled.jpg';
@@ -85,9 +86,18 @@ sub update_vars
   $page->{GALLERY_SCALED_TARGET_FILE}    = $target_dirname . $scaled_name;
   $page->{GALLERY_SCALED_URI}            = $uri_dirname    . $scaled_name;
 
+  # set uri of original image
+  # TODO: rename->URI
   my $gallery_src_file = $page->{SRC_FILE};
   $gallery_src_file =~ s/^$page->{BASEDIR}/$page->{GALLERY_ORIGINAL_URI_PREFIX}/;
   $page->{GALLERY_SRC_FILE} = $gallery_src_file;
+
+  # set defaults
+  $page->{GALLERY_TITLE} = $page->{SRC_FILE_NAME} unless($page->{GALLERY_TITLE});
+
+  # dimensions
+  # TODO: real width/height
+  ($page->{GALLERY_THUMB_WIDTH}, $page->{GALLERY_THUMB_HEIGHT}) = ($1, $2) if($page->{GALLERY_THUMB_SIZE} =~ /(\d+)[xX](\d+)/)
 }
 
 

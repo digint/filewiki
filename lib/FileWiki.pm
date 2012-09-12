@@ -387,7 +387,7 @@ sub _site_tree
                                $uri_dir . $file_name,
                                %tree_vars,
                                LEVEL   => $level + 1,
-                               PARENT  => \@pagetree,
+                               PARENT_DIR  => \%dir_vars,
                               );
       if($subtree) {
         push @pagetree, $subtree;
@@ -512,22 +512,34 @@ sub _site_tree
 
   # set PAGE_PREV / PAGE_NEXT
   my $prev = undef;
-  foreach my $p (@pagetree) {
-    next if($p->{IS_DIR});
+  foreach (@pagetree) {
+    next if($_->{IS_DIR});
+    next if($_->{SKIP_PREVNEXT});
     if($prev) {
-      $prev->{PAGE_NEXT} = $p;
-      $p->{PAGE_PREV} = $prev;
+      $prev->{PAGE_NEXT} = $_;
+      $_->{PAGE_PREV} = $prev;
     }
-    $prev = $p;
+    $prev = $_;
+  }
+
+  # honor MAKE_INDEX_PAGE (set index page to the first occurence)
+  unless(defined($dir_vars{INDEX_PAGE}))
+  {
+    foreach (@pagetree) {
+      next unless($_->{MAKE_INDEX_PAGE});
+      $dir_vars{INDEX_PAGE} = $_;
+      DEBUG "Found page_vars{MAKE_INDEX_PAGE}, setting INDEX_PAGE=$_->{URI} for directory: $dir_vars{URI}";
+      last;
+    }
   }
 
   # set default index page to first page (used by the menu)
   unless(defined($dir_vars{INDEX_PAGE}))
   {
-    foreach my $p (@pagetree) {
-      next if($p->{IS_DIR});
-      $dir_vars{INDEX_PAGE} = $p->{URI};
-      DEBUG "Setting INDEX_PAGE=$p->{URI} for directory: $dir_vars{URI}";
+    foreach (@pagetree) {
+      next if($_->{IS_DIR});
+      $dir_vars{INDEX_PAGE} = $_;
+      DEBUG "Setting INDEX_PAGE=$_->{URI} for directory: $dir_vars{URI}";
       last;
     }
     WARN "No index page found for directory: $dir_vars{URI}" unless(defined($dir_vars{INDEX_PAGE}));

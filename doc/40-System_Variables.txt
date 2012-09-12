@@ -165,9 +165,9 @@ are:
 
 ###INCLUDE
 
-Include files/directories. Optionally, you a prefix from where to read
-additional tree-, page- and file-vars can be defined in square brackets.
-
+Include files/directories. Optionally, you can specify a prefix from
+where to read additional tree-, page- and file-vars can be defined in
+square brackets.
 Example
 
     INCLUDE=/my/include/directory[mydir]; /my/other/include_dir

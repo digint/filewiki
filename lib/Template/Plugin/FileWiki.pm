@@ -231,7 +231,7 @@ sub page_link
 {
   my $page = shift;
   my $args = shift;
-  my $uri = $page->{INDEX_PAGE} || $page->{URI}; # directories point to their index_page
+  my $uri = $page->{INDEX_PAGE}->{URI} || $page->{URI}; # directories point to their index_page
   my $page_current = $args->{page_current};
   my $highlight;
 
