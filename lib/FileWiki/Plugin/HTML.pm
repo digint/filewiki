@@ -51,6 +51,7 @@ sub new
 
   my $self = {
     name => $class,
+    nested_vars => 1,
     target_file_ext => 'html',
     filter => [
       \&FileWiki::Filter::read_source,

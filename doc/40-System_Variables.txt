@@ -170,7 +170,7 @@ where to read additional tree-, page- and file-vars can be defined in
 square brackets.
 Example
 
-    INCLUDE=/my/include/directory[mydir]; /my/other/include_dir
+    INCLUDE=/my/include/directory[mydir]:/my/other/include_dir
 
 This includes the directories specified. The `tree.vars` will be read
 from `mydir.tree.vars` in the current directory (Same applies for

@@ -68,8 +68,9 @@ sub get_uri_filename
 }
 
 sub update_vars
-{
-  TRACE "empty update_vars() called";
-}
+{ }
+
+sub dir_hook
+{ }
 
 1;

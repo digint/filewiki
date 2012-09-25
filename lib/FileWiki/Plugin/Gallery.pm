@@ -37,10 +37,22 @@ use FileWiki::Logger;
 use FileWiki::Filter;
 
 use File::Spec::Functions qw(splitpath);
+use Image::ExifTool;
+use Image::Size qw(imgsize);
+use File::Path qw(mkpath);
 
 our $VERSION = "0.20";
 
 my $match_default = '\.(jpg|JPG|jpeg|JPEG)$';
+
+# TODO: orientation, subject distance, use these
+my @exif_tags = qw( Make
+                    Model
+                    ColorSpaceData
+                    Flash
+                    ShutterSpeedValue
+                    DateCreated
+                 );
 
 sub new
 {
@@ -55,9 +67,9 @@ sub new
     name => $class,
     target_file_ext => 'html',
     filter => [
-      \&gallery_create_thumb,
-      \&gallery_create_minithumb,
-      \&gallery_create_scaled,
+#      \&gallery_create_thumb,
+#      \&gallery_create_minithumb,
+#      \&gallery_create_scaled,
       \&FileWiki::Filter::apply_template,
      ],
   };
@@ -93,11 +105,70 @@ sub update_vars
   $page->{GALLERY_SRC_FILE} = $gallery_src_file;
 
   # set defaults
-  $page->{GALLERY_TITLE} = $page->{SRC_FILE_NAME} unless($page->{GALLERY_TITLE});
+  $page->{GALLERY_TITLE} = $page->{NAME} unless($page->{GALLERY_TITLE});
 
-  # dimensions
-  # TODO: real width/height
-  ($page->{GALLERY_THUMB_WIDTH}, $page->{GALLERY_THUMB_HEIGHT}) = ($1, $2) if($page->{GALLERY_THUMB_SIZE} =~ /(\d+)[xX](\d+)/)
+  # fetch exif data
+  my $exif = Image::ExifTool->new();
+  $exif->Options(Unknown => 1) ;
+  $exif->Options(DateFormat => "%Y-%m-%d %H:%M:%S"); # TODO
+
+  my $infos = $exif->ImageInfo($page->{SRC_FILE});
+  my @final;
+  foreach (keys(%$infos)) {
+    push @final, [ $_, $exif->GetDescription($_), $infos->{$_} ];
+  }
+
+  $page->{GALLERY_EXIF} = \@final;
+  $page->{GALLERY_SRC_WIDTH} = $infos->{ImageWidth};
+  $page->{GALLERY_SRC_HEIGHT} = $infos->{ImageHeight};
+  ($page->{GALLERY_DATE}, $page->{GALLERY_TIME}) = ($1, $2) if($infos->{DateTimeOriginal} =~ m/(\S*)\s*(\S*)/);
+
+  # create thumbs
+  mkpath($target_dirname);
+  ($page->{GALLERY_THUMB_WIDTH},     $page->{GALLERY_THUMB_HEIGHT})     = gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_THUMB_TARGET_FILE},     'x' . $page->{GALLERY_THUMB_MAX_HEIGHT},     $page->{GALLERY_CONVERT_OPTIONS});
+  ($page->{GALLERY_MINITHUMB_WIDTH}, $page->{GALLERY_MINITHUMB_HEIGHT}) = gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_MINITHUMB_TARGET_FILE}, 'x' . $page->{GALLERY_MINITHUMB_MAX_HEIGHT}, $page->{GALLERY_CONVERT_OPTIONS});
+  ($page->{GALLERY_SCALED_WIDTH},    $page->{GALLERY_SCALED_HEIGHT})    = gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_SCALED_TARGET_FILE},    'x' . $page->{GALLERY_SCALED_MAX_HEIGHT},    $page->{GALLERY_CONVERT_OPTIONS});
+
+  # make sure the directory node holds MAX_WIDTH values
+  $page->{DIR}->{GALLERY_THUMB_MAX_WIDTH}     = $page->{GALLERY_THUMB_WIDTH}     if((not exists($page->{DIR}->{GALLERY_THUMB_MAX_WIDTH}))     || ($page->{DIR}->{GALLERY_THUMB_MAX_WIDTH}     < $page->{GALLERY_THUMB_WIDTH}));
+  $page->{DIR}->{GALLERY_MINITHUMB_MAX_WIDTH} = $page->{GALLERY_MINITHUMB_WIDTH} if((not exists($page->{DIR}->{GALLERY_MINITHUMB_MAX_WIDTH})) || ($page->{DIR}->{GALLERY_MINITHUMB_MAX_WIDTH} < $page->{GALLERY_MINITHUMB_WIDTH}));
+  $page->{DIR}->{GALLERY_SCALED_MAX_WIDTH}    = $page->{GALLERY_SCALED_WIDTH}    if((not exists($page->{DIR}->{GALLERY_SCALED_MAX_WIDTH}))    || ($page->{DIR}->{GALLERY_SCALED_MAX_WIDTH}    < $page->{GALLERY_SCALED_WIDTH}));
+
+#  # TODO: define like this in tree.vars
+#  ($page->{GALLERY_THUMB_MAX_WIDTH}, $page->{GALLERY_THUMB_MAX_HEIGHT}) = ($1, $2) if($page->{GALLERY_THUMB_SIZE} =~ /(\d+)[xX](\d+)/);
+#  ($page->{GALLERY_MINITHUMB_MAX_WIDTH}, $page->{GALLERY_MINITHUMB_MAX_HEIGHT}) = ($1, $2) if($page->{GALLERY_MINITHUMB_SIZE} =~ /(\d+)[xX](\d+)/);
+#  ($page->{GALLERY_SCALED_MAX_WIDTH}, $page->{GALLERY_SCALED_MAX_HEIGHT}) = ($1, $2) if($page->{GALLERY_SCALED_SIZE} =~ /(\d+)[xX](\d+)/);
+
+}
+
+sub dir_hook
+{
+  my $class = shift;
+  my $dir = shift;
+  my $date_match = $dir->{GALLERY_DEFAULT_DATE};
+  my $title_match = $dir->{GALLERY_DEFAULT_TITLE};
+
+  my $title = $dir->{NAME};
+  if($title_match)
+  {
+    if($title =~ /$title_match/) {
+      $title = $1;
+      die "Bad match expression: $title_match" unless $title;
+    }
+  }
+  DEBUG "Setting gallery title: $title";
+  $dir->{GALLERY_TITLE} = $title;
+
+  if($date_match)
+  {
+    my $date = $dir->{NAME};
+    if($date =~ /$date_match/) {
+      $date = $1;
+      die "Bad match expression: $date_match" unless $date;
+      DEBUG "Setting gallery date: $date";
+      $dir->{GALLERY_DATE} = $date;
+    }
+  }
 }
 
 
@@ -106,6 +177,7 @@ sub gallery_resize_image
   my $infile = shift;
   my $outfile = shift;
   my $geometry = shift;
+  my $options = shift || "";
 
   die unless($infile && $outfile && $geometry);
 
@@ -114,36 +186,37 @@ sub gallery_resize_image
   }
   else {
     INFO "Generating image resize: $outfile";
-    my $cmd = "convert -scale $geometry \"$infile\" \"$outfile\"";
+    my $cmd = "convert $options -scale $geometry \"$infile\" \"$outfile\"";
     `$cmd`;
   }
+  return imgsize($outfile) ;
 }
 
-sub gallery_create_thumb
-{
-  my $self = shift;
-  my $in = shift;
-  my $page = shift;
-  gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_THUMB_TARGET_FILE}, $page->{GALLERY_THUMB_SIZE});
-  return $in;
-}
+# sub gallery_create_thumb
+# {
+#   my $self = shift;
+#   my $in = shift;
+#   my $page = shift;
+#   gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_THUMB_TARGET_FILE}, 'x' . $page->{GALLERY_THUMB_MAX_HEIGHT});
+#   return $in;
+# }
 
-sub gallery_create_minithumb
-{
-  my $self = shift;
-  my $in = shift;
-  my $page = shift;
-  gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_MINITHUMB_TARGET_FILE}, $page->{GALLERY_MINITHUMB_SIZE});
-  return $in;
-}
+# sub gallery_create_minithumb
+# {
+#   my $self = shift;
+#   my $in = shift;
+#   my $page = shift;
+#   gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_MINITHUMB_TARGET_FILE}, 'x' . $page->{GALLERY_MINITHUMB_MAX_HEIGHT});
+#   return $in;
+# }
 
-sub gallery_create_scaled
-{
-  my $self = shift;
-  my $in = shift;
-  my $page = shift;
-  gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_SCALED_TARGET_FILE}, $page->{GALLERY_SCALED_SIZE});
-  return $in;
-}
+# sub gallery_create_scaled
+# {
+#   my $self = shift;
+#   my $in = shift;
+#   my $page = shift;
+#   gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_SCALED_TARGET_FILE}, 'x' . $page->{GALLERY_SCALED_MAX_HEIGHT});
+#   return $in;
+# }
 
 1;

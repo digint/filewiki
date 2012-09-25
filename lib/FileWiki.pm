@@ -62,6 +62,8 @@ use Time::Piece;
 use File::Path qw(mkpath);
 use File::Spec::Functions qw(splitpath);
 
+use FileWiki::Plugin::Gallery;
+
 use Template;
 
 our $VERSION = "0.20-pre1";
@@ -234,13 +236,12 @@ sub set_uri
   return $uri;
 }
 
-
-sub get_handler
+sub load_plugins
 {
   my $page = shift;
-  my $handler;
 
   my @plugins = split(/[,;]\s*/, $page->{PLUGINS});
+  my @ret;
 
   foreach (@plugins) {
     my $plugin = "FileWiki::Plugin::$_";
@@ -249,17 +250,38 @@ sub get_handler
     unless(eval "require $plugin;") {
       ERROR "FileWiki plugin \"$plugin\" not found!";
       ERROR "$@";
-      return undef;;
+      next;
     }
+    push @ret, $plugin;
+  }
+  return @ret;
+}
 
-    $handler = $plugin->new($page);
+
+sub get_handler
+{
+  my $page = shift;
+
+  foreach my $plugin (load_plugins($page)) {
+    my $handler = $plugin->new($page);
     if($handler) {
       TRACE "Using plugin: $handler->{name}";
+      return $handler;
       last;
     }
   }
-  return $handler;
+  return undef;
 }
+
+sub plugins_dir_hook
+{
+  my $page = shift;
+
+  foreach my $plugin (load_plugins($page)) {
+    $plugin->dir_hook($page);
+  }
+}
+
 
 
 sub _site_tree
@@ -325,18 +347,9 @@ sub _site_tree
                );
 
   # set the handler and vars needed for a directory index page
-  my $dir_handler = get_handler(\%dir_vars);
-  $dir_vars{HANDLER} = $dir_handler if($dir_handler);
   my $dir_uri_unprefixed = set_uri(\%dir_vars);
-  if($dir_handler) {
-    $dir_vars{TARGET_FILE} = "$dir_vars{OUTPUT_DIR}$dir_uri_unprefixed" if($dir_vars{OUTPUT_DIR});
-    $dir_vars{INDEX_PAGE} = $dir_vars{URI};
-    $dir_handler->update_vars(\%dir_vars);
-  }
 
-  # override $uri_dir with dir_vars{URI_DIR} if set (propagates to subdirs!)
-  $uri_dir = $dir_vars{URI_DIR};
-
+  plugins_dir_hook(\%dir_vars);
 
   TRACE "Dir vars:" ; INDENT 1;
   TRACE dump_vars(\%dir_vars);
@@ -349,8 +362,6 @@ sub _site_tree
   }
 
   $tree_vars{ROOT} = \%dir_vars unless($tree_vars{ROOT});
-
-  my @raw_copy = split(/[,;]\s*/, $dir_vars{RAW_COPY}) if($dir_vars{RAW_COPY});
 
   my @files;
   opendir(my $dh, $src_dir) || die("uups, failed to open directory: $src_dir");
@@ -366,7 +377,7 @@ sub _site_tree
   # include files/dirs specified in INCLUDE
   if($dir_vars{INCLUDE}) {
     DEBUG "Found dir_vars{INCLUDE}, including files: $dir_vars{INCLUDE}";
-    my @includes = split(/[,;]\s*/, $dir_vars{INCLUDE});
+    my @includes = split(/:/, $dir_vars{INCLUDE});
     foreach my $include (@includes) {
       $include =~ s/\[(\w+)\]//;
 
@@ -384,7 +395,7 @@ sub _site_tree
     if(-d $file)
     {
       my $subtree = _site_tree($file,
-                               $uri_dir . $file_name,
+                               $dir_vars{URI_DIR} . $file_name,
                                %tree_vars,
                                LEVEL   => $level + 1,
                                PARENT_DIR  => \%dir_vars,
@@ -420,7 +431,7 @@ sub _site_tree
 
     # page vars default to tree_vars
     my %page = ( NAME        => $name,
-                 URI_DIR     => $uri_dir,
+                 URI_DIR     => $dir_vars{URI_DIR},
                  MTIME       => $mtime,
                  BUILD_DATE  => $build_date,
                  %tree_vars,
