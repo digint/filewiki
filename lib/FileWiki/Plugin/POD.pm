@@ -53,7 +53,7 @@ sub new
   my $self = {
     name => $class,
     target_file_ext => 'html',
-    nested_vars => 1,
+    read_nested_vars => 1,
     filter => [
       \&FileWiki::Filter::read_source,
       \&FileWiki::Filter::sanitize_newlines,

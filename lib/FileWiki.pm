@@ -205,7 +205,7 @@ sub process_page
 
   if($page->{HANDLER})
   {
-    INFO "Processing page: $page->{URI}"; INDENT 1;
+    DEBUG "Processing page: $page->{URI}"; INDENT 1;
 
     $page->{SRC_TEXT} = $data if($data);
 
@@ -295,11 +295,13 @@ sub _site_tree
 
   DEBUG "Entering directory: $src_dir";
 
-  my $dir_index = $uri_dir;
-  if($uri_dir =~ s/(\d+)-([^.]+)$/$2/) {
-    $dir_index = $1;
-    DEBUG "Directory index prefix found: $dir_index";
-  }
+    # TODO: introduce new key (like NAME_MATCH or TARGET_NAME_REGEXP), which does implement this:
+#  my $dir_index = $uri_dir;
+#  if($uri_dir =~ s/(\d+)-([^.]+)$/$2/) {
+#    $dir_index = $1;
+#    DEBUG "Directory index prefix found: $dir_index";
+#  }
+
   my $uri_dirname = $uri_dir;
   $uri_dirname =~ s/.*\///;
 
@@ -326,8 +328,7 @@ sub _site_tree
                          vars => \%tree_vars) if($vars_overlay);
 
   # read the dir vars (no propagation)
-  %dir_vars = ( INDEX => $dir_index,
-                NAME => $uri_dirname || "ROOT",
+  %dir_vars = ( NAME => $uri_dirname || "ROOT",
                 URI_DIR => $uri_dir,
                 %tree_vars,
                );
@@ -337,7 +338,8 @@ sub _site_tree
   %dir_vars = read_vars(file => "$vars_overlay.$dir_vars_filename",
                         vars => \%dir_vars) if($vars_overlay);
 
-  %dir_vars = ( %dir_vars,
+  %dir_vars = ( INDEX    => $dir_vars{NAME},  # INDEX defaults to NAME
+                %dir_vars,
                 LEVEL    => $level - 1,
                 TREE     => \@pagetree,
                 PAGEHASH => \%pagehash,
@@ -417,12 +419,9 @@ sub _site_tree
     # get file stats
     my @stat = stat $file;
 
-    # sort menu by filename as default
-    my $index;
-    if ($name =~ s/^(\d+)-//) {
-      $index = $1;
-      DEBUG "File index prefix found: $index";
-    }
+    # TODO: introduce new key (like NAME_MATCH or TARGET_NAME_REGEXP), which does implement this:
+    #    $name =~ s/^\d+-//;
+    # this was the index-prefix calculation here, we dropped it!
 
     # set date
     my $time_format = $tree_vars{TIME_FORMAT} || $default_time_format;
@@ -454,7 +453,7 @@ sub _site_tree
     $page{HANDLER} = $handler;
 
     # page nested vars file supersede the page vars
-    if($handler->{nested_vars})
+    if($handler->{read_nested_vars})
     {
       %page = read_vars(file => $file,
                         vars => \%page,
@@ -477,7 +476,7 @@ sub _site_tree
       $target_mtime_epoch = $time->epoch;
     }
 
-    %page = (INDEX       => $index || $uri_unprefixed,  # default index
+    %page = (INDEX       => $page{NAME},  # default index
              %page,
              SRC_FILE    => $file,
              TARGET_FILE => $target_file,
@@ -495,6 +494,9 @@ sub _site_tree
             );
 
     $handler->update_vars(\%page);
+
+    # link to self, useful in templates
+    $page{VARS} = \%page;
 
     push @pagetree, \%page;
 
@@ -517,9 +519,13 @@ sub _site_tree
   # sort pages (defeault: string sort by INDEX)
   my $sort_key = $dir_vars{SORT_KEY} || 'INDEX';
   my $sort_strategy = $dir_vars{SORT_STRATEGY} || 'sortkey-only';
+  my $sort_order = $dir_vars{SORT_ORDER} || 'asc';
   @pagetree = sort { ($sort_strategy eq 'dir-first' ? ($b->{IS_DIR} <=> $a->{IS_DIR}) : 0) ||
                      ($sort_strategy eq 'dir-last'  ? ($a->{IS_DIR} <=> $b->{IS_DIR}) : 0) ||
-                     ($a->{$sort_key} cmp $b->{$sort_key}) } @pagetree;
+                     ($sort_order eq 'asc'  ?
+                      (($a->{$sort_key} || $a->{INDEX}) cmp ($b->{$sort_key} || $b->{INDEX})) :
+                      (($b->{$sort_key} || $b->{INDEX}) cmp ($a->{$sort_key} || $a->{INDEX})))
+                   } @pagetree;
 
   # set PAGE_PREV / PAGE_NEXT
   my $prev = undef;
@@ -604,14 +610,14 @@ sub _traverse
   my $args = shift;
   my $tree = shift;
   my $match = $args->{match};
-  my $depth = $args->{depth};
+  my $last_level = $args->{last_level};
   my $collapse = $args->{collapse};
   my $page_current = $args->{page_current};
   my $callback = $args->{CALLBACK} || die("traverse: argument missing: CALLBACK");
   my $ret = '';
 
   foreach my $p (@$tree) {
-    next if($depth && ($p->{LEVEL} > $depth));
+    next if($last_level && ($p->{LEVEL} > $last_level));
 
     my $skip = 0;
     if($match)
@@ -647,11 +653,13 @@ sub traverse
   die("traverse: missing/invalid argument \"ROOT\"") unless(ref($root) eq 'HASH');
   die("traverse: argument \"ROOT\" must be a directory") unless($root->{TREE});
 
-  my $last_level = $root->{LEVEL} - 1;
+  my $prev_level = $root->{LEVEL} - 1;
   $args->{init_level} = $root->{LEVEL};
-  $args->{last_level} = \$last_level;
+  $args->{prev_level} = \$prev_level;
+  $args->{last_level} = $root->{LEVEL} + $args->{depth} if(defined($args->{depth}));
 
   DEBUG "Traverse depth=$args->{depth}" if($args->{depth});
+  DEBUG "Traverse init_level=$args->{init_level}, last_level=$args->{last_level}" if($args->{last_level});
   DEBUG "Traverse collapse=$args->{collapse}" if($args->{collapse});
 
   return _traverse($args, $root->{TREE});
@@ -727,6 +735,7 @@ sub page_vars
 
 sub create
 {
+  my $start_time = time;
   my $self = shift;
   my @uri_filter = @_;
   my $root = $self->site_tree();
@@ -734,7 +743,7 @@ sub create
 
   INFO "Creating output files:"; INDENT 1;
 
-  return traverse(
+  my $ret = traverse(
     { ROOT => $root,
       CALLBACK =>
       sub {
@@ -756,7 +765,7 @@ sub create
         my $html = $self->process_page($page);
 
         # write page to file
-        DEBUG "Writing file: $dfile";
+        INFO "Writing file: $dfile";
         if (open(OUTFILE, ">$dfile")) {
           print OUTFILE $html;
           close(OUTFILE);
@@ -773,13 +782,16 @@ sub create
       },
     } );
 
+  INFO "Time elapsed: " . (time - $start_time) . "s";
+
   INDENT -1;
-  return 1;
+  return $ret;
 }
 
 
 sub command
 {
+  my $start_time = time;
   my $self = shift;
   my $cmd_key = shift;
   my $root = $self->site_tree();
@@ -793,14 +805,15 @@ sub command
 
   INFO "Executing: '$cmd'"; INDENT 1;
   my $ret = `$cmd 2>&1`;
-  INFO "$ret";
+  DEBUG "$ret";
 
   my $msg;
   if($?) {
     $msg = ERROR "Command execution failed ($?)";
-  } else {
-    $msg = INFO "Command execution successful";
   }
+
+  INFO "Time elapsed: " . (time - $start_time) . "s";
+
   INDENT -1;
   return ($?, $msg, $ret);
 }

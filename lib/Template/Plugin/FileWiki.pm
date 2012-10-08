@@ -287,7 +287,7 @@ sub tree_item
 {
   my $page = shift;
   my $args = shift;
-  my $last_level = $args->{last_level};
+  my $prev_level = $args->{prev_level};
   my $tag_stack = $args->{tag_stack};
   my $level = $page->{LEVEL};
   my $html = '';
@@ -295,16 +295,16 @@ sub tree_item
   my $item_html = page_link($page, $args);
   return ""  unless($item_html);
 
-  if(($$last_level < $level)) {
+  if(($$prev_level < $level)) {
     $html .= $args->{list_tag_open} . "\n";
     push @$tag_stack, $args->{list_tag_close} . "\n";
   }
-  elsif($$last_level == $level) {
+  elsif($$prev_level == $level) {
     $html .= pop @$tag_stack; # /li
   }
-  elsif($$last_level > $level) {
+  elsif($$prev_level > $level) {
     $html .= pop @$tag_stack; # /li
-    for(my $i = $$last_level; $i > $level; $i--) {
+    for(my $i = $$prev_level; $i > $level; $i--) {
       $html .= pop @$tag_stack; # /ul
       $html .= pop @$tag_stack; # /li
     }
@@ -315,7 +315,7 @@ sub tree_item
 
   $html .= $item_html;
 
-  $$last_level = $level;
+  $$prev_level = $level;
 
   return $html;
 }
@@ -450,6 +450,24 @@ sub Sitemap
   $html .= '</table></tbody>';
 
   return $html;
+}
+
+
+sub PageArray
+{
+  my $self = shift;
+  my $args = shift;
+  my $page = $self->{_CONTEXT}->{STASH};
+
+  $args->{ROOT} ||= $page->{ROOT};
+  my @ret = ();
+  $args->{CALLBACK} = sub {
+    my $page = shift;
+    push @ret, $page;
+    return "";
+  };
+  FileWiki::traverse($args);
+  return \@ret;
 }
 
 sub DumpVars

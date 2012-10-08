@@ -21,7 +21,16 @@ be set as function parameter to the FileWiki calls.
 ###OUTPUT_DIR
 
 Target (output) directory of the website. Mandatory for the
-`FileWiki::create()` function.
+`FileWiki::create()` function. Absolute as well as relative paths are
+allowed.
+
+NOTE: The given directory as well as all subdirectories will be
+created on the fly, without checking or user inerraction. Make sure that
+you provide a reasonable value here.
+
+Example:
+
+    OUTPUT_DIR=/tmp/filewiki/${BUILD_TIME}
 
 
 ###TARGET_MTIME
@@ -126,7 +135,8 @@ processed.
 
 ###INDEX
 
-Specifies the order of the page within the current directory.
+Specifies the order of the page within the current directory. Defaults
+to NAME.
 
 Important when creating menues using the `PageTree()` or `PageList()`
 functions in the templates.
@@ -134,10 +144,6 @@ functions in the templates.
 Note that the index is being sorted lexically (NOT numerically): This
 means for example that "10" is considered smaller than "2". You should
 use "02" here.
-
-Default: Source files/directories with the format `xx-name` (where 'x'
-is a digit) will get `INDEX=xx`. All other files get the resulting URI
-as index.
 
 
 ###REF
@@ -161,6 +167,15 @@ are:
 - `sortkey-only`: (default) sort by SORT_KEY.
 - `dir-first`: sort by SORT_KEY, but put directories in front.
 - `dir-last`: sort by SORT_KEY, but push directories to back.
+
+
+###SORT_ORDER
+
+Order to use for sorting pages within a directory. Supported values
+are:
+
+- `asc`: (default) sort ascending.
+- `desc`: sort descending.
 
 
 ###INCLUDE

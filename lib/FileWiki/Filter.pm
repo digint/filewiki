@@ -70,7 +70,7 @@ sub strip_nested_vars
   my $self = shift;
   my $in = shift;
   my $page = shift;
-  return $in unless($page->{DOCTYPE_HANDLER}->{nested_vars});
+
   DEBUG "Stripping page nested vars";
 
   $in =~ s/^.?[<\[]filewiki_vars[>\]].*?^.?[<\[]\/filewiki_vars[>\]]//ms;
@@ -109,7 +109,7 @@ sub apply_template
   my $page = shift;
 
   unless($page->{TEMPLATE}) {
-    ERROR "'TEMPLATE' variable not specified: $page->{SRC_FILE}";
+    DEBUG "'TEMPLATE' variable not specified, skipping template processing: $page->{SRC_FILE}";
     return $in;
   }
 
