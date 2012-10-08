@@ -295,15 +295,18 @@ sub _site_tree
 
   DEBUG "Entering directory: $src_dir";
 
-    # TODO: introduce new key (like NAME_MATCH or TARGET_NAME_REGEXP), which does implement this:
-#  my $dir_index = $uri_dir;
-#  if($uri_dir =~ s/(\d+)-([^.]+)$/$2/) {
-#    $dir_index = $1;
-#    DEBUG "Directory index prefix found: $dir_index";
-#  }
-
   my $uri_dirname = $uri_dir;
-  $uri_dirname =~ s/.*\///;
+  $uri_dirname =~ s/(.*\/)//;   # greedy
+  my $uri_basedir = $1;
+
+  # change uri_dir and uri_dirname according to NAME_MATCH
+  if($tree_vars{NAME_MATCH}) {
+    if($uri_dirname =~ m/$tree_vars{NAME_MATCH}/) {
+      $uri_dirname = $1;
+      DEBUG "Got match on NAME_MATCH: setting NAME to \"$uri_dirname\"";
+      $uri_dir = $uri_basedir . $uri_dirname;
+    }
+  }
 
   # get overlay prefix for INCLUDE's
   my $vars_overlay;
@@ -419,9 +422,13 @@ sub _site_tree
     # get file stats
     my @stat = stat $file;
 
-    # TODO: introduce new key (like NAME_MATCH or TARGET_NAME_REGEXP), which does implement this:
-    #    $name =~ s/^\d+-//;
-    # this was the index-prefix calculation here, we dropped it!
+    # change NAME according to NAME_MATCH
+    if($tree_vars{NAME_MATCH}) {
+      if($name =~ m/$tree_vars{NAME_MATCH}/) {
+        $name = $1;
+        DEBUG "Got match on NAME_MATCH: setting NAME to \"$name\"";
+      }
+    }
 
     # set date
     my $time_format = $tree_vars{TIME_FORMAT} || $default_time_format;

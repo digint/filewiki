@@ -99,19 +99,24 @@ NOTE: Set this in `dir.vars`. You will get unexpected result when set
 in `tree.vars`!
 
 
-###URI_TRANSFORM_LC
+###NAME_MATCH
 
-If set, convert all URI's to lowercase.
+Change the NAME of a file or directory according to a given regular
+expression.
 
-
-###RAW_COPY
-
-Comma separated list of file endings. Source files matching these file
-endings will be copied unmodified to the target directory.
+NOTE: This can only be set in `tree.vars`.
 
 Example:
 
-    RAW_COPY=css,png,jpg,jpeg
+    NAME_MATCH=^\d+-(.+)
+
+For a source file "10-mysource.txt", this will set the NAME to
+"mysource".
+
+
+###URI_TRANSFORM_LC
+
+If set, convert all URI's to lowercase.
 
 
 ###TIME_FORMAT
