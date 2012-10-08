@@ -6,7 +6,7 @@ title=Menu Example 1
 
 Within this Directory, the index of the files are not in the filename
 (like xx-myfile.txt), but rather explicitely set in by the variable
-`INDEX` in `filewiki_vars`.
+`INDEX` in `filewiki_vars`. This way we can set "Page 2" in front of "Page 1" in the menu.
 
 Note that no `menu` variable is set in `filewiki_vars`. This way the
 page does not get a separate entry in the menu (compared to

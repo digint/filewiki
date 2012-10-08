@@ -141,7 +141,7 @@ processed.
 ###INDEX
 
 Specifies the order of the page within the current directory. Defaults
-to NAME.
+to the source file name.
 
 Important when creating menues using the `PageTree()` or `PageList()`
 functions in the templates.
@@ -221,7 +221,7 @@ Modification date, taken from the source file modification date, and
 formatted using the `TIME_FORMAT` variable.
 
 
-###BUILD_TIME
+###BUILD_DATE
 
 Date of the generation of a page. This is set to the systems current
 date upon page generation, and formatted using the `TIME_FORMAT`

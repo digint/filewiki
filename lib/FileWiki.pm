@@ -297,14 +297,17 @@ sub _site_tree
 
   my $uri_dirname = $uri_dir;
   $uri_dirname =~ s/(.*\/)//;   # greedy
-  my $uri_basedir = $1;
+  my $uri_basedir = $1 || "";
+
+  %dir_vars = ( INDEX   => $uri_dirname,
+                NAME    => $uri_dirname,
+               );
 
   # change uri_dir and uri_dirname according to NAME_MATCH
   if($tree_vars{NAME_MATCH}) {
-    if($uri_dirname =~ m/$tree_vars{NAME_MATCH}/) {
-      $uri_dirname = $1;
-      DEBUG "Got match on NAME_MATCH: setting NAME to \"$uri_dirname\"";
-      $uri_dir = $uri_basedir . $uri_dirname;
+    if($dir_vars{NAME} =~ m/$tree_vars{NAME_MATCH}/) {
+      $dir_vars{NAME} = $1;
+      DEBUG "Got match on NAME_MATCH: setting NAME=\"$dir_vars{NAME}\"";
     }
   }
 
@@ -331,9 +334,10 @@ sub _site_tree
                          vars => \%tree_vars) if($vars_overlay);
 
   # read the dir vars (no propagation)
-  %dir_vars = ( NAME => $uri_dirname || "ROOT",
-                URI_DIR => $uri_dir,
+  %dir_vars = ( NAME => "ROOT",   # default
                 %tree_vars,
+                %dir_vars,
+                URI_DIR => $uri_basedir . $dir_vars{NAME},
                );
 
   %dir_vars = read_vars(file => "$src_dir/$dir_vars_filename",
@@ -341,8 +345,7 @@ sub _site_tree
   %dir_vars = read_vars(file => "$vars_overlay.$dir_vars_filename",
                         vars => \%dir_vars) if($vars_overlay);
 
-  %dir_vars = ( INDEX    => $dir_vars{NAME},  # INDEX defaults to NAME
-                %dir_vars,
+  %dir_vars = ( %dir_vars,
                 LEVEL    => $level - 1,
                 TREE     => \@pagetree,
                 PAGEHASH => \%pagehash,
@@ -422,26 +425,27 @@ sub _site_tree
     # get file stats
     my @stat = stat $file;
 
-    # change NAME according to NAME_MATCH
-    if($tree_vars{NAME_MATCH}) {
-      if($name =~ m/$tree_vars{NAME_MATCH}/) {
-        $name = $1;
-        DEBUG "Got match on NAME_MATCH: setting NAME to \"$name\"";
-      }
-    }
-
     # set date
     my $time_format = $tree_vars{TIME_FORMAT} || $default_time_format;
     my $mtime = time2str($time_format, $stat[9]);
     my $build_date = time2str($time_format, $tree_vars{BUILD_TIME});
 
     # page vars default to tree_vars
-    my %page = ( NAME        => $name,
+    my %page = ( INDEX       => $name,
+                 NAME        => $name,
                  URI_DIR     => $dir_vars{URI_DIR},
                  MTIME       => $mtime,
                  BUILD_DATE  => $build_date,
                  %tree_vars,
                 );
+
+    # change NAME according to NAME_MATCH
+    if($tree_vars{NAME_MATCH}) {
+      if($page{NAME} =~ m/$tree_vars{NAME_MATCH}/) {
+        $page{NAME} = $1;
+        DEBUG "Got match on NAME_MATCH: setting NAME to \"$page{NAME}\"";
+      }
+    }
 
     # page vars file supersede the tree vars
     %page = read_vars(file => "$file.vars",

@@ -1,5 +1,5 @@
 <filewiki_vars>
-INDEX=20
+INDEX=10
 title=Page 2
 menu=$title
 </filewiki_vars>
