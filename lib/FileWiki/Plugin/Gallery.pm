@@ -82,30 +82,10 @@ sub update_vars
     $page->{GALLERY_ORIGINAL_URI} = $gallery_original_uri;
   }
 
-  # set defaults
-  # TODO: generic mechanism: MAGIC_DEFAULT_title=SRC_FILE_NAME:\d+-(.*)
-  unless($page->{GALLERY_TITLE})
-  {
-    my $title_match = $page->{GALLERY_DEFAULT_PAGE_TITLE};
-    my $title = $page->{SRC_FILE_NAME};
-    if($title_match)
-    {
-      if($title =~ /$title_match/) {
-        $title = $1;
-        die "Bad match expression: $title_match" unless $title;
-      }
-    }
-    if($page->{GALLERY_TITLE_MATCH} && $page->{GALLERY_TITLE_REPLACE}) {
-      $title =~ s/$page->{GALLERY_TITLE_MATCH}/$page->{GALLERY_TITLE_REPLACE}/g;
-    }
-    DEBUG "Setting page title: $title";
-    $page->{GALLERY_TITLE} = $title ;
-  }
-
   # fetch exif data
   my $exif = Image::ExifTool->new();
   $exif->Options(Unknown => 1) ;
-  $exif->Options(DateFormat => "%Y-%m-%d %H:%M:%S");
+  $exif->Options(DateFormat => "%Y-%m-%d %H:%M:%S"); # TODO
 
   DEBUG "Fetching EXIF data: $page->{SRC_FILE}";
   my $infos = $exif->ImageInfo($page->{SRC_FILE});
@@ -150,47 +130,6 @@ sub update_vars
   create_resize($page, "THUMB");
   create_resize($page, "MINITHUMB");
   create_resize($page, "SCALED");
-}
-
-sub dir_hook
-{
-  my $class = shift;
-  my $dir = shift;
-
-  # set defaults
-  unless($dir->{GALLERY_TITLE})
-  {
-    my $title_match = $dir->{GALLERY_DEFAULT_DIR_TITLE};
-    my $title = $dir->{NAME};
-    if($title_match)
-    {
-      if($title =~ /$title_match/) {
-        $title = $1;
-        die "Bad match expression: $title_match" unless $title;
-      }
-    }
-    if($dir->{GALLERY_TITLE_MATCH} && $dir->{GALLERY_TITLE_REPLACE}) {
-      $title =~ s/$dir->{GALLERY_TITLE_MATCH}/$dir->{GALLERY_TITLE_REPLACE}/g;
-    }
-    $title =~ s/_/ /g;
-    DEBUG "Setting gallery title: $title";
-    $dir->{GALLERY_TITLE} = $title;
-  }
-
-  unless($dir->{GALLERY_DATE})
-  {
-    my $date_match = $dir->{GALLERY_DEFAULT_DATE};
-    if($date_match)
-    {
-      my $date = $dir->{NAME};
-      if($date =~ /$date_match/) {
-        $date = $1;
-        die "Bad match expression: $date_match" unless $date;
-        DEBUG "Setting gallery date: $date";
-        $dir->{GALLERY_DATE} = $date;
-      }
-    }
-  }
 }
 
 

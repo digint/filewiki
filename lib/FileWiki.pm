@@ -187,6 +187,7 @@ sub read_vars
     $val =~ s/\${(\w+)}/check_var(\%vars, $1, $file)/eg;
     $val =~ s/\$(\w+)/check_var(\%vars, $1, $file)/eg;
 
+
     $vars{$key} = $val;
     TRACE "$key=$val";
 
@@ -194,6 +195,66 @@ sub read_vars
   INDENT -1;
   close(FILE);
   return %vars;
+}
+
+
+sub expand_match_vars
+{
+  my $vars = shift;
+  my $prefix = $vars->{IS_DIR} ? "DIR_MATCH_" : "MATCH_";
+
+  foreach my $key (keys (%$vars)) {
+    next unless($key =~ m/^$prefix(.+)/);
+
+    my $key_set = $1;
+    if (defined($vars->{$key_set})) {
+      DEBUG "Resulting key '$key_set' is already defined, ignoring '$key'";
+      next;
+    }
+
+    my $val = $vars->{$key};
+    if ($val =~ m/^(\w+):(.*)/) {
+      my ($match_key, $match_expr) = ($1, $2);
+      unless($match_key && $match_expr) {
+        ERROR "Bad match variable. Expected \"<key>:<regexp>\", got \"$key=$val\".";
+        next;
+      }
+      TRACE "Expanding $key";
+
+      if (defined($vars->{$match_key})) {
+        if ($vars->{$match_key} =~ m/$match_expr/) {
+          if ($1) {
+            $vars->{$key_set} = $1;
+            DEBUG "Matched $match_key, expanding $key_set=$1";
+          } else {
+            WARN "Bad match expression (no result): $match_expr";
+          }
+        }
+      } else {
+        WARN "Key '$match_key' not found while expanding '$key'";
+      }
+    }
+  }
+}
+
+
+sub sanitize_vars
+{
+  my $vars = shift;
+  foreach my $key (keys (%$vars)) {
+    next unless($key =~ m/^SANITIZE_(.+)/);
+    my $key_set = $1;
+    next unless($vars->{$key});  # value is false
+    unless(defined($vars->{$key_set})) {
+      TRACE "Resulting key '$key_set' is not defined, ignoring '$key'";
+      next;
+    }
+    my $val = $vars->{$key_set};
+    if($val =~ s/_/ /g) {
+      $vars->{$key_set} = $val;
+      DEBUG "Sanitized key: $key_set=\"$val\"";
+    }
+  }
 }
 
 
@@ -357,7 +418,11 @@ sub _site_tree
   # set the handler and vars needed for a directory index page
   my $dir_uri_unprefixed = set_uri(\%dir_vars);
 
+  # call the handler hook
   plugins_dir_hook(\%dir_vars);
+
+  expand_match_vars(\%dir_vars);
+  sanitize_vars(\%dir_vars);
 
   TRACE "Dir vars:" ; INDENT 1;
   TRACE dump_vars(\%dir_vars);
@@ -506,10 +571,14 @@ sub _site_tree
              SRC_FILE_CTIME => $stat[10],
             );
 
+    # set a link to self, useful in templates
+    $page{VARS} = \%page;
+
+    # call the handler hook
     $handler->update_vars(\%page);
 
-    # link to self, useful in templates
-    $page{VARS} = \%page;
+    expand_match_vars(\%page);
+    sanitize_vars(\%page);
 
     push @pagetree, \%page;
 
