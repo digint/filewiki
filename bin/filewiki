@@ -104,6 +104,7 @@ unless($vars{BASEDIR}) {
 TRACE "$0: vars passed to FileWiki:"; INDENT 1;
 TRACE FileWiki::dump_vars(\%vars); INDENT -1;
 
+my $start_time = time;
 my $filewiki = FileWiki->new(%vars);
 
 if($opts{d}) {
@@ -112,12 +113,13 @@ if($opts{d}) {
   print "\nSitemap:\n";
   print $sitemap;
   print "\n";
-  exit 0;
+}
+else {
+  $filewiki->create();
+  $filewiki->command($opts{c}) if($opts{c});
 }
 
-$filewiki->create();
-$filewiki->command($opts{c}) if($opts{c});
-
+INFO "Time elapsed: " . (time - $start_time) . "s";
 exit 0;
 
 1;

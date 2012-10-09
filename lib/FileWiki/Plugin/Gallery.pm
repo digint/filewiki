@@ -37,7 +37,6 @@ use FileWiki::Logger;
 use FileWiki::Filter;
 
 use Date::Format qw(time2str);
-use File::Spec::Functions qw(splitpath);
 use Image::ExifTool;
 use Image::Size qw(imgsize);
 use File::Path qw(mkpath);
@@ -46,15 +45,6 @@ our $VERSION = "0.20";
 
 my $match_default = '\.(jpg|JPG|jpeg|JPEG)$';
 my $default_image_ratio = "16:10";
-
-# TODO: orientation, subject distance, use these
-my @exif_tags = qw( Make
-                    Model
-                    ColorSpaceData
-                    Flash
-                    ShutterSpeedValue
-                    DateCreated
-                 );
 
 our $default_date_format = '%x';
 our $default_time_format = '%X';
@@ -72,9 +62,6 @@ sub new
     name => $class,
     target_file_ext => 'html',
     filter => [
-#      \&gallery_create_thumb,
-#      \&gallery_create_minithumb,
-#      \&gallery_create_scaled,
       \&FileWiki::Filter::apply_template,
      ],
   };
@@ -88,26 +75,15 @@ sub update_vars
   my $self = shift;
   my $page = shift;
 
-  # set thumb information
-  my $thumb_name = $page->{NAME} . '_thumb.jpg';
-  my $minithumb_name = $page->{NAME} . '_minithumb.jpg';
-  my $scaled_name = $page->{NAME} . '_scaled.jpg';
-  my (undef, $target_dirname, undef) = splitpath($page->{TARGET_FILE});
-  my (undef, $uri_dirname, undef) = splitpath($page->{URI});
-
-  $page->{GALLERY_THUMB_TARGET_FILE}     = $target_dirname . $thumb_name;
-  $page->{GALLERY_THUMB_URI}             = $uri_dirname    . $thumb_name;
-  $page->{GALLERY_MINITHUMB_TARGET_FILE} = $target_dirname . $minithumb_name;
-  $page->{GALLERY_MINITHUMB_URI}         = $uri_dirname    . $minithumb_name;
-  $page->{GALLERY_SCALED_TARGET_FILE}    = $target_dirname . $scaled_name;
-  $page->{GALLERY_SCALED_URI}            = $uri_dirname    . $scaled_name;
-
   # set uri of original image
-  my $gallery_original_uri = $page->{SRC_FILE};
-  $gallery_original_uri =~ s/^$page->{BASEDIR}/$page->{GALLERY_ORIGINAL_URI_PREFIX}/;
-  $page->{GALLERY_ORIGINAL_URI} = $gallery_original_uri;
+  if($page->{GALLERY_ORIGINAL_URI_PREFIX}) {
+    my $gallery_original_uri = $page->{SRC_FILE};
+    $gallery_original_uri =~ s/^$page->{BASEDIR}/$page->{GALLERY_ORIGINAL_URI_PREFIX}/;
+    $page->{GALLERY_ORIGINAL_URI} = $gallery_original_uri;
+  }
 
   # set defaults
+  # TODO: generic mechanism: MAGIC_DEFAULT_title=SRC_FILE_NAME:\d+-(.*)
   unless($page->{GALLERY_TITLE})
   {
     my $title_match = $page->{GALLERY_DEFAULT_PAGE_TITLE};
@@ -129,16 +105,17 @@ sub update_vars
   # fetch exif data
   my $exif = Image::ExifTool->new();
   $exif->Options(Unknown => 1) ;
-  $exif->Options(DateFormat => "%Y-%m-%d %H:%M:%S"); # TODO
+  $exif->Options(DateFormat => "%Y-%m-%d %H:%M:%S");
 
   DEBUG "Fetching EXIF data: $page->{SRC_FILE}";
   my $infos = $exif->ImageInfo($page->{SRC_FILE});
-  my @final;
+  my %exif_hash;
   foreach (keys(%$infos)) {
-    push @final, [ $_, $exif->GetDescription($_), $infos->{$_} ];
+    $exif_hash{$_} = { desc => $exif->GetDescription($_),
+                       info => $infos->{$_} };
   }
 
-  $page->{GALLERY_EXIF} = \@final;
+  $page->{GALLERY_EXIF} = \%exif_hash;
   $page->{GALLERY_ORIGINAL_WIDTH} = $infos->{ImageWidth};
   $page->{GALLERY_ORIGINAL_HEIGHT} = $infos->{ImageHeight};
 
@@ -158,7 +135,7 @@ sub update_vars
     WARN "No EXIF \"DateTimeOriginal\" found, setting date/time from MTIME: $page->{SRC_FILE}";
     $page->{GALLERY_DATE} = $page->{GALLERY_DATE} || time2str($page->{GALLERY_DATE_FORMAT} || $default_date_format, $page->{SRC_FILE_MTIME});
     $page->{GALLERY_TIME} = $page->{GALLERY_TIME} || time2str($page->{GALLERY_TIME_FORMAT} || $default_time_format, $page->{SRC_FILE_MTIME});
-    $page->{GALLERY_DATETIME} = $page->{GALLERY_DATE} . ' ' . $page->{GALLERY_TIME}; # TODO: format
+    $page->{GALLERY_DATETIME} = $page->{GALLERY_DATE} . ' ' . $page->{GALLERY_TIME};
   }
 
 
@@ -167,32 +144,13 @@ sub update_vars
   $ratio = ($2 / $1) if($ratio =~ m/(\d+)[:\/](\d+)/);
   $page->{GALLERY_THUMB_MAX_WIDTH}     = int($page->{GALLERY_THUMB_MAX_HEIGHT}     / $ratio);
   $page->{GALLERY_MINITHUMB_MAX_WIDTH} = int($page->{GALLERY_MINITHUMB_MAX_HEIGHT} / $ratio);
-#  $page->{GALLERY_SCALED_MAX_WIDTH}    = int($page->{GALLERY_SCALED_MAX_HEIGHT}    / $ratio);
-
-#  ($page->{GALLERY_THUMB_MAX_WIDTH}, $page->{GALLERY_THUMB_MAX_HEIGHT}) = ($1, $2) if($page->{GALLERY_THUMB_GEOMETRY} =~ /(\d*)[xX](\d*)/);
-#  ($page->{GALLERY_MINITHUMB_MAX_WIDTH}, $page->{GALLERY_MINITHUMB_MAX_HEIGHT}) = ($1, $2) if($page->{GALLERY_MINITHUMB_GEOMETRY} =~ /(\d*)[xX](\d*)/);
-#  ($page->{GALLERY_SCALED_MAX_WIDTH}, $page->{GALLERY_SCALED_MAX_HEIGHT}) = ($1, $2) if($page->{GALLERY_SCALED_GEOMETRY} =~ /(\d*)[xX](\d*)/);
+  $page->{GALLERY_SCALED_MAX_WIDTH} = "";   # NOTE: we always want the same hight here, so we do not restrict the width.
 
   # create thumbs
-  mkpath($target_dirname);
-  ($page->{GALLERY_THUMB_WIDTH},     $page->{GALLERY_THUMB_HEIGHT})     = gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_THUMB_TARGET_FILE},     $page->{GALLERY_THUMB_MAX_WIDTH}     . 'x' . $page->{GALLERY_THUMB_MAX_HEIGHT},     $page->{GALLERY_CONVERT_OPTIONS});
-  ($page->{GALLERY_MINITHUMB_WIDTH}, $page->{GALLERY_MINITHUMB_HEIGHT}) = gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_MINITHUMB_TARGET_FILE}, $page->{GALLERY_MINITHUMB_MAX_WIDTH} . 'x' . $page->{GALLERY_MINITHUMB_MAX_HEIGHT}, $page->{GALLERY_CONVERT_OPTIONS});
-  ($page->{GALLERY_SCALED_WIDTH},    $page->{GALLERY_SCALED_HEIGHT})    = gallery_resize_image($page->{SRC_FILE}, $page->{GALLERY_SCALED_TARGET_FILE},                                           'x' . $page->{GALLERY_SCALED_MAX_HEIGHT},    $page->{GALLERY_CONVERT_OPTIONS});
-
-  # make sure the directory node holds MAX_WIDTH values
-#  set_dir_dimensions($page, $page->{DIR});
+  create_resize($page, "THUMB");
+  create_resize($page, "MINITHUMB");
+  create_resize($page, "SCALED");
 }
-
-#sub set_dir_dimensions
-#{
-#  my $page = shift;
-#  my $dir = shift;
-#  $dir->{GALLERY_THUMB_MAX_WIDTH}     = $page->{GALLERY_THUMB_WIDTH}     if((not exists($dir->{GALLERY_THUMB_MAX_WIDTH}))     || ($dir->{GALLERY_THUMB_MAX_WIDTH}     < $page->{GALLERY_THUMB_WIDTH}));
-#  $dir->{GALLERY_MINITHUMB_MAX_WIDTH} = $page->{GALLERY_MINITHUMB_WIDTH} if((not exists($dir->{GALLERY_MINITHUMB_MAX_WIDTH})) || ($dir->{GALLERY_MINITHUMB_MAX_WIDTH} < $page->{GALLERY_MINITHUMB_WIDTH}));
-##  $dir->{GALLERY_SCALED_MAX_WIDTH}    = $page->{GALLERY_SCALED_WIDTH}    if((not exists($dir->{GALLERY_SCALED_MAX_WIDTH}))    || ($dir->{GALLERY_SCALED_MAX_WIDTH}    < $page->{GALLERY_SCALED_WIDTH}));
-#
-#  set_dir_dimensions($page, $dir->{PARENT_DIR}) if($dir->{PARENT_DIR});
-#}
 
 sub dir_hook
 {
@@ -236,12 +194,20 @@ sub dir_hook
 }
 
 
-sub gallery_resize_image
+sub create_resize
 {
-  my $infile = shift;
-  my $outfile = shift;
-  my $geometry = shift;
-  my $options = shift || "";
+  my $page = shift;
+  my $type = shift;
+
+  # set URI and TARGET_FILE
+  my $name = $page->{NAME} . '_' . lc($type) . '.jpg';
+  $page->{"GALLERY_${type}_URI"}         = $page->{URI_PREFIX} . $page->{URI_DIR} . $name;
+  $page->{"GALLERY_${type}_TARGET_FILE"} = $page->{TARGET_DIR} . $name;
+
+  my $infile   = $page->{SRC_FILE};
+  my $outfile  = $page->{"GALLERY_${type}_TARGET_FILE"};
+  my $geometry = $page->{"GALLERY_${type}_MAX_WIDTH"} . 'x' . $page->{"GALLERY_${type}_MAX_HEIGHT"};
+  my $options  = $page->{GALLERY_CONVERT_OPTIONS} || "";
 
   die unless($infile && $outfile && $geometry);
 
@@ -250,10 +216,14 @@ sub gallery_resize_image
   }
   else {
     INFO "Generating image resize: $outfile";
+    mkpath($page->{TARGET_DIR});
     my $cmd = "convert $options -scale $geometry \"$infile\" \"$outfile\"";
     `$cmd`;
   }
-  return imgsize($outfile) ;
+  ($page->{"GALLERY_${type}_WIDTH"}, $page->{"GALLERY_${type}_HEIGHT"}) = imgsize($outfile) ;
+
+
+  return;
 }
 
 1;

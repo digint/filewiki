@@ -480,6 +480,7 @@ sub _site_tree
     my $uri_unprefixed = set_uri(\%page);
     my $target_file = undef;
     $target_file = $page{OUTPUT_DIR} . $uri_unprefixed if($page{OUTPUT_DIR});
+    my (undef, $target_dir, undef) = splitpath($target_file);
 
     my $target_mtime_epoch = undef;
     if($page{TARGET_MTIME}) {
@@ -490,7 +491,8 @@ sub _site_tree
     %page = (INDEX       => $page{NAME},  # default index
              %page,
              SRC_FILE    => $file,
-             TARGET_FILE => $target_file,
+             TARGET_FILE => $target_file,  # full path
+             TARGET_DIR  => $target_dir,
              TARGET_MTIME_EPOCH => $target_mtime_epoch,
              LEVEL       => $level,
              IS_DIR      => 0,
@@ -765,7 +767,7 @@ sub create
         die "unknown destination file (maybe you forgot to set \"OUTPUT_DIR\" in \"$tree_vars_filename\"?)" unless($dfile);
 
         # create directory
-        my (undef, $dir, undef) = splitpath($dfile);
+        my $dir = $page->{TARGET_DIR};
         unless (grep(/^$dir$/, @dir_created)) {
           DEBUG "Creating directory: $dir";
           mkpath($dir);
