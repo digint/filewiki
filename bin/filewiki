@@ -68,8 +68,9 @@ sub HELP_MESSAGE
   print STDERR "   -h, --help  display this help message\n";
   print STDERR "   --version   display version information\n";
   print STDERR "   -c COMMAND  run command from config after create\n";
-  print STDERR "   -d          run only the parser (don't create output)\n";
+  print STDERR "   -s          print site map (don't create output)\n";
   print STDERR "   -v          be verbose (enable info logging level)\n";
+  print STDERR "   -d          enable debug log\n";
   print STDERR "   -l LEVEL    set the logging level [0..4]\n";
   print STDERR "\n";
   print STDERR "For additional information, see $filewiki_home\n";
@@ -79,7 +80,7 @@ $Getopt::Std::STANDARD_HELP_VERSION = 1;
 $FileWiki::Logger::loglevel = $FileWiki::Logger::level{warn}; # set default loglevel to warn
 
 my %opts;
-getopts('hc:l:vd', \%opts);
+getopts('hc:l:svd', \%opts);
 
 if($opts{h}) {
   VERSION_MESSAGE();
@@ -88,6 +89,7 @@ if($opts{h}) {
 }
 
 $FileWiki::Logger::loglevel = $FileWiki::Logger::level{info} if(defined $opts{v});
+$FileWiki::Logger::loglevel = $FileWiki::Logger::level{debug} if(defined $opts{d});
 $FileWiki::Logger::loglevel = exists($FileWiki::Logger::level{$opts{l}}) ? $FileWiki::Logger::level{$opts{l}} : $opts{l} if(defined $opts{l});
 
 # read "key=value" arguments
@@ -109,7 +111,7 @@ TRACE FileWiki::dump_vars(\%vars); INDENT -1;
 my $start_time = time;
 my $filewiki = FileWiki->new(%vars);
 
-if($opts{d}) {
+if($opts{s}) {
   my $sitemap = $filewiki->sitemap();
   print "\nOption -d is active, printing sitemap:\n";
   print "\nSitemap:\n";
