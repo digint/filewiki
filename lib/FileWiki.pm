@@ -887,7 +887,7 @@ sub command
 
   INFO "Executing: '$cmd'"; INDENT 1;
   my $ret = `$cmd 2>&1`;
-  DEBUG "$ret";
+  INFO "$ret";
 
   my $msg;
   if($?) {

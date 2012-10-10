@@ -75,7 +75,7 @@ sub HELP_MESSAGE
 }
 
 $Getopt::Std::STANDARD_HELP_VERSION = 1;
-$FileWiki::Logger::loglevel = $FileWiki::Logger::level{info};
+$FileWiki::Logger::loglevel = $FileWiki::Logger::level{warn}; # set default loglevel to warn
 
 my %opts;
 getopts('hc:l:d', \%opts);
