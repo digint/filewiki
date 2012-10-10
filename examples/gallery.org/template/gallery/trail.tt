@@ -1,0 +1,23 @@
+[%# displays trail links %]
+[%# NOTE: only works if "last" is a directory %]
+
+[% trail = [ ] %]
+[% parent = top %]
+[% WHILE parent && parent.PARENT_DIR %]
+[% trail.unshift(parent) %]
+[% parent = parent.PARENT_DIR %]
+[% END %]
+
+<div class="trail">
+[% FOREACH dir IN trail %]
+<a href="[% dir.INDEX_PAGE.URI %]">[% dir.title || dir.NAME %][% IF dir.date %]&nbsp;([% dir.date %])[% END %]</a>
+&nbsp;&raquo;&nbsp;
+[% END %]
+[% IF last %]
+[% last.title || last.NAME %]
+[% IF last.date || last.GALLERY_DATE %]&nbsp;([% last.date || last.GALLERY_DATE %])[% END %]
+[% ELSE %]
+[% title || SRC_FILE_NAME %]
+[% END %]
+</div>
+

@@ -1,0 +1,57 @@
+[%# generate "pagelist" variable. Arrayref of:
+  # { index     => page,
+  #   highlight => highlight_page }
+%]
+
+[% max_width = 0 %]
+[% max_height = 0 %]
+[% pagelist = [] %]
+[% FOREACH page IN DIR.TREE %]
+  [% NEXT IF page.SKIP_PREVNEXT %]
+
+  [% slideshow_enable = 1 UNLESS page.IS_DIR %]
+
+  [%# find highlighted page %]
+  [% highlight_page = page %]
+  [% WHILE highlight_page.IS_DIR %]
+    [%# set highlight_page to first page having "highlight" variable set %]
+    [% hfound = FileWiki.PageArray(ROOT => highlight_page,
+                                   match => { highlight => '1', IS_DIR => '0' },
+                                   depth => 1
+                                  ).first
+    %]
+    [% SET highlight_page = hfound IF hfound %]
+    [% LAST IF hfound %]
+
+    [%# recurse into first directory having highlight flag %]
+    [% hfound = FileWiki.PageArray(ROOT => highlight_page,
+                                   match => { highlight => '1', IS_DIR => '1' },
+                                   depth => 1
+                                  ).first
+    %]
+    [% SET highlight_page = hfound IF hfound %]
+    [% NEXT IF hfound %]
+
+    [%# no highlight found, set to first page having a thumbnail image %]
+    [% hfound = FileWiki.PageArray(ROOT => page,
+                                   match => { GALLERY_THUMB_URI => '1', IS_DIR => '0' },
+                                  ).first
+    %]
+    [% SET highlight_page = hfound IF hfound %]
+    [% LAST IF hfound %]
+
+    [%# uuh, still no highlight found, set to first page in tree %]
+    [% SET highlight_page = page.TREE.0 %]
+    [% LAST %]
+  [% END %]
+
+  [% pagelist.push({index => page, highlight => highlight_page}) %]
+
+  [% IF highlight_page.GALLERY_THUMB_HEIGHT && (highlight_page.GALLERY_THUMB_HEIGHT > max_height) %]
+    [% SET max_height = highlight_page.GALLERY_THUMB_HEIGHT %]
+  [% END %]
+  [% IF highlight_page.GALLERY_THUMB_WIDTH && (highlight_page.GALLERY_THUMB_WIDTH > max_width) %]
+    [% SET max_width = highlight_page.GALLERY_THUMB_WIDTH %]
+  [% END %]
+
+[% END %]

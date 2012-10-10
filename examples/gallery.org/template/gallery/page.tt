@@ -1,0 +1,136 @@
+[%# <?xml version="1.0" encoding="UTF-8"?> %]
+[%# <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"> %]
+[%# <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> %]
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+[% USE FileWiki %]
+[% PROCESS head.tt 
+     javascript = [ "${scripts_dir}/showhide.js" ]
+     title = title || SRC_FILE_NAME
+%]
+
+<body>
+
+
+[%#
+  # display gallery header
+%]
+
+<div class="gallery_header">
+[% INCLUDE gallery/trail.tt top=DIR %]
+<p>
+[% INCLUDE titledesc.tt %]
+<span class="header_links">
+[% PROCESS action_info.tt       id="shaded_info" %]
+</span>
+</p>
+
+<div class="gallery_info" id="shaded_info" onclick="hide('shaded_info')" style="display: none;">
+[% INCLUDE gallery/exiftable.tt %]
+</div>
+</div>
+
+[%#
+  # display top prev/next links
+%]
+
+<div class="prevnext_top">
+[% IF PAGE_PREV %]
+<a href="[% PAGE_PREV.URI %]">&laquo; prev</a>
+[% ELSE %]
+&laquo; prev
+[% END %]
+&nbsp;|&nbsp;
+[% IF PAGE_NEXT %]
+<a href="[% PAGE_NEXT.URI %]">next &raquo;</a>
+[% ELSE %]
+next &raquo;
+[% END %]
+</div>
+
+
+[%#
+  # display image
+%]
+
+<div class="gallery_image">
+[% IF GALLERY_PROVIDE_ORIGINAL %]<a href="[% GALLERY_ORIGINAL_URI %]">[% END %]
+<img src="[% GALLERY_SCALED_URI %]" alt="[% SRC_FILE_NAME %]" width="[% GALLERY_SCALED_WIDTH %]" height="[% GALLERY_SCALED_HEIGHT %]"/>
+[% IF GALLERY_PROVIDE_ORIGINAL %]</a>[% END %]
+</div>
+
+
+[%#
+  # display bottom prev/next links
+%]
+
+<table class="prevnext_bottom">
+<tbody>
+<tr>
+<td class="prev" valign="bottom" align="left" style="width: [% GALLERY_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_MINITHUMB_MAX_HEIGHT %]px;">
+[% IF PAGE_PREV %]
+<a href="[% PAGE_PREV.URI %]">
+<div style="width: [% GALLERY_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_MINITHUMB_MAX_HEIGHT %]px;">
+<img src="[% PAGE_PREV.GALLERY_MINITHUMB_URI %]" width="[% PAGE_PREV.GALLERY_MINITHUMB_WIDTH %]" height="[% PAGE_PREV.GALLERY_MINITHUMB_HEIGHT %]"/>
+</div>
+</a>
+[% END %]
+</td>
+<td class="next" valign="bottom" align="right" style="width: [% GALLERY_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_MINITHUMB_MAX_HEIGHT %]px;">
+[% IF PAGE_NEXT %]
+<a href="[% PAGE_NEXT.URI %]">
+<div style="width: [% GALLERY_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_MINITHUMB_MAX_HEIGHT %]px;">
+<img src="[% PAGE_NEXT.GALLERY_MINITHUMB_URI %]" width="[% PAGE_NEXT.GALLERY_MINITHUMB_WIDTH %]" height="[% PAGE_NEXT.GALLERY_MINITHUMB_HEIGHT %]"/>
+</div>
+</a>
+[% END %]
+</td>
+<td class="gallery_attributes" valign="top" align="center">
+[% IF summary %]<div class="gallery_summary">[% summary %]</div>[% END %]
+[% IF desc %]<div class="gallery_desc">[% desc %]</div>[% END %]
+</td>
+</tr>
+<tr>
+<td>
+[% IF PAGE_PREV %]
+<a href="[% PAGE_PREV.URI %]">&laquo; prev</a>
+[% END %]
+</td>
+<td class="next" align="right">
+[% IF PAGE_NEXT %]
+<a href="[% PAGE_NEXT.URI %]">next &raquo;</a>
+[% END %]
+</td>
+<td>
+</td>
+</tr>
+</tbody>
+</table>
+
+
+[%#
+  # footer
+%]
+
+[% PROCESS bottom.tt %]
+
+
+[%#
+  # filewiki footer
+%]
+
+[% IF show_vars %]
+<pre>[% FileWiki.DumpVars %]</pre>
+<pre>[% FileWiki.DumpVars( DIR ) %]</pre>
+[% END %]
+
+[% IF show_logger %]
+<br/><br/>
+<hr/>
+filewiki log:<br/>
+<pre>[% FileWiki.Log %]</pre>
+[% END %]
+
+</body>
+</html>

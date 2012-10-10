@@ -1,0 +1,28 @@
+[%# displays exif data table %]
+
+[% SET exif=GALLERY_EXIF %]
+
+[% IF exif_tags %]
+
+<table>
+<thead align="left">
+<tr><th>Photo Properties:</th></tr>
+</thead>
+<tbody>
+
+[% FOREACH key IN exif_tags.split(',') %]
+[% NEXT UNLESS exif.$key %]
+<tr>
+<td>
+[% exif.$key.desc %]:
+</td>
+<td>
+[% exif.$key.info %]
+</td>
+</tr>
+[% END %]
+
+</tbody>
+</table>
+
+[% END %]

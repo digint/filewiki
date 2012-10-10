@@ -1,0 +1,169 @@
+body {
+    font-family: Verdana, "Bitstream Vera Sans", sans-serif;
+    font-size: 0.75em;
+    background-color: #333333;
+    color: #DDDDDD;
+}
+
+img {
+border: 0px solid #ccc;
+}
+
+a:link {
+    text-decoration: none;
+    color: #95DDFF;
+}
+a:visited {
+    color: #95DDFF;
+}
+
+.gallery_header_title {
+    font-weight: bold;
+    font-size: 2.0em;
+}
+.gallery_header_date {
+    margin-left: 0.7em;
+    font-size: 1.5em;
+}
+
+.gallery_functions {
+}
+
+
+.gallery_index p {
+    margin: 0.3em 0;
+}
+
+.gallery_index a:link {
+    color: #DDDDDD;
+}
+.gallery_index a:visited {
+    color: #DDDDDD;
+}
+
+.gallery_index table {
+    border-spacing: 1;
+    border: 0 none;
+    margin: 9px 0px;
+    padding: 0;
+}
+
+.gallery_index td {
+    padding: 6px 2px;
+}
+
+
+.gallery_cell_dir, .gallery_cell_file {
+    padding: 2px;
+    text-align: center;
+}
+
+.gallery_cell_dir {
+    background-color: #555555;
+}
+
+.gallery_title {
+    font-weight: bold;
+    padding: 1.8ex 0 0.5ex;
+}
+
+.gallery_date, .gallery_summary, .gallery_desc, .gallery_keywords, .gallery_size {
+    font-size: 0.9em;
+    padding-bottom: 0.5ex;
+}
+
+.header_links {
+    margin-left: 6em;
+}
+
+.gallery_action {
+    margin: 0 8px;
+    cursor: pointer;
+}
+
+.gallery_action img {
+    vertical-align: top;
+}
+
+.prevnext_top {
+    margin-bottom: 1em;
+}
+
+.prevnext_bottom {
+    border: 0 none;
+    margin: 2em 0 0 0;
+    padding: 0;
+}
+
+.gallery_info {
+    position: absolute;
+    z-index: 10;
+    background-color: #333333;
+    color: #FFFFFF;
+    opacity: 0.95;
+    padding: 0 1em 1em 1em;
+    border-radius: 4px;
+}
+.gallery_info td {
+    padding-right: 1em;
+}
+.gallery_info th {
+    padding-right: 1em;
+}
+
+.gallery_mosaic {
+    position: relative;
+}
+.gallery_mosaic_overlay {
+    position: absolute;
+    bottom: 0; 
+    width: 100%;
+}
+.shaded_desc {
+    background-color: #DDDDDD;
+    opacity: 0.7;
+    color: #000000;
+    padding: 0px 0.75em;
+}
+
+
+#bottom {
+    border-top: 1px solid #8C8C8C;
+    color: #8C8C8C;
+    font-size: 0.9em;
+    padding: 4px;
+    margin: 40px 0 24px;
+}
+
+#badges {
+    float: right;
+}
+
+#hosted_by {
+    padding-top: 4px;
+}
+
+
+/* slideshow */
+
+#slideshow_body {
+    margin: 0;
+}
+
+
+#galleria{
+    background-color: #333333;
+    width: 1280px;
+    height: 720px;
+}
+
+/* welcome page */
+
+.welcome_head {
+    font-weight: bold;
+    font-size: 2em;
+}
+
+#wrap_all {
+    width: 480px;
+}

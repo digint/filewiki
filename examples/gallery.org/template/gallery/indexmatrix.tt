@@ -1,0 +1,27 @@
+<table>
+<tbody>
+
+[% counter = 0 %]
+[% FOREACH page IN pagelist %]
+
+[% IF counter mod gallery_cols == 0 %]
+[% UNLESS counter == 0 %]</tr>[% END %]
+<tr valign="top">
+[% END %]
+
+[% IF page.index.IS_DIR %]
+<td class="gallery_cell_dir" style="width: [% max_width %]px;">
+[% ELSE %]
+<td class="gallery_cell_file" style="width: [% max_width %]px;">
+[% END %]
+
+[%# NOTE: indexitem.tt uses variables "page" and "counter" %]
+[% INCLUDE gallery/indexitem.tt %]
+
+</td>
+
+[% counter = counter + 1 %]
+[% END %]
+</tr>
+</tbody>
+</table>

@@ -1,0 +1,43 @@
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+[% IF author %]
+<meta name="author" content="[% author %]" />
+[% END %]
+[% IF copyright %]
+<meta name="copyright" content="[% copyright %]" />
+[% END %]
+[% IF description %]
+<meta name="description" content="[% description %]" />
+[% END %]
+[% IF keywords %]
+<meta name="keywords" content="[% keywords %]" />
+[% END %]
+
+[% FOREACH key IN VARS.keys %]
+[% IF key.match('^meta_') %]
+<meta name="[% key.replace('^meta_', '') %]" content="[% VARS.$key %]" />
+[% END %]
+[% END %]
+
+<title>[% head_title_prefix %][% title || NAME %]</title>
+[% IF shortcut_icon %]
+<link rel="shortcut icon" href="[% shortcut_icon %]"/>
+[% END %]
+[% IF apple_touch_icon %]
+<link rel="apple-touch-icon" href="[% apple_touch_icon %]"/>
+[% END %]
+<link rel="stylesheet" href="[% stylesheet %]" type="text/css" />
+[% IF filewiki_controls %]
+<link rel="stylesheet" href="[% stylesheet_filewiki %]" type="text/css" />
+[% END %]
+[% IF stylesheet_print %]
+<link rel="stylesheet" href="[% stylesheet_print %]" type="text/css" media="print"/>
+[% END %]
+[% IF stylesheet_handheld %]
+<link rel="stylesheet" href="[% stylesheet_handheld %]" type="text/css" media="handheld"/>
+[% END %]
+[% PROCESS filewiki/functions.tt %]
+[% FOREACH js_file IN javascript %]
+<script type='text/javascript' src='[% js_file %]'></script>
+[% END %]
+</head>

@@ -1,0 +1,94 @@
+[filewiki_vars]
+NAME=index
+TEMPLATE=0
+MAKE_INDEX_PAGE=1
+SKIP_PREVNEXT=1
+[/filewiki_vars]
+
+[%################ %]
+
+[%#
+  # NOTE: 
+  # This file is included by every directory defined in
+  # "gallery.tree.vars".
+  #
+%]
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+[% USE FileWiki %]
+[% INCLUDE head.tt
+     title = DIR.title || DIR.NAME
+     javascript = [ "${scripts_dir}/showhide.js" ]
+%]
+
+[%# provide "pagelist" variable needed below %]
+[% PROCESS gallery/pagelist.tt %]
+
+<body>
+
+
+[%#
+  # display gallery header
+%]
+
+<div class="gallery_header">
+[% INCLUDE gallery/trail.tt top=DIR.PARENT_DIR last=DIR %]
+<p>
+[% INCLUDE titledesc.tt
+   vars = DIR
+ %]
+<span class="header_links">
+[% PROCESS action_info.tt       id="shaded_info" %]
+[% IF slideshow_enable %]
+[% PROCESS action_slideshow.tt  link="slideshow.html" %]
+[% END %]
+</span>
+</p>
+
+<div class="gallery_info" id="shaded_info" onclick="hide('shaded_info')" style="display: none;">
+[% INCLUDE gallery/imagedesc.tt
+     vars=DIR
+     show_table=1
+     size=pagelist.size()
+%]
+</div>
+</div>
+
+
+[%#
+  # display index matrix
+%]
+
+<div class="gallery_index">
+[%# NOTE: indexmatrix.tt require variables "pagelist" %]
+[% INCLUDE gallery/indexmatrix.tt %]
+</div>
+
+
+[%#
+  # footer
+%]
+
+[% PROCESS bottom.tt %]
+
+
+[%#
+  # filewiki footer
+%]
+
+[% IF show_vars %]
+<pre>[% FileWiki.DumpVars %]</pre>
+<pre>[% FileWiki.DumpVars( DIR ) %]</pre>
+[% END %]
+
+[% IF show_logger %]
+<br/><br/>
+<hr/>
+filewiki log:<br/>
+<pre>[% FileWiki.Log %]</pre>
+[% END %]
+
+</body>
+</html>

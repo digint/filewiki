@@ -1,0 +1,57 @@
+[filewiki_vars]
+TEMPLATE=0
+SKIP_PREVNEXT=1
+stylesheet=$css_dir/slideshow.css
+meta_HandheldFriendly=True
+meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=1"
+[/filewiki_vars]
+
+[%################ %]
+
+[%#
+  # NOTE: 
+  # This file is included by every directory defined in
+  # "gallery.tree.vars".
+  #
+%]
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+[% PROCESS head.tt 
+     javascript = [ "$scripts_dir/jquery-1.8.1.min.js",
+                    "$scripts_dir/galleria/galleria-1.2.8.min.js"  ]
+%]
+
+
+<body>
+
+<script>
+  [%# http://galleria.io/docs/ %]
+  Galleria.loadTheme('[% scripts_dir %]/galleria/themes/classic/galleria.classic.min.js');
+  Galleria.run('#galleria', {
+    height: 0.5625,   // ratio: 16/10
+    transition: false,  // disable transitions for mouse users (for speed)
+    touchTransition: 'slide',  // on mobile devices, slide gives a good UI
+[%#
+//  autoplay: 7000, // will move forward every 7 seconds
+//  width: 1280,
+//  height: 720,
+// height: 0.5625   // ratio: 16/9
+//    responsive: true,
+%]
+  });
+</script>
+
+<div id="galleria">
+[% FOREACH href IN DIR.TREE %]
+[% NEXT IF href.SKIP_PREVNEXT %]
+<a href="[% href.GALLERY_SCALED_URI %]">
+[%# <img src="[% href.GALLERY_MINITHUMB_URI %]" data-title="[% href.title || href.SRC_FILE_NAME %]" data-description="[% href.desc %]" data-big="[% href.GALLERY_ORIGINAL_URI %]"/> %]
+<img src="[% href.GALLERY_MINITHUMB_URI %]" data-title="[% href.title || href.SRC_FILE_NAME %]" data-description="[% href.desc %]"/>
+</a>
+[% END %]
+</div>
+</body>
+</html>

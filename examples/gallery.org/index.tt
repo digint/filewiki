@@ -1,0 +1,53 @@
+[filewiki_vars]
+TEMPLATE=0
+MAKE_INDEX_PAGE=1
+title="Gallery"
+[/filewiki_vars]
+
+[%################ %]
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+[% USE FileWiki %]
+[% INCLUDE head.tt %]
+
+<body>
+<div class="welcome_head">
+<p>Welcome to FileWiki's Photo Gallery!</p>
+</div>
+
+<div class="welcome_content">
+<p>
+<a href="[% URI_PREFIX %]/shared/index.html">
+<img src="[% URI_PREFIX %]/img/zurich.jpg" height="270" width="480"/>
+<br/>
+<b>&raquo;&nbsp;Enter Gallery&nbsp;&laquo;</b>
+</a>
+</p>
+<p>
+This is your FileWiki photo gallery site. Have fun!
+</p>
+
+[% PROCESS bottom.tt %]
+
+[%#
+  # filewiki footer
+%]
+
+[% IF show_vars %]
+<pre>[% FileWiki.DumpVars %]</pre>
+<pre>[% FileWiki.DumpVars( DIR ) %]</pre>
+[% END %]
+
+[% IF show_logger %]
+<br/><br/>
+<hr/>
+filewiki log:<br/>
+<pre>[% FileWiki.Log %]</pre>
+[% END %]
+
+</div>
+</body>
+</html>
+
