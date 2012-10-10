@@ -9,6 +9,9 @@ meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-sca
 [%################ %]
 
 [%#
+  # NOTE: This is an example using the free galleria javascript app.
+  # You can download the sources at: <http://galleria.io/>
+  #
   # NOTE: 
   # This file is included by every directory defined in
   # "gallery.tree.vars".
