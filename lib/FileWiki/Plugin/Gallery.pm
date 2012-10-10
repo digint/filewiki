@@ -43,7 +43,7 @@ use File::Path qw(mkpath);
 
 our $VERSION = "0.20";
 
-my $match_default = '\.(jpg|JPG|jpeg|JPEG)$';
+my $match_default = '\.(bmp|gif|jpeg|jpeg2000|mng|png|psd|raw|svg|tif|tiff|gif|jpeg|jpg|png|pdf|BMP|GIF|JPEG|JPEG2000|MNG|PNG|PSD|RAW|SVG|TIF|TIFF|GIF|JPEG|JPG|PNG|PDF)$';
 my $default_image_ratio = "16:10";
 
 our $default_date_format = '%x';
