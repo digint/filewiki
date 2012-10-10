@@ -69,6 +69,7 @@ sub HELP_MESSAGE
   print STDERR "   --version   display version information\n";
   print STDERR "   -c COMMAND  run command from config after create\n";
   print STDERR "   -d          run only the parser (don't create output)\n";
+  print STDERR "   -v          be verbose (enable info logging level)\n";
   print STDERR "   -l LEVEL    set the logging level [0..4]\n";
   print STDERR "\n";
   print STDERR "For additional information, see $filewiki_home\n";
@@ -78,7 +79,7 @@ $Getopt::Std::STANDARD_HELP_VERSION = 1;
 $FileWiki::Logger::loglevel = $FileWiki::Logger::level{warn}; # set default loglevel to warn
 
 my %opts;
-getopts('hc:l:d', \%opts);
+getopts('hc:l:vd', \%opts);
 
 if($opts{h}) {
   VERSION_MESSAGE();
@@ -86,6 +87,7 @@ if($opts{h}) {
   exit 0;
 }
 
+$FileWiki::Logger::loglevel = $FileWiki::Logger::level{info} if(defined $opts{v});
 $FileWiki::Logger::loglevel = exists($FileWiki::Logger::level{$opts{l}}) ? $FileWiki::Logger::level{$opts{l}} : $opts{l} if(defined $opts{l});
 
 # read "key=value" arguments
