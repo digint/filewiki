@@ -36,7 +36,6 @@
 [% IF stylesheet_handheld %]
 <link rel="stylesheet" href="[% stylesheet_handheld %]" type="text/css" media="handheld"/>
 [% END %]
-[% PROCESS filewiki/functions.tt %]
 [% FOREACH js_file IN javascript %]
 <script type='text/javascript' src='[% js_file %]'></script>
 [% END %]
