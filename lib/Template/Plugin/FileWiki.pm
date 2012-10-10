@@ -79,6 +79,26 @@ Example:
 This shows a list of all perl modules in "libdir" (page-var),
 reformatted in perl notation (Example::TestModule).
 
+=head2 PageArray
+
+Returns an array of pointers to page hash
+See L</Generic Function Arguments> below for the arguments taken.
+
+Example:
+
+  [% FileWiki.PageArray(
+        match    => { IS_DIR => '0',
+                      SRC_FILE => "^$libdir/.*\.pm$" },
+        text_key => 'SRC_FILE',
+        regexp   => [ { match => "^$libdir/", replace => ''   },
+                      { match => '\.pm$',     replace => ''   },
+                      { match => '/',         replace => '::' } ],
+     )
+  %]
+
+This shows a list of all perl modules in "libdir" (page-var),
+reformatted in perl notation (Example::TestModule).
+
 
 =head2 Sitemap
 
@@ -346,6 +366,23 @@ sub set_default_list_args
   $args->{regexp} = [ $args->{regexp} ] if(exists($args->{regexp}) && (ref $args->{regexp} ne "ARRAY"));
 }
 
+sub PageArray
+{
+  my $self = shift;
+  my $args = shift;
+  my $page = $self->{_CONTEXT}->{STASH};
+
+  $args->{ROOT} ||= $page->{TREE};
+  my @ret = ();
+  $args->{CALLBACK} = sub {
+    my $page = shift;
+    push @ret, $page;
+    return "";
+  };
+  FileWiki::traverse($args);
+  return \@ret;
+}
+
 sub PageList
 {
   my $self = shift;
@@ -452,23 +489,6 @@ sub Sitemap
   return $html;
 }
 
-
-sub PageArray
-{
-  my $self = shift;
-  my $args = shift;
-  my $page = $self->{_CONTEXT}->{STASH};
-
-  $args->{ROOT} ||= $page->{ROOT};
-  my @ret = ();
-  $args->{CALLBACK} = sub {
-    my $page = shift;
-    push @ret, $page;
-    return "";
-  };
-  FileWiki::traverse($args);
-  return \@ret;
-}
 
 sub DumpVars
 {

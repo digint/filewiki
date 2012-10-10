@@ -212,7 +212,7 @@ the filename.
 
 ###ENV
 
-System environmnent (reference of Perl %ENV).
+System environmnent (reference to Perl %ENV).
 
 
 ###MTIME

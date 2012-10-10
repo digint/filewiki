@@ -4,8 +4,8 @@ Variables
 Flexible variable declaration and propagation is the heart of the
 FileWiki system.  While some variables affect the FileWiki system,
 they are basically used as input to the template processor. Every page
-merges its `vars` from various locations (see [Variable
-Propagation](#variablepropagation) below).
+merges its `vars` from various locations (see
+[Propagation](#propagation) below).
 
 
 Declaration
@@ -69,11 +69,10 @@ Parsed from file "&lt;source_file&gt;.vars".
 
 Parsed from within source files.
 
-Nested vars supersede the `page.vars`. FileWiki starts to parse
-nested variables from the source file after it first encounters a line
-starting with `<filewiki_vars>` or `[filewiki_vars]`,
-until `</filewiki_vars>` or `[/filewiki_vars]` is
-encountered.
+Nested vars supersede the `page.vars`. FileWiki starts to parse nested
+variables from the source file after it first encounters a line
+starting with `<filewiki_vars>` or `[filewiki_vars]`, up to
+`</filewiki_vars>` or `[/filewiki_vars]`.
 
 Note that the `nested.vars` are stripped off the source file when
 processing the input filters.
@@ -91,7 +90,7 @@ Example:
 
 
 As a special feature for pages which are also parsed outside FileWiki
-(e.g. perl modules), a "comment" character can be defined by the first
+(e.g. perl modules), a "comment" character is defined by the first
 character preceding <code>&lt;filewiki_vars&gt;</code>.
 
 Example (equivalent to example above):
