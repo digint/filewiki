@@ -1,7 +1,7 @@
-[%# needs variables:
-      page = { index => ..., highlight => ... } 
-      counter
-%]
+[%~# needs variables:
+   #   page = { index => ..., highlight => ... } 
+   #   counter
+~%]
 
 [% img_events = "" %]
 [% link_uri = page.index.IS_DIR ? page.index.INDEX_PAGE.URI : page.index.URI %]

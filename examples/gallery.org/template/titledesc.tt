@@ -1,4 +1,4 @@
-[%# displays gallery title, date, summary and description %]
+[%~#### displays gallery title, date, summary and description ###~%]
 
 [% DEFAULT vars=VARS %]
 

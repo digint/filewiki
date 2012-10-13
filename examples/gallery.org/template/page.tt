@@ -1,3 +1,5 @@
+[%~### Page for a single image display, with prev/next buttons ###~%]
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
@@ -9,9 +11,7 @@
 <body>
 
 
-[%#
-  # display gallery header
-%]
+[%~### display gallery header ###~%]
 
 <div class="gallery_header">
 [% INCLUDE gallery/trail.tt top=DIR %]
@@ -21,15 +21,13 @@
 [% PROCESS action_info.tt       id="shaded_info" %]
 </span>
 </p>
-
 <div class="gallery_info" id="shaded_info" onclick="hide('shaded_info')" style="display: none;">
 [% INCLUDE gallery/exiftable.tt %]
 </div>
 </div>
 
-[%#
-  # display top prev/next links
-%]
+
+[%~### top prev/next links ###~%]
 
 <div class="prevnext_top">
 [% IF PAGE_PREV %]
@@ -46,9 +44,7 @@ next &raquo;
 </div>
 
 
-[%#
-  # display image
-%]
+[%~### image ###~%]
 
 <div class="gallery_image">
 [% IF GALLERY_PROVIDE_ORIGINAL %]<a href="[% GALLERY_ORIGINAL_URI %]">[% END %]
@@ -57,9 +53,7 @@ next &raquo;
 </div>
 
 
-[%#
-  # display bottom prev/next links
-%]
+[%~### bottom prev/next links ###~%]
 
 <table class="prevnext_bottom">
 <tbody>
@@ -105,9 +99,7 @@ next &raquo;
 </table>
 
 
-[%#
-  # footer
-%]
+[%~### footer ###%]
 
 [% PROCESS bottom.tt %]
 

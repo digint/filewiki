@@ -5,7 +5,7 @@ MAKE_INDEX_PAGE=1
 SKIP_PREVNEXT=1
 [/filewiki_vars]
 
-[%################ %]
+[%~################~%]
 
 [%#
   # NOTE: 
@@ -29,9 +29,7 @@ SKIP_PREVNEXT=1
 <body>
 
 
-[%#
-  # display gallery header
-%]
+[%~### gallery header ###~%]
 
 <div class="gallery_header">
 [% INCLUDE gallery/trail.tt top=DIR.PARENT_DIR last=DIR %]
@@ -40,13 +38,12 @@ SKIP_PREVNEXT=1
    vars = DIR
  %]
 <span class="header_links">
-[% PROCESS action_info.tt       id="shaded_info" %]
+[% PROCESS action_info.tt  id="shaded_info" %]
 [% IF slideshow_enable %]
 [% PROCESS action_slideshow.tt  link="slideshow.html" %]
 [% END %]
 </span>
 </p>
-
 <div class="gallery_info" id="shaded_info" onclick="hide('shaded_info')" style="display: none;">
 [% INCLUDE gallery/imagedesc.tt
      vars=DIR
@@ -57,9 +54,7 @@ SKIP_PREVNEXT=1
 </div>
 
 
-[%#
-  # display index matrix
-%]
+[%~### index matrix ###~%]
 
 <div class="gallery_index">
 [%# NOTE: indexmatrix.tt require variables "pagelist" %]
@@ -67,9 +62,7 @@ SKIP_PREVNEXT=1
 </div>
 
 
-[%#
-  # footer
-%]
+[%~### footer ###~%]
 
 [% PROCESS bottom.tt %]
 [% PROCESS filewiki/debug.tt %]

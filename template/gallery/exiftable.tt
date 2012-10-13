@@ -1,4 +1,4 @@
-[%# displays exif data table %]
+[%~### displays exif data table ###~%]
 
 [% SET exif=GALLERY_EXIF %]
 

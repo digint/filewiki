@@ -1,5 +1,6 @@
-[%# displays trail links %]
-[%# NOTE: only works if "last" is a directory %]
+[%~### displays trail links ###~%]
+
+[%~# NOTE: only works if "last" is a directory ~%]
 
 [% trail = [ ] %]
 [% parent = top %]
@@ -20,4 +21,3 @@
 [% title || SRC_FILE_NAME %]
 [% END %]
 </div>
-

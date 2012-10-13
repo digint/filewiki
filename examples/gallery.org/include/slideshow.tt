@@ -6,7 +6,7 @@ meta_HandheldFriendly=True
 meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=1"
 [/filewiki_vars]
 
-[%################ %]
+[%~################~%]
 
 [%#
   # NOTE: This is an example using the free galleria javascript app.

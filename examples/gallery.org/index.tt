@@ -4,7 +4,7 @@ MAKE_INDEX_PAGE=1
 title="Gallery"
 [/filewiki_vars]
 
-[%################ %]
+[%~################~%]
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -15,7 +15,6 @@ title="Gallery"
 <div class="welcome_head">
 <p>Welcome to FileWiki's Photo Gallery!</p>
 </div>
-
 <div class="welcome_content">
 <p>
 <a href="[% URI_PREFIX %]/photos/index.html">

@@ -1,7 +1,7 @@
-[%# generate "pagelist" variable. Arrayref of:
-  # { index     => page,
-  #   highlight => highlight_page }
-%]
+[%~# generate "pagelist" variable. Arrayref of:
+   # { index     => page,
+   #   highlight => highlight_page }
+~%]
 
 [% max_width = 0 %]
 [% max_height = 0 %]

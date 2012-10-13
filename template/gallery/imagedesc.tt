@@ -1,12 +1,12 @@
-[%# displays gallery title, date, summary and description
-  #
-  # arguments:
-  # - vars: hashref of our vars, defaults to VARS
-  # - size: size to be displayed
-  # - show_table: if set, display a table
-  # - title_prefix
-  #
-%]
+[%~# displays gallery title, date, summary and description
+   #
+   # arguments:
+   # - vars: hashref of our vars, defaults to VARS
+   # - size: size to be displayed
+   # - show_table: if set, display a table
+   # - title_prefix
+   #
+~%]
 
 [% DEFAULT vars=VARS %]
 
