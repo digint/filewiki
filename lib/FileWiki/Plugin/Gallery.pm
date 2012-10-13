@@ -36,7 +36,7 @@ use base qw( FileWiki::Plugin );
 use FileWiki::Logger;
 use FileWiki::Filter;
 
-use Date::Format qw(time2str);
+#use Date::Format qw(time2str);
 use Image::ExifTool;
 use Image::Size qw(imgsize);
 use File::Path qw(mkpath);
@@ -46,8 +46,7 @@ our $VERSION = "0.20";
 my $match_default = '\.(bmp|gif|jpeg|jpeg2000|mng|png|psd|raw|svg|tif|tiff|gif|jpeg|jpg|png|pdf|BMP|GIF|JPEG|JPEG2000|MNG|PNG|PSD|RAW|SVG|TIF|TIFF|GIF|JPEG|JPG|PNG|PDF)$';
 my $default_image_ratio = "16:10";
 
-our $default_date_format = '%x';
-our $default_time_format = '%X';
+our $default_time_format = '%Y-%m-%d %H:%M:%S';
 
 sub new
 {
@@ -85,7 +84,7 @@ sub update_vars
   # fetch exif data
   my $exif = Image::ExifTool->new();
   $exif->Options(Unknown => 1) ;
-  $exif->Options(DateFormat => "%Y-%m-%d %H:%M:%S"); # TODO
+  $exif->Options(DateFormat => $page->{GALLERY_TIME_FORMAT} || $default_time_format);
 
   DEBUG "Fetching EXIF data: $page->{SRC_FILE}";
   my $infos = $exif->ImageInfo($page->{SRC_FILE});
@@ -100,18 +99,10 @@ sub update_vars
   $page->{GALLERY_ORIGINAL_HEIGHT} = $infos->{ImageHeight};
 
   # set date / time
-  my $date = $page->{GALLERY_DATE};
-  my $time = $page->{GALLERY_TIME};
-  if($infos->{DateTimeOriginal}) {
-    $date = $1 if($infos->{DateTimeOriginal} =~ m/(\S+)\s+\S+/);
-    $time = $1 if($infos->{DateTimeOriginal} =~ m/\S+\s+(\S+)/);
-  }
-  $page->{GALLERY_DATETIME} = $infos->{DateTimeOriginal};
-  $page->{GALLERY_DATE} = $page->{GALLERY_DATE} || $date;
-  $page->{GALLERY_TIME} = $page->{GALLERY_TIME} || $time;
+  $page->{GALLERY_TIME} = $infos->{DateTimeOriginal};
 
-  unless($page->{GALLERY_DATE} && $page->{GALLERY_TIME}) {
-    WARN "invalid GALLERY_DATE/TIME: No EXIF \"DateTimeOriginal\" found:  $page->{SRC_FILE}";
+  unless($page->{GALLERY_TIME}) {
+    WARN "invalid GALLERY_TIME: No EXIF \"DateTimeOriginal\" found: $page->{SRC_FILE}";
 
     #    WARN "No EXIF \"DateTimeOriginal\" found, setting date/time from MTIME: $page->{SRC_FILE}";
     #    $page->{GALLERY_DATE} = $page->{GALLERY_DATE} || time2str($page->{GALLERY_DATE_FORMAT} || $default_date_format, $page->{SRC_FILE_MTIME});
