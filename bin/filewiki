@@ -113,7 +113,6 @@ my $filewiki = FileWiki->new(%vars);
 
 if($opts{s}) {
   my $sitemap = $filewiki->sitemap();
-  print "\nOption -d is active, printing sitemap:\n";
   print "\nSitemap:\n";
   print $sitemap;
   print "\n";
