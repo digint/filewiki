@@ -17,8 +17,8 @@
 <table>
 <tbody>
 [% UNLESS skip_title %]<tr><td>Title:</td><td>[% title_prefix %][% title_ %]</td></tr>[% END %]
-[% IF vars.date || vars.GALLERY_DATE %][% UNLESS skip_date %]<tr><td>Date:</td><td>[% vars.date || vars.GALLERY_DATE %]</td></tr>[% END %][% END %]
-[% IF vars.time || vars.GALLERY_TIME %]<tr><td>Time:</td><td>[% vars.time || vars.GALLERY_TIME %]</td></tr>[% END %]
+[% IF vars.date %][% UNLESS skip_date %]<tr><td>Date:</td><td>[% vars.date %]</td></tr>[% END %][% END %]
+[% IF vars.time %]<tr><td>Time:</td><td>[% vars.time %]</td></tr>[% END %]
 [% IF vars.summary %]<tr><td>Summary:</td><td>[% vars.summary %]</td></tr>[% END %]
 [% IF vars.desc %]<tr><td>Description:</td><td>[% vars.desc %]</td></tr>[% END %]
 [% IF vars.keywords %]<tr><td>Keywords:</td><td>[% vars.keywords %]</td></tr>[% END %]
@@ -29,7 +29,7 @@
 [% ELSE %]
 
 [% UNLESS skip_title %]<div class="gallery_title">[% title_prefix %][% title_ %]</div>[% END %]
-[% UNLESS skip_date %][% IF vars.date || vars.GALLERY_DATE %]<div class="gallery_date">[% vars.date || vars.GALLERY_DATE %]</div>[% END %][% END %]
+[% UNLESS skip_date %][% IF vars.date %]<div class="gallery_date">[% vars.date %]</div>[% END %][% END %]
 [% IF vars.summary %]<div class="gallery_summary">[% vars.summary %]</div>[% END %]
 [% IF vars.desc %]<div class="gallery_desc">[% vars.desc %]</div>[% END %]
 

@@ -5,6 +5,6 @@
 [% title_ = vars.IS_DIR ? (vars.title || vars.NAME) : (vars.title || vars.SRC_FILE_NAME) %]
 
 <span class="gallery_header_title">[% title_ %]</span>
-[% IF vars.date || vars.GALLERY_DATE %]
-<span class="gallery_header_date">[% vars.date || vars.GALLERY_DATE %]</span>
+[% IF vars.date %]
+<span class="gallery_header_date">[% vars.date %]</span>
 [% END %]
