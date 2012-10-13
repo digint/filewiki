@@ -18,7 +18,7 @@ SKIP_PREVNEXT=1
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 [% USE FileWiki %]
-[% INCLUDE head.tt
+[% INCLUDE filewiki/head.tt
      title = DIR.title || DIR.NAME
      javascript = [ "${scripts_dir}/showhide.js" ]
 %]

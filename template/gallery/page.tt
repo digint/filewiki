@@ -1,11 +1,8 @@
-[%# <?xml version="1.0" encoding="UTF-8"?> %]
-[%# <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"> %]
-[%# <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> %]
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 [% USE FileWiki %]
-[% PROCESS head.tt 
+[% PROCESS filewiki/head.tt 
      javascript = [ "${scripts_dir}/showhide.js" ]
      title = title || SRC_FILE_NAME
 %]
@@ -115,22 +112,7 @@ next &raquo;
 
 [% PROCESS bottom.tt %]
 
-
-[%#
-  # filewiki footer
-%]
-
-[% IF show_vars %]
-<pre>[% FileWiki.DumpVars %]</pre>
-<pre>[% FileWiki.DumpVars( DIR ) %]</pre>
-[% END %]
-
-[% IF show_logger %]
-<br/><br/>
-<hr/>
-filewiki log:<br/>
-<pre>[% FileWiki.Log %]</pre>
-[% END %]
+[% PROCESS filewiki/debug.tt %]
 
 </body>
 </html>
