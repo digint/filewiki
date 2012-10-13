@@ -37,7 +37,7 @@ That's it! Now you can build FileWiki sites:
     filewiki helloworld.org
 
 This will build the `helloworld.org` example site to the target directory
-`helloworld.org.out`.
+`/tmp/filewiki/htdocs`.
 
 Have a look at the more complex `example.org` site, this is intended to
 give you an idea on how FileWiki works.
