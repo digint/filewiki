@@ -22,11 +22,9 @@ meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-sca
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
-[% PROCESS filewiki/head.tt 
-     javascript = [ "$scripts_dir/jquery-1.8.1.min.js",
-                    "$scripts_dir/galleria/galleria-1.2.8.min.js"  ]
+[% INCLUDE filewiki/head.tt 
+     javascript = "$scripts_dir/jquery-1.8.1.min.js:$scripts_dir/galleria/galleria-1.2.8.min.js"
 %]
-
 
 <body>
 
@@ -36,12 +34,12 @@ meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-sca
   Galleria.run('#galleria', {
     height: 0.5625,   // ratio: 16/10
     transition: false,  // disable transitions for mouse users (for speed)
-    touchTransition: 'slide',  // on mobile devices, slide gives a good UI
+    touchTransition: 'slide',  // we like slide on mobile devices
 [%#
 //  autoplay: 7000, // will move forward every 7 seconds
 //  width: 1280,
 //  height: 720,
-// height: 0.5625   // ratio: 16/9
+//  height: 0.5625   // ratio: 16/9
 //    responsive: true,
 %]
   });

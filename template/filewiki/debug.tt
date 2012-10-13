@@ -1,3 +1,5 @@
+[% USE FileWiki %]
+
 [% IF show_vars %]
 <h1>VARS</h1>
 <pre>[% FileWiki.DumpVars %]</pre>
@@ -6,6 +8,6 @@
 [% END %]
 
 [% IF show_logger %]
-<h1>filewiki log:</h1>>
+<h1>filewiki log:</h1>
 <pre>[% FileWiki.Log %]</pre>
 [% END %]

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
-[% USE FileWiki %]
 [% PROCESS filewiki/head.tt 
      javascript = [ "${scripts_dir}/showhide.js" ]
      title = title || SRC_FILE_NAME

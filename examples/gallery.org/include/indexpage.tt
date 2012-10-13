@@ -20,7 +20,7 @@ SKIP_PREVNEXT=1
 [% USE FileWiki %]
 [% INCLUDE filewiki/head.tt
      title = DIR.title || DIR.NAME
-     javascript = [ "${scripts_dir}/showhide.js" ]
+     javascript = "${scripts_dir}/showhide.js"
 %]
 
 [%# provide "pagelist" variable needed below %]
@@ -72,23 +72,7 @@ SKIP_PREVNEXT=1
 %]
 
 [% PROCESS bottom.tt %]
-
-
-[%#
-  # filewiki footer
-%]
-
-[% IF show_vars %]
-<pre>[% FileWiki.DumpVars %]</pre>
-<pre>[% FileWiki.DumpVars( DIR ) %]</pre>
-[% END %]
-
-[% IF show_logger %]
-<br/><br/>
-<hr/>
-filewiki log:<br/>
-<pre>[% FileWiki.Log %]</pre>
-[% END %]
+[% PROCESS filewiki/debug.tt %]
 
 </body>
 </html>
