@@ -70,7 +70,4 @@ sub get_uri_filename
 sub update_vars
 { }
 
-sub dir_hook
-{ }
-
 1;

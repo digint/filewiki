@@ -309,8 +309,8 @@ sub load_plugins
 
     TRACE "Loading plugin '$plugin'";
     unless(eval "require $plugin;") {
-      ERROR "FileWiki plugin \"$plugin\" not found!";
-      ERROR "$@";
+      ERROR "Failed to load FileWiki plugin \"$plugin\": $page->{SRC_FILE}";
+      DEBUG "$@";
       next;
     }
     push @ret, $plugin;
@@ -333,16 +333,6 @@ sub get_handler
   }
   return undef;
 }
-
-sub plugins_dir_hook
-{
-  my $page = shift;
-
-  foreach my $plugin (load_plugins($page)) {
-    $plugin->dir_hook($page);
-  }
-}
-
 
 
 sub _site_tree
@@ -417,9 +407,6 @@ sub _site_tree
 
   # set the handler and vars needed for a directory index page
   my $dir_uri_unprefixed = set_uri(\%dir_vars);
-
-  # call the handler hook
-  plugins_dir_hook(\%dir_vars);
 
   expand_match_vars(\%dir_vars);
   sanitize_vars(\%dir_vars);
