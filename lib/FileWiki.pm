@@ -231,7 +231,7 @@ sub expand_match_vars
           }
         }
       } else {
-        WARN "Key '$match_key' not found while expanding '$key'";
+        DEBUG "Key '$match_key' not found while expanding '$key'";
       }
     }
   }
