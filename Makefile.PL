@@ -1,4 +1,5 @@
 use ExtUtils::MakeMaker;
+my $template_src_dir = 'template';
 
 WriteMakefile(
   NAME          => 'FileWiki',
@@ -13,3 +14,23 @@ WriteMakefile(
                      'File::Spec::Functions' => 0,
                    },
 );
+
+# install templates to /usr/share/filewiki/template
+sub MY::post_constants {
+    join("\n",
+        'TEMPLATES_DEST_DIR=$(PREFIX)/share/filewiki',
+        "TEMPLATES_SRC_DIR=$template_src_dir");
+}
+
+sub MY::postamble {
+    my $self = shift;
+    my @text;
+
+    push(@text,
+        'install :: install.templates',
+        '',
+        'install.templates:: $(TEMPLATES_SRC_DIR)',
+        "\t\$(MKPATH) \$(TEMPLATES_DEST_DIR)",
+        "\t\$(CP) -r \$(TEMPLATES_SRC_DIR) \$(TEMPLATES_DEST_DIR)");
+    join("\n",@text);
+}
