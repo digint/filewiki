@@ -102,7 +102,7 @@ sub update_vars
   $page->{GALLERY_TIME} = $infos->{DateTimeOriginal};
 
   unless($page->{GALLERY_TIME}) {
-    WARN "invalid GALLERY_TIME: No EXIF \"DateTimeOriginal\" found: $page->{SRC_FILE}";
+    WARN "Invalid GALLERY_TIME (missing EXIF data): $page->{SRC_FILE}";
 
     #    WARN "No EXIF \"DateTimeOriginal\" found, setting date/time from MTIME: $page->{SRC_FILE}";
     #    $page->{GALLERY_DATE} = $page->{GALLERY_DATE} || time2str($page->{GALLERY_DATE_FORMAT} || $default_date_format, $page->{SRC_FILE_MTIME});

@@ -73,7 +73,7 @@ sub strip_nested_vars
 
   DEBUG "Stripping page nested vars";
 
-  $in =~ s/^.?[<\[]filewiki_vars[>\]].*?^.?[<\[]\/filewiki_vars[>\]]//ms;
+  $in =~ s/^.?[<\[]filewiki_vars[>\]].*?^.?[<\[]\/filewiki_vars[>\]]\n//ms;
 
   return $in;
 }

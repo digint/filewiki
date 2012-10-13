@@ -628,7 +628,7 @@ sub _site_tree
       DEBUG "Setting INDEX_PAGE=$_->{URI} for directory: $dir_vars{URI}";
       last;
     }
-    WARN "No index page found for directory: $dir_vars{URI}" unless(defined($dir_vars{INDEX_PAGE}));
+    DEBUG "No index page found for directory: $dir_vars{URI}" unless(defined($dir_vars{INDEX_PAGE}));
   }
 
   return \%dir_vars;
