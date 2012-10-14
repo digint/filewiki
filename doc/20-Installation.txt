@@ -11,11 +11,12 @@ Prerequisites
 As all Perl programs, FileWiki depends on some standard modules, which
 are available on CPAN. The Makefile will complain about missing modules.
 
-Depending on what markup language you want to use, you will need:
+Depending on what plugins you enable, you will need:
 
 - Text::Markdown (needed for the example sites)
 - Text::Textile
 - Pod::Simple::HTML
+- Image::ExifTool
 - ...
 
 

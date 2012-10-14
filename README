@@ -1,8 +1,8 @@
-			       FileWiki
+                               FileWiki
 
-			     Version 0.10
+                             Version 0.20
 
-			       May 2012
+                             October 2012
 
 Copyright (C) 2011-2012 Axel Burri.  All Rights Reserved.
 
@@ -54,18 +54,12 @@ FileWiki comes with a command-line client, as well as a in-browser
 Wiki editor.
 
 
-RELEASE NOTES
--------------
-
-* Version 0.10: initial release
-
-
 DOCUMENTATION
 -------------
 
 The main documentation is located in the "doc" directory.
 
-The rest of the documentation is distributed in Pod format. The Pod pages
+The rest of the documentation is distributed in POD format. The POD pages
 are installed when you 'make install' and can be viewed using 'perldoc',
 e.g.
 
@@ -76,6 +70,15 @@ The documentation is also available in HTML format on the FileWiki
 home page at:
 
     http://www.digint.ch/filewiki
+
+
+DEVELOPMENT
+-----------
+
+The source code for FileWiki is managed using Git. Check out the
+source like this:
+
+    $ git clone git://dev.tty0.ch/filewiki.git
 
 
 SUPPORT
