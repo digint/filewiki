@@ -20,7 +20,8 @@ WriteMakefile(
 
 sub MY::post_constants {
     join("\n",
-        'TEMPLATES_DEST_DIR=$(PREFIX)/share/filewiki',
+        'INSTALL_TEMPLATES_LIB=$(PREFIX)/share/filewiki',
+        'DEST_INSTALL_TEMPLATES_LIB=$(DESTDIR)$(INSTALL_TEMPLATES_LIB)',
         "TEMPLATES_SRC_DIR=$template_src_dir");
 }
 
@@ -31,6 +32,6 @@ sub MY::postamble {
         'install :: install.templates',
         '',
         'install.templates:: $(TEMPLATES_SRC_DIR)',
-        "\t\$(NOECHO) \$(MOD_INSTALL) \$(TEMPLATES_SRC_DIR) \$(TEMPLATES_DEST_DIR)");
+        "\t" . '$(NOECHO) $(MOD_INSTALL) $(TEMPLATES_SRC_DIR) $(DEST_INSTALL_TEMPLATES_LIB)');
     join("\n",@text);
 }
