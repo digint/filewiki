@@ -16,6 +16,8 @@ WriteMakefile(
 );
 
 # install templates to /usr/share/filewiki/template
+# this is a bit hacky, but I have no clue how to do this in a nicer way.
+
 sub MY::post_constants {
     join("\n",
         'TEMPLATES_DEST_DIR=$(PREFIX)/share/filewiki',
@@ -25,12 +27,10 @@ sub MY::post_constants {
 sub MY::postamble {
     my $self = shift;
     my @text;
-
     push(@text,
         'install :: install.templates',
         '',
         'install.templates:: $(TEMPLATES_SRC_DIR)',
-        "\t\$(MKPATH) \$(TEMPLATES_DEST_DIR)",
-        "\t\$(CP) -r \$(TEMPLATES_SRC_DIR) \$(TEMPLATES_DEST_DIR)");
+        "\t\$(NOECHO) \$(MOD_INSTALL) \$(TEMPLATES_SRC_DIR) \$(TEMPLATES_DEST_DIR)");
     join("\n",@text);
 }
