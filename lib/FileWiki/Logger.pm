@@ -13,7 +13,7 @@ our $VERSION = "0.10";
 
 =head1 NAME
 
-FileWiki::Logger - tty0.ch buffered logging framework
+FileWiki::Logger - buffered logging framework
 
 =head1 SYNOPSIS
 
