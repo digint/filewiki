@@ -1,6 +1,6 @@
 =head1 NAME
 
-FileWiki::Filter - Filter functions for FileWiki plugins
+FileWiki::Filter - Common text filter functions for FileWiki plugins
 
 =head1 AUTHOR
 

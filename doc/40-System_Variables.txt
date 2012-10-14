@@ -51,7 +51,7 @@ Example:
 This enables the Markdown and Copy plugin.
 
 
-##PLUGIN_<plugin>_MATCH
+##PLUGIN_&lt;plugin&gt;_MATCH
 
 Defines a match on files names for a plugin. The given plugin will be
 enabled if the file matches the expression.
@@ -301,17 +301,14 @@ Returns the variable `my_var` from `dir.vars`.
 Transformation Variables
 ------------------------
 
-The following variables perform transformations on
-
-
-###MATCH_<var>
+###MATCH_&lt;var&gt;
 
 Creates a new variable `<var>`, with it's value being the result of a
 match expression on another variable. Does nothing if `<var>` is
 already defined.
 
-Note: This is only executed on pages. Directory (`DIR`) nodes must be
-set using `DIR_MATCH`.
+Note: This is only executed on pages. Use `DIR_MATCH` for matches on
+directory (`DIR`) nodes.
 
 Example:
 
@@ -322,13 +319,13 @@ For files named like "yyyy-mm-dd-myfile", this creates a new variable
 
 
 
-###DIR_MATCH_<var>
+###DIR_MATCH_&lt;var&gt;
 
 Same as `MATCH_<var>`, but operates on directory (`DIR`) nodes.
 
 
 
-###SANITIZE_<var>
+###SANITIZE_&lt;var&gt;
 
 Transforms the variable `<var>`. Replaces underscores '_' with white
 spaces.
@@ -338,4 +335,4 @@ Example:
     title=this_is_my_title
     SANITIZE_title=1
 
-This sets the vaiable `title` to "this is my title".
+This sets the variable `title` to "this is my title".
