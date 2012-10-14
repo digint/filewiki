@@ -1,0 +1,13 @@
+* filewiki-0.10
+  - initial revision
+
+* filewiki-0.20
+  - added plugin framework
+  - added FileWiki::Plugin::Gallery
+  - added example site for photo gallery
+  - renamed TARGET_DIR to OUTPUT_DIR
+  - removed RAW_COPY system variable (now handled by FileWiki::Plugin::Copy)
+  - added SKIP_PREVNEXT system variable
+  - added MAKE_INDEX_PAGE system variable
+  - added transformation variables: MATCH_<var>, DIR_MATCH_<var>, SANITIZE_<var>
+  - changed delimiter for INCLUDE system variable to ':'
