@@ -2,6 +2,18 @@
 
 FileWiki::Plugin::HTML - HTML plugin for FileWiki
 
+=head1 SYNOPSIS
+
+    PLUGINS=HTML
+    PLUGIN_HTML_MATCH=\.html$
+
+=head1 DESCRIPTION
+
+- Honors nested vars.
+
+- Applies the template specified by the TEMPLATE variable to the
+  unmodified source file text.
+
 =head1 AUTHOR
 
 Axel Burri <axel@tty0.ch>

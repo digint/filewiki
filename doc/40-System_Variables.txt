@@ -33,15 +33,37 @@ Example:
     OUTPUT_DIR=/tmp/filewiki/${BUILD_TIME}
 
 
-###TARGET_MTIME
+###PLUGINS
 
-Format: "YYYY-MM-DD hh:mm:ss"
+Mandatory. Defines a list of plugins to be enabled. If no plugin is
+enabled, the source file will not be processed.
 
-If set, affects modification date for the target (output) file of a
-page.
+Currently provided plugins are: Copy, HTML, TemplateToolkit, Markdown,
+Textile, POD and Gallery.
 
-This is particulary useful if you use rsync -t for installing the
-site, and you don't want a page's mdate to change on every install.
+Refer to FileWiki::Plugin::* Modules documentation for further information about
+each plugin.
+
+Example:
+
+    PLUGINS=Markdown,Copy
+
+This enables the Markdown and Copy plugin.
+
+
+##PLUGIN_<plugin>_MATCH
+
+Defines a match on files names for a plugin. The given plugin will be
+enabled if the file matches the expression.
+
+Example:
+
+    PLUGINS=Markdown,Copy
+    PLUGIN_MARKDOWN_MATCH=\.txt$
+    PLUGIN_COPY_MATCH=\.(ico|png)$
+
+This enables the "Markdown" plugin for all files ending with ".txt",
+and the "Copy" plugin for all files ending in ".ico" or ".png".
 
 
 ###TEMPLATE
@@ -102,7 +124,7 @@ in `tree.vars`!
 ###NAME_MATCH
 
 Change the NAME of a file or directory according to a given regular
-expression.
+expression. This directly affects the resulting URI of the page.
 
 NOTE: This can only be set in `tree.vars`.
 
@@ -117,6 +139,17 @@ For a source file "10-mysource.txt", this will set the NAME to
 ###URI_TRANSFORM_LC
 
 If set, convert all URI's to lowercase.
+
+
+###TARGET_MTIME
+
+Format: "YYYY-MM-DD hh:mm:ss"
+
+If set, affects modification date for the target (output) file of a
+page.
+
+This is particulary useful if you use rsync -t for installing the
+site, and you don't want a page's mdate to change on every install.
 
 
 ###TIME_FORMAT
@@ -138,6 +171,12 @@ will not be processed.  If set in `page.vars`, the page will not be
 processed.
 
 
+###SKIP_PREVNEXT
+
+If set, the page will be excluded from the `PAGE_PREV` / `PAGE_NEXT`
+list (see below).
+
+
 ###INDEX
 
 Specifies the order of the page within the current directory. Defaults
@@ -149,6 +188,12 @@ functions in the templates.
 Note that the index is being sorted lexically (NOT numerically): This
 means for example that "10" is considered smaller than "2". You should
 use "02" here.
+
+
+###MAKE_INDEX_PAGE
+
+Marks the page as `INDEX_PAGE` for the directory. This is mainly
+used by the menu.
 
 
 ###REF
@@ -250,3 +295,47 @@ Template Example:
     [% DIR.my_var %]
 
 Returns the variable `my_var` from `dir.vars`.
+
+
+
+Transformation Variables
+------------------------
+
+The following variables perform transformations on
+
+
+###MATCH_<var>
+
+Creates a new variable `<var>`, with it's value being the result of a
+match expression on another variable. Does nothing if `<var>` is
+already defined.
+
+Note: This is only executed on pages. Directory (`DIR`) nodes must be
+set using `DIR_MATCH`.
+
+Example:
+
+    MATCH_date=NAME:^(\d\d\d\d-\d\d-\d\d)-
+
+For files named like "yyyy-mm-dd-myfile", this creates a new variable
+`date`, setting its value to the date prefix of the file.
+
+
+
+###DIR_MATCH_<var>
+
+Same as `MATCH_<var>`, but operates on directory (`DIR`) nodes.
+
+
+
+###SANITIZE_<var>
+
+Transforms the variable `<var>`. Replaces underscores '_' with white
+spaces.
+
+Example:
+
+    title=this_is_my_title
+    SANITIZE_title=1
+
+This sets the vaiable `title` to "this is my title".

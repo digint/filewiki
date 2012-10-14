@@ -2,6 +2,77 @@
 
 FileWiki::Plugin::Gallery - Gallery generator plugin for FileWiki
 
+=head1 SYNOPSIS
+
+    PLUGINS=Gallery
+    PLUGIN_GALLERY_MATCH=\.(jpg|JPG)$
+
+    GALLERY_CONVERT_OPTIONS        -quality 75 -auto-orient
+    GALLERY_SCALED_MAX_HEIGHT     720
+    GALLERY_THUMB_MAX_HEIGHT      180
+    GALLERY_MINITHUMB_MAX_HEIGHT  80
+    GALLERY_THUMB_RATIO           16:10
+
+
+=head1 DESCRIPTION
+
+Generates image thumbs and resizes using ImageMagick's `convert`
+tool. Provides EXIF information in page vars.
+
+
+=head1 CONFIGURATION VARIABLES
+
+=head2 GALLERY_CONVERT_OPTIONS
+
+Options to be passed to ImageMagick's `convert` tool.
+
+=head2 GALLERY_THUMB_MAX_HEIGHT, GALLERY_MINITHUMB_MAX_HEIGHT
+
+Maximum height of the thumb and minithumb images. The maximum width is
+calculated using the GALLERY_THUMB_RATIO variable.
+
+=head2 GALLERY_THUMB_RATIO
+
+Ratio (height/width) of the thumbs and minithumbs.
+
+=head2 GALLERY_SCALED_MAX_HEIGHT
+
+Maximum height of the scaled images. Note that the maximum width can
+not be set for scaled images (this is because we want all the scaled
+images to have the exact same height).
+
+=head2 GALLERY_TIME_FORMAT
+
+Time format used for GALLERY_TIME variable. See "strftime" in the
+POSIX package for details about the format string.
+
+Defaults to "%Y-%m-%d %H:%M:%S"
+
+
+=head1 VARIABLE PRESETS
+
+=head2 GALLERY_THUMB_URI, GALLERY_MINITHUMB_UIR, GALLERY_SCALED_URI
+
+URI's pointing to the image resizes.
+
+=head2 GALLERY_TIME
+
+Date/Time extracted from EXIF "DateTimeOriginal" key, formatted using
+GALLERY_TIME_FORMAT.
+
+=head2 GALLERY_EXIF
+
+Hash of all EXIF information provided by the source image. Refer to
+the manual of Image::ExifTool for more informations about the EXIF
+keys.
+
+    GALLERY_EXIF={ exif_key => { desc => "Key description",
+                                 info => "EXIF value"
+                               }
+                   exif_key...
+                 }
+
+
 =head1 AUTHOR
 
 Axel Burri <axel@tty0.ch>

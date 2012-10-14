@@ -2,6 +2,23 @@
 
 FileWiki::Plugin::Textile - Textile plugin for FileWiki
 
+=head1 SYNOPSIS
+
+    PLUGINS=Textile
+    PLUGIN_TEXTILE_MATCH=\.txt$
+
+=head1 DESCRIPTION
+
+- Honors nested vars.
+
+- Strips the nested vars from the source.
+
+- Transforms the source using the Textile markup language (See
+  Text::Textile documentation).
+
+- Applies the template specified by the TEMPLATE variable to the
+  transformed text.
+
 =head1 AUTHOR
 
 Axel Burri <axel@tty0.ch>

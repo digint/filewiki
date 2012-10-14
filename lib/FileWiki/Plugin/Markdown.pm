@@ -2,6 +2,24 @@
 
 FileWiki::Plugin::Markdown - Markdown plugin for FileWiki
 
+=head1 SYNOPSIS
+
+    PLUGINS=HTML
+    PLUGIN_MARKDOWN_MATCH=\.txt$
+
+=head1 DESCRIPTION
+
+- Honors nested vars.
+
+- Strips the nested vars from the source.
+
+- Transforms the source using the Markdown markup language (See
+  Text::Markdown and <http://daringfireball.net/projects/markdown/>
+  for details).
+
+- Applies the template specified by the TEMPLATE variable to the
+  transformed text.
+
 =head1 AUTHOR
 
 Axel Burri <axel@tty0.ch>

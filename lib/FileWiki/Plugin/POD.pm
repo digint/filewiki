@@ -2,6 +2,23 @@
 
 FileWiki::Plugin::POD - POD plugin for FileWiki
 
+=head1 SYNOPSIS
+
+    PLUGINS=POD
+    PLUGIN_POD_MATCH=\.(pm|pl|pod)$
+
+=head1 DESCRIPTION
+
+- Honors nested vars.
+
+- Strips the nested vars from the source.
+
+- Transforms the source using the POD markup language (the standard
+  documentation language used for perl projects)
+
+- Applies the template specified by the TEMPLATE variable to the
+  transformed text.
+
 =head1 AUTHOR
 
 Axel Burri <axel@tty0.ch>
