@@ -1,5 +1,4 @@
 use ExtUtils::MakeMaker;
-my $template_src_dir = 'template';
 
 WriteMakefile(
   NAME          => 'FileWiki',
@@ -20,9 +19,9 @@ WriteMakefile(
 
 sub MY::post_constants {
     join("\n",
-        'INSTALL_TEMPLATES_LIB=$(PREFIX)/share/filewiki',
+        'INSTALL_TEMPLATES_LIB=$(PREFIX)/share/filewiki/template',
         'DEST_INSTALL_TEMPLATES_LIB=$(DESTDIR)$(INSTALL_TEMPLATES_LIB)',
-        "TEMPLATES_SRC_DIR=$template_src_dir");
+        'TEMPLATES_SRC_DIR=template');
 }
 
 sub MY::postamble {
