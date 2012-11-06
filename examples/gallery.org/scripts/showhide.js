@@ -6,8 +6,8 @@ function hide(id) {
 }
 function toggle(id) {
     var ele=document.getElementById(id);
-    if(ele.style.display == 'block')
-	ele.style.display = 'none';
-    else
+    if(ele.style.display != 'block')
 	ele.style.display = 'block';
+    else
+	ele.style.display = 'none';
 }
