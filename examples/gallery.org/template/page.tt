@@ -1,12 +1,27 @@
 [%~### Page for a single image display, with prev/next buttons ###~%]
 
+[%#
+  # NOTE: We use the free video-js javascript app here, which is not
+  # provided with the filewiki package.
+  # Download the sources at: <http://videojs.com/>
+  # and unpack the zipfile to "examples/gallery.org/scripts".
+~%]
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
+
+[% IF GALLERY_VIDEO_URI %]
+[% additional_scripts     = ":${scripts_dir}/video-js/video.min.js"     %]
+[% additional_stylesheets = ":${scripts_dir}/video-js/video-js.min.css" %]
+[% END %]
+
 [% PROCESS filewiki/head.tt 
-     javascript = "${scripts_dir}/showhide.js"
+     javascript = "${scripts_dir}/showhide.js" _ $additional_scripts
+     stylesheet = "${stylesheet}" _ $additional_stylesheet
      title = title || SRC_FILE_NAME
 %]
+
 
 <body>
 
@@ -18,7 +33,7 @@
 <p>
 [% INCLUDE titledesc.tt %]
 <span class="header_links">
-[% PROCESS action_info.tt       id="shaded_info" %]
+[% PROCESS action_info.tt  id="shaded_info" %]
 </span>
 </p>
 <div class="gallery_info" id="shaded_info" onclick="hide('shaded_info')" style="display: none;">
@@ -44,14 +59,23 @@ next &raquo;
 </div>
 
 
-[%~### image ###~%]
+[%~### image / video ###~%]
 
+[% IF GALLERY_VIDEO_URI %]
+<div class="gallery_video">
+<video class="video-js vjs-default-skin" controls preload="auto" width="640" height="360" poster="[% GALLERY_SCALED_URI %]" data-setup="{}">
+[% FOREACH key IN GALLERY_VIDEO_URI.keys %]
+  <source src="[% GALLERY_VIDEO_URI.$key %]" type='video/[% key %]'>
+[% END %]
+</video>
+</div>
+[% ELSE %]
 <div class="gallery_image">
 [% IF GALLERY_PROVIDE_ORIGINAL %]<a href="[% GALLERY_ORIGINAL_URI %]">[% END %]
 <img src="[% GALLERY_SCALED_URI %]" alt="[% SRC_FILE_NAME %]" width="[% GALLERY_SCALED_WIDTH %]" height="[% GALLERY_SCALED_HEIGHT %]"/>
 [% IF GALLERY_PROVIDE_ORIGINAL %]</a>[% END %]
 </div>
-
+[% END %]
 
 [%~### bottom prev/next links ###~%]
 
