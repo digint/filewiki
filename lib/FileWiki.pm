@@ -90,7 +90,7 @@ sub new
 
   bless $self, ref($class) || $class;
 
-  INFO "FileWiki v$VERSION";
+  DEBUG "FileWiki module v$VERSION";
   TRACE "Initial vars:"; INDENT 1;
   TRACE dump_vars($self->{vars}); INDENT -1;
 

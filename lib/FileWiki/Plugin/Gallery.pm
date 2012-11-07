@@ -48,6 +48,32 @@ POSIX package for details about the format string.
 
 Defaults to "%Y-%m-%d %H:%M:%S"
 
+=head2 GALLERY_VIDEO_MATCH
+
+Treats files matching this expression as video files. Every video file
+executes all commands specified by the GALLERY_VIDEO_CMD_* variables,
+and sets the GALLERY_IS_VIDEO variable.
+
+=head2 GALLERY_VIDEO_CMD_*
+
+Specifies commands to be executed for video files. Video commands
+expand the following placeholders:
+
+ - __INFILE__  : Input file
+ - __OUTFILE__ : Output file
+ - __OPTIONS__ : Options specified by GALLERY_VIDEO_CMD_XXX_OPTIONS_*
+                 variables.
+
+Example (create webm video):
+
+  GALLERY_VIDEO_CMD_WEBM                       ffmpeg -y -i __INFILE__ -loglevel warning -threads 8 __OPTIONS__ __OUTFILE__
+  GALLERY_VIDEO_CMD_WEBM_OPTION_VIDEO_CODEC    -codec:v libvpx
+  GALLERY_VIDEO_CMD_WEBM_OPTION_VIDEO_QUALITY  -quality good -cpu-used 0 -qmin 10 -qmax 42
+  GALLERY_VIDEO_CMD_WEBM_OPTION_AUDIO_CODEC    -codec:a libvorbis
+  GALLERY_VIDEO_CMD_WEBM_OPTION_AUDIO_BITRATE  -b:a 128k
+  GALLERY_VIDEO_CMD_WEBM_OPTION_VIDEO_BITRATE  -b:v 500k -maxrate 500k -bufsize 1000k
+  GALLERY_VIDEO_CMD_WEBM_OPTION_SCALE          -vf scale=-1:$GALLERY_SCALED_MAX_HEIGHT
+
 
 =head1 VARIABLE PRESETS
 
@@ -116,7 +142,7 @@ our $VERSION = "0.21";
 
 my $match_default = '\.(bmp|gif|jpeg|jpeg2000|mng|png|psd|raw|svg|tif|tiff|gif|jpeg|jpg|png|pdf|mp4|BMP|GIF|JPEG|JPEG2000|MNG|PNG|PSD|RAW|SVG|TIF|TIFF|GIF|JPEG|JPG|PNG|PDF|MP4)$';
 my $video_match_default = '\.(mp4|avi|MP4|AVI)$';
-my $default_image_ratio = "16:10";
+my $default_thumb_ratio = "16:10";
 
 our $default_time_format = '%Y-%m-%d %H:%M:%S';
 
@@ -154,7 +180,7 @@ sub update_vars
   }
 
   # calculate max width/height
-  my $ratio = $page->{GALLERY_THUMB_RATIO} || $default_image_ratio;
+  my $ratio = $page->{GALLERY_THUMB_RATIO} || $default_thumb_ratio;
   $ratio = ($2 / $1) if($ratio =~ m/(\d+)[:\/](\d+)/);
   $page->{GALLERY_THUMB_MAX_WIDTH}     = int($page->{GALLERY_THUMB_MAX_HEIGHT}     / $ratio);
   $page->{GALLERY_MINITHUMB_MAX_WIDTH} = int($page->{GALLERY_MINITHUMB_MAX_HEIGHT} / $ratio);

@@ -41,8 +41,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 =cut
 
 
-#use lib "lib";
-
 use strict;
 use warnings FATAL => qw( all );
 
@@ -50,14 +48,14 @@ use FileWiki;
 use FileWiki::Logger;
 use Getopt::Std;
 
-our $VERSION = "0.10";
+our $VERSION = "0.21";
 
+my $version_info = "filewiki command line client, version $VERSION (FileWiki module version: $FileWiki::VERSION)";
 my $filewiki_home = '<http://www.digint.ch/filewiki/>';
 
 sub VERSION_MESSAGE
 {
-  print STDERR "filewiki command line client, version $VERSION (FileWiki version: $FileWiki::VERSION)\n";
-  print STDERR "\n";
+  print STDERR $version_info . "\n\n";
 }
 
 sub HELP_MESSAGE
@@ -105,6 +103,7 @@ unless($vars{BASEDIR}) {
   exit 1;
 }
 
+INFO $version_info;
 TRACE "$0: vars passed to FileWiki:"; INDENT 1;
 TRACE FileWiki::dump_vars(\%vars); INDENT -1;
 
