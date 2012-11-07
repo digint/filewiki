@@ -17,8 +17,8 @@
 [% END %]
 
 [% PROCESS filewiki/head.tt 
-     javascript = "${scripts_dir}/showhide.js" _ $additional_scripts
-     stylesheet = "${stylesheet}" _ $additional_stylesheet
+     javascript = "${scripts_dir}/showhide.js" _ additional_scripts
+     stylesheet = "${stylesheet}" _ additional_stylesheets
      title = title || SRC_FILE_NAME
 %]
 
@@ -63,9 +63,9 @@ next &raquo;
 
 [% IF GALLERY_IS_VIDEO %]
 <div class="gallery_video">
-<video class="video-js vjs-default-skin" controls preload="auto" width="[% GALLERY_SCALED_WIDTH %]" height="[% GALLERY_SCALED_HEIGHT %]" poster="[% GALLERY_SCALED_URI %]" data-setup="{}">
-<source src="[% GALLERY_MP4_URI %]" type='video/mp4'>
-<source src="[% GALLERY_WEBM_URI %]" type='video/webm'>
+<video id="video_0" class="video-js vjs-default-skin" controls preload="auto" width="[% GALLERY_SCALED_WIDTH %]" height="[% GALLERY_SCALED_HEIGHT %]" poster="[% GALLERY_SCALED_URI %]" data-setup="{}">
+<source src="[% GALLERY_MP4_URI %]" type="video/mp4">
+<source src="[% GALLERY_WEBM_URI %]" type="video/webm">
 </video>
 </div>
 [% ELSE %]

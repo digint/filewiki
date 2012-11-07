@@ -318,6 +318,8 @@ sub run_video_commands
       DEBUG "Skipping video resize: $outfile";
     } else {
       INFO "Executing $key: $outfile"; INDENT 1;
+      mkpath($page->{TARGET_DIR});
+
       my $options = '';
       foreach (keys %$page) {
         next unless(/^${key}_OPTION_[A-Z0-9_]+$/);
