@@ -41,6 +41,6 @@
 <link rel="stylesheet" href="[% stylesheet_handheld %]" type="text/css" media="handheld"/>
 [% END %]
 [% FOREACH js_file IN javascript.split(':') %]
-<script type="text/javascript" src="[% js_file %]"/>
+<script type="text/javascript" src="[% js_file %]"></script>
 [% END %]
 </head>
