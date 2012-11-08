@@ -66,7 +66,7 @@ use FileWiki::Plugin::Gallery;
 
 use Template;
 
-our $VERSION = "0.20";
+our $VERSION = "0.22-pre1";
 
 # Defaults
 our $dir_vars_filename = 'dir.vars';
