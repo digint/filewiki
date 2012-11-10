@@ -71,8 +71,8 @@ next &raquo;
 </div>
 [% ELSE %]
 <div class="gallery_image">
-[% IF GALLERY_PROVIDE_ORIGINAL %]<a href="[% GALLERY_ORIGINAL_URI %]">[% END %]
-<img src="[% GALLERY_SCALED_URI %]" alt="[% SRC_FILE_NAME %]" width="[% GALLERY_SCALED_WIDTH %]" height="[% GALLERY_SCALED_HEIGHT %]"/>
+[% IF GALLERY_RESIZE_BIG_URI || GALLERY_ORIGINAL_URI %]<a href="[% GALLERY_RESIZE_BIG_URI || GALLERY_ORIGINAL_URI %]">[% END %]
+<img src="[% GALLERY_RESIZE_SCALED_URI %]" alt="[% SRC_FILE_NAME %]" width="[% GALLERY_RESIZE_SCALED_WIDTH %]" height="[% GALLERY_RESIZE_SCALED_HEIGHT %]"/>
 [% IF GALLERY_PROVIDE_ORIGINAL %]</a>[% END %]
 </div>
 [% END %]
@@ -83,20 +83,20 @@ next &raquo;
 <table class="prevnext_bottom">
 <tbody>
 <tr>
-<td class="prev" valign="bottom" align="left" style="width: [% GALLERY_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_MINITHUMB_MAX_HEIGHT %]px;">
+<td class="prev" valign="bottom" align="left" style="width: [% GALLERY_RESIZE_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_RESIZE_MINITHUMB_MAX_HEIGHT %]px;">
 [% IF PAGE_PREV %]
 <a href="[% PAGE_PREV.URI %]">
-<div style="width: [% GALLERY_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_MINITHUMB_MAX_HEIGHT %]px;">
-<img src="[% PAGE_PREV.GALLERY_MINITHUMB_URI %]" width="[% PAGE_PREV.GALLERY_MINITHUMB_WIDTH %]" height="[% PAGE_PREV.GALLERY_MINITHUMB_HEIGHT %]"/>
+<div style="width: [% GALLERY_RESIZE_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_RESIZE_MINITHUMB_MAX_HEIGHT %]px;">
+<img src="[% PAGE_PREV.GALLERY_RESIZE_MINITHUMB_URI %]" width="[% PAGE_PREV.GALLERY_RESIZE_MINITHUMB_WIDTH %]" height="[% PAGE_PREV.GALLERY_RESIZE_MINITHUMB_HEIGHT %]"/>
 </div>
 </a>
 [% END %]
 </td>
-<td class="next" valign="bottom" align="right" style="width: [% GALLERY_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_MINITHUMB_MAX_HEIGHT %]px;">
+<td class="next" valign="bottom" align="right" style="width: [% GALLERY_RESIZE_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_RESIZE_MINITHUMB_MAX_HEIGHT %]px;">
 [% IF PAGE_NEXT %]
 <a href="[% PAGE_NEXT.URI %]">
-<div style="width: [% GALLERY_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_MINITHUMB_MAX_HEIGHT %]px;">
-<img src="[% PAGE_NEXT.GALLERY_MINITHUMB_URI %]" width="[% PAGE_NEXT.GALLERY_MINITHUMB_WIDTH %]" height="[% PAGE_NEXT.GALLERY_MINITHUMB_HEIGHT %]"/>
+<div style="width: [% GALLERY_RESIZE_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_RESIZE_MINITHUMB_MAX_HEIGHT %]px;">
+<img src="[% PAGE_NEXT.GALLERY_RESIZE_MINITHUMB_URI %]" width="[% PAGE_NEXT.GALLERY_RESIZE_MINITHUMB_WIDTH %]" height="[% PAGE_NEXT.GALLERY_RESIZE_MINITHUMB_HEIGHT %]"/>
 </div>
 </a>
 [% END %]

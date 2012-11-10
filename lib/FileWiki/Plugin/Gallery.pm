@@ -8,10 +8,10 @@ FileWiki::Plugin::Gallery - Gallery generator plugin for FileWiki
     PLUGIN_GALLERY_MATCH=\.(jpg|JPG)$
 
     GALLERY_CONVERT_OPTIONS        -quality 75 -auto-orient
-    GALLERY_SCALED_MAX_HEIGHT     720
-    GALLERY_THUMB_MAX_HEIGHT      180
-    GALLERY_MINITHUMB_MAX_HEIGHT  80
-    GALLERY_THUMB_RATIO           16:10
+    GALLERY_RESIZE_THUMB          0x180 4:3
+    GALLERY_RESIZE_MINITHUMB      0x80  4:3
+    GALLERY_RESIZE_SCALED         0x720
+    GALLERY_RESIZE_BIG            2560x1440
 
 
 =head1 DESCRIPTION
@@ -26,27 +26,21 @@ tool. Provides EXIF information in page vars.
 
 Options to be passed to ImageMagick's `convert` tool.
 
-=head2 GALLERY_THUMB_MAX_HEIGHT, GALLERY_MINITHUMB_MAX_HEIGHT
-
-Maximum height of the thumb and minithumb images. The maximum width is
-calculated using the GALLERY_THUMB_RATIO variable.
-
-=head2 GALLERY_THUMB_RATIO
-
-Ratio (height/width) of the thumbs and minithumbs.
-
-=head2 GALLERY_SCALED_MAX_HEIGHT
-
-Maximum height of the scaled images. Note that the maximum width can
-not be set for scaled images (this is because we want all the scaled
-images to have the exact same height).
-
 =head2 GALLERY_TIME_FORMAT
 
 Time format used for GALLERY_TIME variable. See "strftime" in the
 POSIX package for details about the format string.
 
 Defaults to "%Y-%m-%d %H:%M:%S"
+
+=head2 GALLERY_RESIZE_*
+
+Specifies the resized images to be generated. The value specifies the
+maximum dimensions:
+
+    WxH ratio
+
+The ratio can be omitted if both W and H are non-zero.
 
 =head2 GALLERY_VIDEO_MATCH
 
@@ -66,13 +60,14 @@ expand the following placeholders:
 
 Example (create webm video):
 
-  GALLERY_VIDEO_CMD_WEBM                       ffmpeg -y -i __INFILE__ -loglevel warning -threads 8 __OPTIONS__ __OUTFILE__
-  GALLERY_VIDEO_CMD_WEBM_OPTION_VIDEO_CODEC    -codec:v libvpx
-  GALLERY_VIDEO_CMD_WEBM_OPTION_VIDEO_QUALITY  -quality good -cpu-used 0 -qmin 10 -qmax 42
-  GALLERY_VIDEO_CMD_WEBM_OPTION_AUDIO_CODEC    -codec:a libvorbis
-  GALLERY_VIDEO_CMD_WEBM_OPTION_AUDIO_BITRATE  -b:a 128k
-  GALLERY_VIDEO_CMD_WEBM_OPTION_VIDEO_BITRATE  -b:v 500k -maxrate 500k -bufsize 1000k
-  GALLERY_VIDEO_CMD_WEBM_OPTION_SCALE          -vf scale=-1:$GALLERY_SCALED_MAX_HEIGHT
+    GALLERY_VIDEO_CMD_WEBM                       ffmpeg -y -i __INFILE__ -loglevel warning -threads 8 -copyts __OPTIONS__ __OUTFILE__
+    GALLERY_VIDEO_CMD_WEBM_MIME_TYPE             video/webm
+    GALLERY_VIDEO_CMD_WEBM_OPTION_SCALE          -vf scale=-1:360
+    GALLERY_VIDEO_CMD_WEBM_OPTION_FORMAT         -f webm
+    GALLERY_VIDEO_CMD_WEBM_OPTION_VIDEO_CODEC    -codec:v libvpx
+    GALLERY_VIDEO_CMD_WEBM_OPTION_VIDEO_QUALITY  -crf 26 -cpu-used 0 -qmin 10 -qmax 42
+    GALLERY_VIDEO_CMD_WEBM_OPTION_AUDIO_CODEC    -codec:a libvorbis
+    GALLERY_VIDEO_CMD_WEBM_OPTION_AUDIO_BITRATE  -b:a 128k
 
 
 =head1 VARIABLE PRESETS
@@ -142,7 +137,6 @@ our $VERSION = "0.22-pre1";
 
 my $match_default = '\.(bmp|gif|jpeg|jpeg2000|mng|png|psd|raw|svg|tif|tiff|gif|jpeg|jpg|png|pdf|mp4|avi|BMP|GIF|JPEG|JPEG2000|MNG|PNG|PSD|RAW|SVG|TIF|TIFF|GIF|JPEG|JPG|PNG|PDF|MP4|AVI)$';
 my $video_match_default = '\.(mp4|avi|MP4|AVI)$';
-my $default_thumb_ratio = "16:10";
 
 our $default_time_format = '%Y-%m-%d %H:%M:%S';
 
@@ -178,14 +172,6 @@ sub update_vars
     $gallery_original_uri =~ s/^$page->{BASEDIR}/$page->{GALLERY_ORIGINAL_URI_PREFIX}/;
     $page->{GALLERY_ORIGINAL_URI} = $gallery_original_uri;
   }
-
-  # calculate max width/height
-  my $ratio = $page->{GALLERY_THUMB_RATIO} || $default_thumb_ratio;
-  $ratio = ($2 / $1) if($ratio =~ m/(\d+)[:\/](\d+)/);
-  $page->{GALLERY_THUMB_MAX_WIDTH}     = int($page->{GALLERY_THUMB_MAX_HEIGHT}     / $ratio);
-  $page->{GALLERY_MINITHUMB_MAX_WIDTH} = int($page->{GALLERY_MINITHUMB_MAX_HEIGHT} / $ratio);
-  $page->{GALLERY_SCALED_MAX_WIDTH} = "";   # NOTE: we always want the same hight here, so we do not restrict the width.
-
 
   # fetch exif data
   my $exif = Image::ExifTool->new();
@@ -244,7 +230,7 @@ sub update_vars
     # run the GALLERY_VIDEO_CMD_* commands
     foreach my $key (keys %$page) {
       next unless($key =~ /^GALLERY_VIDEO_CMD_([A-Z0-9]+)$/);
-      my ($uri, $target_file) = vars_command($page, $key, $page->{SRC_FILE}, $1);
+      my ($name, $uri, $target_file) = vars_command($page, $key, $page->{SRC_FILE}, $1);
       my $mime_type = $page->{$key . "_MIME_TYPE"};
       ERROR "Variable ${key}_MIME_TYPE is not provided: $page->{SRC_FILE}" unless($mime_type);
       push(@videos, { mime_type   => $mime_type,
@@ -255,7 +241,8 @@ sub update_vars
 
     if(scalar @videos) {
       # create still image
-      my ($uri, $target_file) = vars_command($page, "GALLERY_VIDEO_STILL_IMAGE_CMD", $videos[0]->{target_file}, "JPG");
+      my ($name, $uri, $target_file) = vars_command($page, "GALLERY_VIDEO_STILL_IMAGE_CMD", $videos[0]->{target_file}, "JPG");
+      $page->{"GALLERY_VIDEO_STILL_IMAGE_NAME"} = $name;
       $page->{"GALLERY_VIDEO_STILL_IMAGE_URI"} = $uri;
       ($page->{"GALLERY_VIDEO_STILL_IMAGE_WIDTH"}, $page->{"GALLERY_VIDEO_STILL_IMAGE_HEIGHT"}) = imgsize($target_file);
 
@@ -270,11 +257,37 @@ sub update_vars
     $page->{GALLERY_VIDEO} = \@videos;
   }
 
+
   # create thumbs
-  if($image_src) {
-    create_resize($page, $image_src, "SCALED");
-    create_resize($page, $image_src, "THUMB");
-    create_resize($page, $image_src, "MINITHUMB");
+  foreach my $key (keys %$page) {
+    next unless($key =~ /^GALLERY_RESIZE_([A-Z0-9]+)$/);
+    my $type = $1;
+
+    # get/calculate max width/height for GALLERY_RESIZE_*
+    if($page->{$key} =~ m/(\d+)x(\d+)(\s+[\d\.:]+)?/) {
+      my $w = $1;
+      my $h = $2;
+      my $ratio = $3 || 0;
+      $ratio = ($2 / $1) if($ratio =~ m/(\d+)[:\/](\d+)/);
+
+      if($ratio) {
+        if   ($h && (not $w)) { $w = int($h / $ratio) }
+        elsif($w && (not $h)) { $h = int($w * $ratio) }
+      }
+
+      ERROR "Failed to calculate max width/height of $key=$page->{$key}" unless($w || $h);
+      TRACE "Setting ${key}_MAX_WIDTH=$w, ${key}_MAX_HEIGHT=$h";
+      $page->{$key . "_MAX_WIDTH"} = $w;
+      $page->{$key . "_MAX_HEIGHT"} = $h;
+
+      # create thumbs
+      if($image_src) {
+        create_resize($page, $image_src, $type);
+      }
+    }
+    else {
+      ERROR "Invalid $key: $page->{$key}";
+    }
   }
 }
 
@@ -282,7 +295,10 @@ sub update_vars
 sub exec_logged
 {
   my $cmd = shift;
+  my $target_dir = shift;
   DEBUG "$cmd";
+  mkpath($target_dir);
+
   `$cmd`;
   ERROR "Command execution failed ($?): $cmd" if($?);
 }
@@ -297,8 +313,9 @@ sub create_resize
   # set URI and TARGET_FILE
   my $name = $page->{NAME} . '_' . lc($type) . '.jpg';
   my $outfile  = $page->{TARGET_DIR} . $name;
-  $page->{"GALLERY_${type}_URI"}         = $page->{URI_PREFIX} . $page->{URI_DIR} . $name;
-  $page->{"GALLERY_${type}_TARGET_FILE"} = $outfile;
+  $page->{"GALLERY_RESIZE_${type}_NAME"}        = $name;
+  $page->{"GALLERY_RESIZE_${type}_URI"}         = $page->{URI_PREFIX} . $page->{URI_DIR} . $name;
+  $page->{"GALLERY_RESIZE_${type}_TARGET_FILE"} = $outfile;
 
   die unless($infile && $outfile);
 
@@ -307,14 +324,14 @@ sub create_resize
   }
   else {
     INFO "Generating image resize: $outfile"; INDENT 1;
-    mkpath($page->{TARGET_DIR});
 
-    my $geometry = $page->{"GALLERY_${type}_MAX_WIDTH"} . 'x' . $page->{"GALLERY_${type}_MAX_HEIGHT"};
+    my $geometry = ($page->{"GALLERY_RESIZE_${type}_MAX_WIDTH"} || "") . 'x' . ($page->{"GALLERY_RESIZE_${type}_MAX_HEIGHT"} || "");
     my $options  = $page->{"GALLERY_CONVERT_OPTIONS"} || "";
-    exec_logged("convert $options -scale $geometry \"$infile\" \"$outfile\"");
+    # -identify -format "%wx%h": prints the size to stdout
+    exec_logged("convert $options -scale $geometry \"$infile\" \"$outfile\"", $page->{TARGET_DIR});
     INDENT -1;
   }
-  ($page->{"GALLERY_${type}_WIDTH"}, $page->{"GALLERY_${type}_HEIGHT"}) = imgsize($outfile) ;
+  ($page->{"GALLERY_RESIZE_${type}_WIDTH"}, $page->{"GALLERY_RESIZE_${type}_HEIGHT"}) = imgsize($outfile) ;
 
   return $outfile;
 }
@@ -340,8 +357,6 @@ sub vars_command
     DEBUG "Skipping video resize: $outfile";
   } else {
     INFO "Executing $key: $outfile"; INDENT 1;
-    mkpath($page->{TARGET_DIR});
-
     my $options = '';
     foreach (keys %$page) {
       next unless(/^${key}_OPTION_[A-Z0-9_]+$/);
@@ -351,11 +366,11 @@ sub vars_command
     $cmd =~ s/__OUTFILE__/$outfile/;
     $cmd =~ s/__OPTIONS__/$options/;
 
-    exec_logged($cmd);
+    exec_logged($cmd, $page->{TARGET_DIR});
     INDENT -1;
   }
 
-  return ($uri, $outfile);
+  return ($name, $uri, $outfile);
 }
 
 1;

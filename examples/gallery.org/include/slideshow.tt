@@ -23,18 +23,19 @@ meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-sca
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 [% INCLUDE filewiki/head.tt 
-     javascript = "$scripts_dir/jquery-1.8.1.min.js:$scripts_dir/galleria/galleria-1.2.8.min.js"
+     javascript = "$script_jquery:$script_galleria"
 %]
 
 <body>
 
 <script>
   [%# http://galleria.io/docs/ %]
-  Galleria.loadTheme('[% scripts_dir %]/galleria/themes/classic/galleria.classic.min.js');
+  Galleria.loadTheme('[% script_galleria_theme %]');
   Galleria.run('#galleria', {
     height: 0.5625,   // ratio: 16/10
     transition: false,  // disable transitions for mouse users (for speed)
     touchTransition: 'slide',  // we like slide on mobile devices
+    lightbox: true,
 [%#
 //  autoplay: 7000, // will move forward every 7 seconds
 //  width: 1280,
@@ -48,9 +49,10 @@ meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-sca
 <div id="galleria">
 [% FOREACH href IN DIR.TREE %]
 [% NEXT IF href.SKIP_PREVNEXT %]
-<a href="[% href.GALLERY_SCALED_URI %]">
-[%# <img src="[% href.GALLERY_MINITHUMB_URI %]" data-title="[% href.title || href.SRC_FILE_NAME %]" data-description="[% href.desc %]" data-big="[% href.GALLERY_ORIGINAL_URI %]"/> %]
-<img src="[% href.GALLERY_MINITHUMB_URI %]" data-title="[% href.title || href.SRC_FILE_NAME %]" data-description="[% href.desc %]"/>
+<a href="[% href.GALLERY_RESIZE_SCALED_NAME %]">
+<img src="[% href.GALLERY_RESIZE_MINITHUMB_NAME %]" data-title="[% href.title || href.SRC_FILE_NAME %]" data-description="[% href.desc %]"
+[% IF href.GALLERY_RESIZE_BIG_NAME || href.GALLERY_ORIGINAL_NAME +%] data-big="[% href.GALLERY_RESIZE_BIG_NAME || href.GALLERY_ORIGINAL_NAME %]"[% END %]
+/>
 </a>
 [% END %]
 </div>
