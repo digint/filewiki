@@ -1,7 +1,7 @@
 [filewiki_vars]
 TEMPLATE=0
 SKIP_PREVNEXT=1
-stylesheet=$css_dir/slideshow.css
+stylesheet=$css_dir/slideshow.css:$stylesheet_galleria
 meta_HandheldFriendly=True
 meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=1"
 [/filewiki_vars]
@@ -35,8 +35,9 @@ meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-sca
     height: 0.5625,   // ratio: 16/10
     transition: false,  // disable transitions for mouse users (for speed)
     touchTransition: 'slide',  // we like slide on mobile devices
-    lightbox: true,
+    imageCrop: false,  // scale down so the entire image fits
 [%#
+//  lightbox: true,  // zoom in when the user clicks on an image
 //  autoplay: 7000, // will move forward every 7 seconds
 //  width: 1280,
 //  height: 720,
