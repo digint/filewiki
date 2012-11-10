@@ -51,6 +51,9 @@ a:visited {
 .gallery_index td {
     padding: 6px 2px;
 }
+.gallery_index tr {
+    vertical-align: top;
+}
 
 
 .gallery_cell_dir, .gallery_cell_file {
@@ -94,6 +97,16 @@ a:visited {
     margin: 2em 0 0 0;
     padding: 0;
 }
+.prevnext_bottom .prev {
+    text-align: left;
+}
+.prevnext_bottom .next {
+    text-align: right;
+}
+.gallery_attributes {
+    vertical-align: top;
+    text-align: center;
+}
 
 .gallery_info {
     position: absolute;
@@ -124,6 +137,10 @@ a:visited {
     opacity: 0.7;
     color: #000000;
     padding: 0px 0.75em;
+}
+
+.gallery_exiftable th {
+    text-align: left;
 }
 
 

@@ -3,9 +3,6 @@
 [% IF author %]
 <meta name="author" content="[% author %]"/>
 [% END %]
-[% IF copyright %]
-<meta name="copyright" content="[% copyright %]"/>
-[% END %]
 [% IF description %]
 <meta name="description" content="[% description %]"/>
 [% END %]

@@ -73,7 +73,7 @@ next &raquo;
 <div class="gallery_image">
 [% IF GALLERY_RESIZE_BIG_URI || GALLERY_ORIGINAL_URI %]<a href="[% GALLERY_RESIZE_BIG_URI || GALLERY_ORIGINAL_URI %]">[% END %]
 <img src="[% GALLERY_RESIZE_SCALED_URI %]" alt="[% SRC_FILE_NAME %]" width="[% GALLERY_RESIZE_SCALED_WIDTH %]" height="[% GALLERY_RESIZE_SCALED_HEIGHT %]"/>
-[% IF GALLERY_PROVIDE_ORIGINAL %]</a>[% END %]
+[% IF GALLERY_RESIZE_BIG_URI || GALLERY_ORIGINAL_URI %]</a>[% END %]
 </div>
 [% END %]
 
@@ -83,36 +83,36 @@ next &raquo;
 <table class="prevnext_bottom">
 <tbody>
 <tr>
-<td class="prev" valign="bottom" align="left" style="width: [% GALLERY_RESIZE_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_RESIZE_MINITHUMB_MAX_HEIGHT %]px;">
+<td class="prev" style="width: [% GALLERY_RESIZE_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_RESIZE_MINITHUMB_MAX_HEIGHT %]px;">
 [% IF PAGE_PREV %]
 <a href="[% PAGE_PREV.URI %]">
 <div style="width: [% GALLERY_RESIZE_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_RESIZE_MINITHUMB_MAX_HEIGHT %]px;">
-<img src="[% PAGE_PREV.GALLERY_RESIZE_MINITHUMB_URI %]" width="[% PAGE_PREV.GALLERY_RESIZE_MINITHUMB_WIDTH %]" height="[% PAGE_PREV.GALLERY_RESIZE_MINITHUMB_HEIGHT %]"/>
+<img src="[% PAGE_PREV.GALLERY_RESIZE_MINITHUMB_URI %]" alt="[% PAGE_PREV.GALLERY_RESIZE_MINITHUMB_NAME %]" width="[% PAGE_PREV.GALLERY_RESIZE_MINITHUMB_WIDTH %]" height="[% PAGE_PREV.GALLERY_RESIZE_MINITHUMB_HEIGHT %]"/>
 </div>
 </a>
 [% END %]
 </td>
-<td class="next" valign="bottom" align="right" style="width: [% GALLERY_RESIZE_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_RESIZE_MINITHUMB_MAX_HEIGHT %]px;">
+<td class="next" style="width: [% GALLERY_RESIZE_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_RESIZE_MINITHUMB_MAX_HEIGHT %]px;">
 [% IF PAGE_NEXT %]
 <a href="[% PAGE_NEXT.URI %]">
 <div style="width: [% GALLERY_RESIZE_MINITHUMB_MAX_WIDTH %]px; height: [% GALLERY_RESIZE_MINITHUMB_MAX_HEIGHT %]px;">
-<img src="[% PAGE_NEXT.GALLERY_RESIZE_MINITHUMB_URI %]" width="[% PAGE_NEXT.GALLERY_RESIZE_MINITHUMB_WIDTH %]" height="[% PAGE_NEXT.GALLERY_RESIZE_MINITHUMB_HEIGHT %]"/>
+<img src="[% PAGE_NEXT.GALLERY_RESIZE_MINITHUMB_URI %]" alt="[ %PAGE_NEXT.GALLERY_RESIZE_MINITHUMB_NAME %]" width="[% PAGE_NEXT.GALLERY_RESIZE_MINITHUMB_WIDTH %]" height="[% PAGE_NEXT.GALLERY_RESIZE_MINITHUMB_HEIGHT %]"/>
 </div>
 </a>
 [% END %]
 </td>
-<td class="gallery_attributes" valign="top" align="center">
+<td class="gallery_attributes">
 [% IF summary %]<div class="gallery_summary">[% summary %]</div>[% END %]
 [% IF desc %]<div class="gallery_desc">[% desc %]</div>[% END %]
 </td>
 </tr>
 <tr>
-<td>
+<td class="prev">
 [% IF PAGE_PREV %]
 <a href="[% PAGE_PREV.URI %]">&laquo; prev</a>
 [% END %]
 </td>
-<td class="next" align="right">
+<td class="next">
 [% IF PAGE_NEXT %]
 <a href="[% PAGE_NEXT.URI %]">next &raquo;</a>
 [% END %]

@@ -6,7 +6,7 @@
 
 [% IF counter mod gallery_cols == 0 %]
 [% UNLESS counter == 0 %]</tr>[% END %]
-<tr valign="top">
+<tr>
 [% END %]
 
 [% IF page.index.IS_DIR %]

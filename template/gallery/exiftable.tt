@@ -4,22 +4,19 @@
 
 [% IF exif_tags %]
 
-<table>
-<thead align="left">
-<tr><th>Photo Properties:</th></tr>
+<table class="gallery_exiftable">
+<thead>
+<tr><th colspan="2">Photo Properties:</th></tr>
 </thead>
 <tbody>
 
 [% FOREACH key IN exif_tags.split(',') %]
 [% NEXT UNLESS exif.$key %]
-<tr>
-<td>
+<tr><td>
 [% exif.$key.desc %]:
-</td>
-<td>
+</td><td>
 [% exif.$key.info %]
-</td>
-</tr>
+</td></tr>
 [% END %]
 
 </tbody>
