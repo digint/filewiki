@@ -195,6 +195,10 @@ sub update_vars
   $page->{GALLERY_ORIGINAL_WIDTH} = $infos->{ImageWidth};
   $page->{GALLERY_ORIGINAL_HEIGHT} = $infos->{ImageHeight};
 
+  unless($page->{GALLERY_ORIGINAL_WIDTH} && $page->{GALLERY_ORIGINAL_HEIGHT}) {
+    ($page->{"GALLERY_ORIGINAL_WIDTH"}, $page->{"GALLERY_ORIGINAL_HEIGHT"}) = imgsize($page->{SRC_FILE});
+  }
+
   # set date / time
   $page->{GALLERY_TIME} = $infos->{DateTimeOriginal};
 
@@ -325,7 +329,15 @@ sub create_resize
   else {
     INFO "Generating image resize: $outfile"; INDENT 1;
 
-    my $geometry = ($page->{"GALLERY_RESIZE_${type}_MAX_WIDTH"} || "") . 'x' . ($page->{"GALLERY_RESIZE_${type}_MAX_HEIGHT"} || "");
+    my $w = $page->{"GALLERY_RESIZE_${type}_MAX_WIDTH"};
+    my $h = $page->{"GALLERY_RESIZE_${type}_MAX_HEIGHT"};
+    if(((not $w) || ($w > $page->{GALLERY_ORIGINAL_WIDTH})) && ((not $h) || ($h > $page->{GALLERY_ORIGINAL_HEIGHT}))) {
+      WARN "Resize dimensions ($type) are larger than original image, cropping to original";
+      $w = $page->{GALLERY_ORIGINAL_WIDTH};
+      $h = $page->{GALLERY_ORIGINAL_HEIGHT};
+    }
+
+    my $geometry = ($w || "") . 'x' . ($h || "");
     my $options  = $page->{"GALLERY_CONVERT_OPTIONS"} || "";
     # -identify -format "%wx%h": prints the size to stdout
     exec_logged("convert $options -scale $geometry \"$infile\" \"$outfile\"", $page->{TARGET_DIR});
