@@ -132,6 +132,11 @@ a:visited {
     bottom: 0; 
     width: 100%;
 }
+.gallery_mosaic_type {
+  position: absolute;
+  right: 16px;
+}
+
 .shaded_desc {
     background-color: #DDDDDD;
     opacity: 0.7;
