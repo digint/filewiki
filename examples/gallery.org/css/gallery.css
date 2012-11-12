@@ -42,7 +42,7 @@ a:visited {
 }
 
 .gallery_index table {
-    border-spacing: 1;
+    border-spacing: 2px;
     border: 0 none;
     margin: 9px 0px;
     padding: 0;
