@@ -117,6 +117,9 @@ a:visited {
     border-radius: 6px;
 //    opacity: 0.95;
 }
+.gallery_info td {
+    padding-right: 1ex;
+}
 
 .gallery_mosaic {
     position: relative;
@@ -144,9 +147,6 @@ a:visited {
 }
 .gallery_exiftable tbody th {
     padding-top: 2ex;
-}
-.gallery_exiftable td {
-    padding-right: 1ex;
 }
 
 
