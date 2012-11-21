@@ -1,5 +1,26 @@
 [%~### displays exif data table ###~%]
 
+[% BLOCK exif_section %]
+
+[% IF tag_list %]
+[% SET found=0 %]
+[% IF header %]<tr><th colspan="2">[% header %]</th></tr>[% END %]
+[% FOREACH key IN tag_list.split(',') %]
+[% NEXT UNLESS exif.$key %]
+[% SET found=1 %]
+<tr><td>
+[% exif.$key.desc %]:
+</td><td>
+[% exif.$key.info %]
+</td></tr>
+[% END %]
+[% UNLESS found %]<tr><td colspan="2">(not available)</td></tr>[% END %]
+[% END %]
+
+[% END %]
+
+
+
 [% SET exif=GALLERY_EXIF %]
 
 [% IF exif_tags %]
@@ -10,14 +31,9 @@
 </thead>
 <tbody>
 
-[% FOREACH key IN exif_tags.split(',') %]
-[% NEXT UNLESS exif.$key %]
-<tr><td>
-[% exif.$key.desc %]:
-</td><td>
-[% exif.$key.info %]
-</td></tr>
-[% END %]
+[% INCLUDE exif_section  header=0                 tag_list=exif_tags            %]
+[% INCLUDE exif_section  header="Exposure:"       tag_list=exif_tags_exposure   %]
+[% INCLUDE exif_section  header="Camera Details:" tag_list=exif_tags_additional %]
 
 </tbody>
 </table>

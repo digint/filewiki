@@ -113,15 +113,9 @@ a:visited {
     z-index: 10;
     background-color: #333333;
     color: #FFFFFF;
-    opacity: 0.95;
     padding: 0 1em 1em 1em;
-    border-radius: 4px;
-}
-.gallery_info td {
-    padding-right: 1em;
-}
-.gallery_info th {
-    padding-right: 1em;
+    border-radius: 6px;
+//    opacity: 0.95;
 }
 
 .gallery_mosaic {
@@ -146,6 +140,13 @@ a:visited {
 
 .gallery_exiftable th {
     text-align: left;
+    padding-bottom: 1ex;
+}
+.gallery_exiftable tbody th {
+    padding-top: 2ex;
+}
+.gallery_exiftable td {
+    padding-right: 1ex;
 }
 
 
