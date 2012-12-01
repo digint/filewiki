@@ -15,3 +15,9 @@
 * filewiki-0.21
   - added video support for Gallery plugin
   - minor bugfixes
+
+* filewiki-0.22
+  - more generic approach for image resizes and still image commands
+  - enhancements in exif info table
+  - fixed gallery trail: trail goes down as long as gallery_trail variable is set
+  - moved all gallery templates to common template directory
