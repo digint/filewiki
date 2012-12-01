@@ -39,7 +39,7 @@ SKIP_PREVNEXT=1
  %]
 <span class="header_links">
 [% PROCESS gallery/action_info.tt  id="shaded_info" %]
-[% IF slideshow_enable %]
+[% IF gallery_slideshow && slideshow_enable %]
 [% PROCESS gallery/action_slideshow.tt  link="slideshow.html" %]
 [% END %]
 </span>
