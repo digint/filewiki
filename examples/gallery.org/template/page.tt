@@ -31,9 +31,9 @@
 <div class="gallery_header">
 [% INCLUDE gallery/trail.tt top=DIR %]
 <p>
-[% INCLUDE titledesc.tt %]
+[% INCLUDE gallery/titledesc.tt %]
 <span class="header_links">
-[% PROCESS action_info.tt  id="shaded_info" %]
+[% PROCESS gallery/action_info.tt  id="shaded_info" %]
 </span>
 </p>
 <div class="gallery_info" id="shaded_info" onclick="hide('shaded_info')" style="display: none;">
@@ -126,7 +126,7 @@ next &raquo;
 
 [%~### footer ###%]
 
-[% PROCESS bottom.tt %]
+[% PROCESS gallery/bottom.tt %]
 
 [% PROCESS filewiki/debug.tt %]
 

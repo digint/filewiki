@@ -27,7 +27,7 @@ title="Gallery"
 This is your FileWiki photo gallery site. Have fun!
 </p>
 
-[% PROCESS bottom.tt %]
+[% PROCESS gallery/bottom.tt %]
 [% PROCESS filewiki/debug.tt %]
 
 </div>

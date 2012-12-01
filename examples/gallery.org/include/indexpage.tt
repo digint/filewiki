@@ -34,13 +34,13 @@ SKIP_PREVNEXT=1
 <div class="gallery_header">
 [% INCLUDE gallery/trail.tt top=DIR.PARENT_DIR last=DIR %]
 <p>
-[% INCLUDE titledesc.tt
+[% INCLUDE gallery/titledesc.tt
    vars = DIR
  %]
 <span class="header_links">
-[% PROCESS action_info.tt  id="shaded_info" %]
+[% PROCESS gallery/action_info.tt  id="shaded_info" %]
 [% IF slideshow_enable %]
-[% PROCESS action_slideshow.tt  link="slideshow.html" %]
+[% PROCESS gallery/action_slideshow.tt  link="slideshow.html" %]
 [% END %]
 </span>
 </p>
@@ -64,7 +64,7 @@ SKIP_PREVNEXT=1
 
 [%~### footer ###~%]
 
-[% PROCESS bottom.tt %]
+[% PROCESS gallery/bottom.tt %]
 [% PROCESS filewiki/debug.tt %]
 
 </body>
