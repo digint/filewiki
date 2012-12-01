@@ -4,7 +4,7 @@
 
 [% trail = [ ] %]
 [% parent = top %]
-[% WHILE parent && parent.PARENT_DIR %]
+[% WHILE parent && parent.gallery_trail %]
 [% trail.unshift(parent) %]
 [% parent = parent.PARENT_DIR %]
 [% END %]
