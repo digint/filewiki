@@ -1,11 +1,11 @@
 =head1 NAME
 
-FileWiki::Plugin::TemplateToolkit - TemplateToolkit plugin for FileWiki
+FileWiki::Plugin::CSS - CSS plugin for FileWiki
 
 =head1 SYNOPSIS
 
-    PLUGINS=TemplateToolkit
-    PLUGIN_TEMPLATETOOLKIT_MATCH=\.tt$
+    PLUGINS=CSS
+    PLUGIN_CSS_MATCH=\.csstt$
 
 =head1 DESCRIPTION
 
@@ -15,8 +15,7 @@ FileWiki::Plugin::TemplateToolkit - TemplateToolkit plugin for FileWiki
 
 - Transforms the source using TemplateToolkit.
 
-- Applies the template specified by the TEMPLATE variable to the
-  transformed text.
+- Minifies the CSS using CSS::Minify
 
 =head1 AUTHOR
 
@@ -24,7 +23,7 @@ Axel Burri <axel@tty0.ch>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2011-2012 Axel Burri. All rights reserved.
+Copyright (c) 2012 Axel Burri. All rights reserved.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,7 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 =cut
 
 
-package FileWiki::Plugin::TemplateToolkit;
+package FileWiki::Plugin::CSS;
 
 use strict;
 use warnings;
@@ -52,34 +51,50 @@ use base qw( FileWiki::Plugin );
 use FileWiki::Logger;
 use FileWiki::Filter;
 
-our $VERSION = "0.21";
+our $VERSION = "0.10";
 
-my $match_default = '\.tt$';
+my $match_default = '\.csstt$';
 
 sub new
 {
   my $class = shift;
   my $page = shift;
-  my $match = $page->{uc("PLUGIN_TEMPLATETOOLKIT_MATCH")} || $match_default;
+  my $match = $page->{uc("PLUGIN_CSS_MATCH")} || $match_default;
 
   return undef if($page->{IS_DIR});
   return undef unless($page->{SRC_FILE} =~ m/$match/);
 
   my $self = {
     name => $class,
-    target_file_ext => 'html',
+    target_file_ext => 'css',
     read_nested_vars => 1,
     filter => [
       \&FileWiki::Filter::read_source,
       \&FileWiki::Filter::sanitize_newlines,
       \&FileWiki::Filter::strip_nested_vars,
       \&FileWiki::Filter::process_template,
-      \&FileWiki::Filter::apply_template,
+      \&minify_css,
      ],
   };
 
   bless $self, ref($class) || $class;
   return $self;
+}
+
+
+sub minify_css
+{
+  my $self = shift;
+  my $in = shift;
+  my $page = shift;
+
+  if(eval "require CSS::Minifier;") {
+    DEBUG "Minifying CSS";
+    return CSS::Minifier::minify(input => $in);
+  }
+
+  WARN "Perl module CSS::Minifier not found, skipping CSS minify";
+  return $in;
 }
 
 

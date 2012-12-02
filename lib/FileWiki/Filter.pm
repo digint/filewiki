@@ -37,7 +37,7 @@ use FileWiki::Logger;
 
 sub read_source
 {
-  my $self = shift;
+  my $filewiki = shift;
   my $in = shift;
   my $page = shift;
 
@@ -67,7 +67,7 @@ sub read_source
 
 sub strip_nested_vars
 {
-  my $self = shift;
+  my $filewiki = shift;
   my $in = shift;
   my $page = shift;
 
@@ -81,7 +81,7 @@ sub strip_nested_vars
 
 sub strip_xml_comments
 {
-  my $self = shift;
+  my $filewiki = shift;
   my $in = shift;
   my $page = shift;
   DEBUG "Stripping xml-style comments";
@@ -91,10 +91,9 @@ sub strip_xml_comments
   return $in;
 }
 
-
 sub sanitize_newlines
 {
-  my $self = shift;
+  my $filewiki = shift;
   my $in = shift;
   DEBUG "Sanitizing newlines";
   $in =~ s/\r\n/\n/g;
@@ -104,7 +103,7 @@ sub sanitize_newlines
 
 sub apply_template
 {
-  my $self = shift;
+  my $filewiki = shift;
   my $in = shift;
   my $page = shift;
 
@@ -121,14 +120,27 @@ sub apply_template
   $page->{TEMPLATE_INPUT} = $in;
   my $template = $page->{TEMPLATE};
   DEBUG "Processing template: $template"; INDENT 1;
-  my $out = _apply_template($template, $page);
+  my $out = _process_template($template, $page);
+  INDENT -1;
 
+  return $out;
+}
+
+
+sub process_template
+{
+  my $filewiki = shift;
+  my $in = shift;
+  my $page = shift;
+
+  DEBUG "Processing template text"; INDENT 1;
+  my $out = FileWiki::Filter::_process_template(\$in, $page);
   INDENT -1;
   return $out;
 }
 
 
-sub _apply_template
+sub _process_template
 {
   my $process_in = shift;
   my $page = shift;
@@ -142,10 +154,10 @@ sub _apply_template
     TRACE "TemplateToolkit option: $key=$val";
   }
 
-  my $tt = Template->new(\%tt_opt);
-
   my $out = "";
+  my $tt = Template->new(\%tt_opt);
   $tt->process($process_in, $page, \$out) or ERROR("Template Error: " . $tt->error());
+
   return $out;
 }
 
