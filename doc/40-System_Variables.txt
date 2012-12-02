@@ -228,6 +228,13 @@ are:
 - `desc`: sort descending.
 
 
+###INCLUDE_VARS
+
+Include variables from a given vars file. Note that no checking on
+circular including is performed. Make sure that you don't include vars
+files which include the currently parsed file again!
+
+
 ###INCLUDE
 
 Include files/directories. Optionally, you can specify a prefix from

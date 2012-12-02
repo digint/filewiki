@@ -21,3 +21,4 @@
   - enhancements in exif info table
   - fixed gallery trail: trail goes down as long as gallery_trail variable is set
   - moved all gallery templates to common template directory
+  - added INCLUDE_VARS system variable

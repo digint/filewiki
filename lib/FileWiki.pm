@@ -137,11 +137,12 @@ sub read_vars
 
   DEBUG "Reading " . ($args{nested} ? "nested" : "") . " vars: $file"; INDENT 1;
 
-  open(FILE, "<$file") or die "Failed to open file \"$file\": $!";
+  my $fh;
+  open($fh, "<$file") or die "Failed to open file \"$file\": $!";
 
   if($args{nested}) {
     my $found = 0;
-    while (<FILE>) {
+    while (<$fh>) {
       if( /^(.?)[<\[]filewiki_vars[>\]]/ ) {
         $nested_remove_char = $1;
         $found = 1;
@@ -151,12 +152,12 @@ sub read_vars
 
     unless($found) {
       DEBUG "No nested vars found"; INDENT -1;
-      close FILE;
+      close $fh;
       return %vars;
     }
   }
 
-  while (<FILE>) {
+  while (<$fh>) {
     chomp;
     s/^$nested_remove_char//;
     last if /^[<\[]\/filewiki_vars[>\]]/;
@@ -187,13 +188,18 @@ sub read_vars
     $val =~ s/\${(\w+)}/check_var(\%vars, $1, $file)/eg;
     $val =~ s/\$(\w+)/check_var(\%vars, $1, $file)/eg;
 
+    # include vars
+    if($key eq "INCLUDE_VARS") {
+      DEBUG "INCLUDE_VARS: including $val";
+      %vars = read_vars(file => $val, vars => \%vars);
+      next;
+    }
 
     $vars{$key} = $val;
     TRACE "$key=$val";
-
   }
   INDENT -1;
-  close(FILE);
+  close($fh);
   return %vars;
 }
 
@@ -364,11 +370,11 @@ sub _site_tree
 
   # get overlay prefix for INCLUDE's
   my $vars_overlay;
-  foreach my $overlay_dir (keys %{$tree_vars{INCLUDE_VARS}}) {
+  foreach my $overlay_dir (keys %{$tree_vars{VARS_OVERLAY}}) {
     if($src_dir =~ /^$overlay_dir(.*)/) {
       $vars_overlay = $1;
       $vars_overlay =~ s/\//_/g;
-      $vars_overlay = $tree_vars{INCLUDE_VARS}->{$overlay_dir} . $vars_overlay;
+      $vars_overlay = $tree_vars{VARS_OVERLAY}->{$overlay_dir} . $vars_overlay;
       DEBUG "Found overlay prefix: $vars_overlay";
       last;
     }
@@ -441,7 +447,7 @@ sub _site_tree
     foreach my $include (@includes) {
       $include =~ s/\[(\w+)\]//;
 
-      $tree_vars{INCLUDE_VARS}->{$include} = "$src_dir/$1" if($1);
+      $tree_vars{VARS_OVERLAY}->{$include} = "$src_dir/$1" if($1);
       push @files, $include;
     }
   }
