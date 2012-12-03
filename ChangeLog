@@ -23,3 +23,4 @@
   - moved all gallery templates to common template directory
   - added INCLUDE_VARS system variable
   - added FileWiki::Plugin::CSS, with template and minimizing support
+  - fixed INCLUDE variable handling
