@@ -34,10 +34,8 @@ use warnings;
 use FileWiki::Logger;
 
 
-
 sub read_source
 {
-  my $filewiki = shift;
   my $in = shift;
   my $page = shift;
 
@@ -53,7 +51,7 @@ sub read_source
     DEBUG "Reading file: $sfile";
     open(INFILE, "<$sfile") or die "Failed to open file \"$sfile\": $!";
     {
-      local $/;			# slurp the file
+      local $/;   # slurp the file
       $data = <INFILE>;
     }
     close(INFILE);
@@ -67,33 +65,23 @@ sub read_source
 
 sub strip_nested_vars
 {
-  my $filewiki = shift;
   my $in = shift;
-  my $page = shift;
-
   DEBUG "Stripping page nested vars";
-
   $in =~ s/^.?[<\[]filewiki_vars[>\]].*?^.?[<\[]\/filewiki_vars[>\]]\n//ms;
-
   return $in;
 }
 
 
 sub strip_xml_comments
 {
-  my $filewiki = shift;
   my $in = shift;
-  my $page = shift;
   DEBUG "Stripping xml-style comments";
-
   $in =~ s/<!----.*?---->//sg;
-
   return $in;
 }
 
 sub sanitize_newlines
 {
-  my $filewiki = shift;
   my $in = shift;
   DEBUG "Sanitizing newlines";
   $in =~ s/\r\n/\n/g;
@@ -103,7 +91,6 @@ sub sanitize_newlines
 
 sub apply_template
 {
-  my $filewiki = shift;
   my $in = shift;
   my $page = shift;
 
@@ -129,7 +116,6 @@ sub apply_template
 
 sub process_template
 {
-  my $filewiki = shift;
   my $in = shift;
   my $page = shift;
 

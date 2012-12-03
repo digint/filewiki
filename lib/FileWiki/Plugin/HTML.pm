@@ -48,7 +48,7 @@ use base qw( FileWiki::Plugin );
 use FileWiki::Logger;
 use FileWiki::Filter;
 
-our $VERSION = "0.20";
+our $VERSION = "0.30";
 
 my $match_default = '\.(html|htm)$';
 

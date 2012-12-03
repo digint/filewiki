@@ -51,7 +51,7 @@ use base qw( FileWiki::Plugin );
 use FileWiki::Logger;
 use FileWiki::Filter;
 
-our $VERSION = "0.10";
+our $VERSION = "0.30";
 
 my $match_default = '\.csstt$';
 
@@ -84,9 +84,7 @@ sub new
 
 sub minify_css
 {
-  my $self = shift;
   my $in = shift;
-  my $page = shift;
 
   if(eval "require CSS::Minifier;") {
     DEBUG "Minifying CSS";

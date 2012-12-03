@@ -56,7 +56,7 @@ use FileWiki::Filter;
 
 use Text::Markdown;
 
-our $VERSION = "0.20";
+our $VERSION = "0.30";
 
 my $match_default = '\.(markdown|txt)$';
 
@@ -89,10 +89,12 @@ sub new
 
 sub transform_markdown
 {
-  my $filewiki = shift;
   my $in = shift;
+  my $page = shift;
+  my $filewiki = shift;
+
   my $r = $filewiki->refs();
-  my %refs = %$r; # make a copy, markdown modifies these
+  my %refs = %$r;  # make a copy, markdown modifies these
 
   DEBUG "Converting Markdown";
 

@@ -34,13 +34,13 @@ use warnings;
 use FileWiki::Logger;
 
 
-our $VERSION = "0.20";
+our $VERSION = "0.30";
 
 sub process_page
 {
   my $self = shift;
-  my $filewiki = shift;
   my $page = shift;
+  my $filewiki = shift;
   my $data = "";
 
   return unless($page->{SRC_FILE});
@@ -49,7 +49,7 @@ sub process_page
   DEBUG "Processing filter chain: $self->{name}"; INDENT 1;
   foreach my $filter_function (@{$self->{filter}})
   {
-    $data = &$filter_function($filewiki, $data, $page);
+    $data = &$filter_function($data, $page, $filewiki);
     TRACE "Data length=" . length($data);
   }
   INDENT -1;

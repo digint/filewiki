@@ -54,7 +54,7 @@ use FileWiki::Logger;
 use FileWiki::Filter;
 use Pod::Simple::HTML;
 
-our $VERSION = "0.20";
+our $VERSION = "0.30";
 
 my $match_default = '\.(pod|pm|pl)$';
 
@@ -86,13 +86,12 @@ sub new
 
 sub transform_pod
 {
-  my $filewiki = shift;
   my $in = shift;
+  my $out = '';
+
   DEBUG "Converting POD";
 
-  my $out = '';
   my $parser = Pod::Simple::HTML->new();
-
   $parser->output_string(\$out);
   $parser->parse_string_document($in);
 

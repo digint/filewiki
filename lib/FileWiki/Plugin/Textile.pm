@@ -55,7 +55,7 @@ use FileWiki::Filter;
 
 use Text::Textile;
 
-our $VERSION = "0.20";
+our $VERSION = "0.30";
 
 my $match_default = '\.(textile)$';
 
@@ -89,8 +89,9 @@ sub new
 
 sub transform_textile
 {
-  my $filewiki = shift;
   my $in = shift;
+  my $page = shift;
+  my $filewiki = shift;
   DEBUG "Converting Textile";
 
   my $refs = $filewiki->refs();

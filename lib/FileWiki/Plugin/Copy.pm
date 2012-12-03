@@ -48,7 +48,7 @@ use FileWiki::Filter;
 use File::Spec::Functions qw(splitpath);
 
 
-our $VERSION = "0.20";
+our $VERSION = "0.30";
 
 sub new
 {

@@ -133,7 +133,7 @@ use Image::ExifTool;
 use Image::Size qw(imgsize);
 use File::Path qw(mkpath);
 
-our $VERSION = "0.22-pre1";
+our $VERSION = "0.30";
 
 my $match_default = '\.(bmp|gif|jpeg|jpeg2000|mng|png|psd|raw|svg|tif|tiff|gif|jpeg|jpg|png|pdf|mp4|avi|BMP|GIF|JPEG|JPEG2000|MNG|PNG|PSD|RAW|SVG|TIF|TIFF|GIF|JPEG|JPG|PNG|PDF|MP4|AVI)$';
 my $video_match_default = '\.(mp4|avi|MP4|AVI)$';

@@ -62,11 +62,9 @@ use Time::Piece;
 use File::Path qw(mkpath);
 use File::Spec::Functions qw(splitpath);
 
-use FileWiki::Plugin::Gallery;
-
 use Template;
 
-our $VERSION = "0.22-pre1";
+our $VERSION = "0.30-pre1";
 
 # Defaults
 our $dir_vars_filename = 'dir.vars';
@@ -276,7 +274,7 @@ sub process_page
 
     $page->{SRC_TEXT} = $data if($data);
 
-    $data = $page->{HANDLER}->process_page($self, $page);
+    $data = $page->{HANDLER}->process_page($page, $self);
 
     INDENT -1;
   }
