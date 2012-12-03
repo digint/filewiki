@@ -15,7 +15,7 @@ FileWiki::Plugin::CSS - CSS plugin for FileWiki
 
 - Transforms the source using TemplateToolkit.
 
-- Minifies the CSS using CSS::Minify
+- Minifies the CSS using CSS::Minifier
 
 =head1 AUTHOR
 
