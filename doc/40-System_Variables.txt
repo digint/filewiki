@@ -237,17 +237,29 @@ files which include the currently parsed file again!
 
 ###INCLUDE
 
-Include files/directories. Optionally, you can specify a prefix from
-where to read additional tree-, page- and file-vars can be defined in
-square brackets.
-Example
+Include files/directories. Multiple includes are separated by a
+colon. Optionally, you can specify a prefix from where to read
+additional tree-, page- and file-vars can be defined in square
+brackets.
 
-    INCLUDE=/my/include/directory[mydir]:/my/other/include_dir
+Example (include files):
 
-This includes the directories specified. The `tree.vars` will be read
-from `mydir.tree.vars` in the current directory (Same applies for
-`dir.vars` and `file.vars`). The vars from subdirectories will be
-read from `mydir_subdir.tree.vars`.
+    INCLUDE=/my/include/file[myprefix]:/my/other/file
+
+This includes the file specified. The vars for the included file will
+be read from `myprefix.vars` in the current directory.
+
+
+Example (include directories):
+
+    INCLUDE=/my/include/directory[myprefix]:/my/other/include_dir
+
+This includes the directories specified. The vars for the included
+directory will be read from `myprefix.tree.vars` and
+`myprefix.dir.vars` in the current directory. The vars from
+subdirectories will be read from `myprefix_subdir.tree.vars` and
+`myprefix_subdir.dir.vars`. The vars from a file `myfile.txt` within
+the directory will be read from `myprefix_myfile.txt.vars`.
 
 
 Presets

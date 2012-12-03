@@ -369,16 +369,7 @@ sub _site_tree
   }
 
   # get overlay prefix for INCLUDE's
-  my $vars_overlay;
-  foreach my $overlay_dir (keys %{$tree_vars{VARS_OVERLAY}}) {
-    if($src_dir =~ /^$overlay_dir(.*)/) {
-      $vars_overlay = $1;
-      $vars_overlay =~ s/\//_/g;
-      $vars_overlay = $tree_vars{VARS_OVERLAY}->{$overlay_dir} . $vars_overlay;
-      DEBUG "Found overlay prefix: $vars_overlay";
-      last;
-    }
-  }
+  my $vars_overlay = $tree_vars{VARS_OVERLAY}->{$src_dir};
 
   # provide DIR in tree_vars
   %tree_vars = ( %tree_vars,
@@ -445,9 +436,10 @@ sub _site_tree
     DEBUG "Found dir_vars{INCLUDE}, including files: $dir_vars{INCLUDE}";
     my @includes = split(/:/, $dir_vars{INCLUDE});
     foreach my $include (@includes) {
-      $include =~ s/\[(\w+)\]//;
+      my $overlay = $1 if($include =~ s/\[(\w+)\]//);
+      $include =~ s/\/*$//;
 
-      $tree_vars{VARS_OVERLAY}->{$include} = "$src_dir/$1" if($1);
+      $tree_vars{VARS_OVERLAY}->{$include} = "$src_dir/$overlay" if($overlay);
       push @files, $include;
     }
   }
@@ -457,6 +449,9 @@ sub _site_tree
   {
     $file =~ m/\/([^\/]+)$/;
     my $file_name = $1 || die("uups, '$file' is a directory but does not end with '/*'");
+
+    # add overlay for the file/dir if the current directory has an overlay
+    $tree_vars{VARS_OVERLAY}->{$file} = $vars_overlay . '_' . $file_name if($vars_overlay);
 
     if(-d $file)
     {
@@ -508,8 +503,8 @@ sub _site_tree
     # page vars file supersede the tree vars
     %page = read_vars(file => "$file.vars",
                       vars => \%page);
-    %page = read_vars(file => "$vars_overlay.$name.vars",
-                      vars => \%page) if($vars_overlay);
+    %page = read_vars(file => "$tree_vars{VARS_OVERLAY}->{$file}.vars",
+                      vars => \%page) if($tree_vars{VARS_OVERLAY}->{$file});
 
 
     # attach plugin to the page
