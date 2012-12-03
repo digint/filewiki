@@ -1,0 +1,60 @@
+@charset "utf-8";
+
+#filewiki_controls {
+    background-color: whitesmoke;
+}
+#filewiki_edit, #filewiki_cms, #filewiki_vars, #filewiki_sitemap {
+    margin: 1em 0;
+    padding: 1em;
+}
+
+#filewiki_sitemap td {
+    vertical-align: top;
+}
+#filewiki_sitemap th {
+    text-align: left;
+}
+
+.filewiki_action {
+    border: 1px outset #DEDEDE;
+    text-decoration: none;
+    color: #335966;
+    cursor: pointer;
+}
+
+.filewiki_log {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    max-height: 80%;
+    overflow: auto;
+    background-color: whitesmoke;
+    padding: 4px;
+}
+
+.filewiki_error {
+    margin: 1em;
+    padding: 5px;
+    border: 2px solid red;
+    color: crimson;
+    background-color: whitesmoke;
+}
+
+.filewiki_info {
+    margin: 1em;
+    padding: 5px;
+    border: 2px solid green;
+    color: green;
+    background-color: whitesmoke;
+}
+
+.filewiki_command {
+    color: crimson;
+}
+
+/* NOTE: the logging display is set to "block" in onload() hook (filewiki_onload.tt). */
+.log_e { color: crimson; display: none; }
+.log_w { color: darkred; display: none; }
+.log_i { color: dimgray; display: none; }
+.log_d { color: dimgray; display: none; }
+.log_t { color: dimgray; display: none; }

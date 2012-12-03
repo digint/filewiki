@@ -4,7 +4,7 @@ INDEX=0
 </filewiki_vars>
 
 This section includes the FileWiki documentation folder, by setting
-"INCLUDE=$BASEDIR/../doc[doc]" in the dir.vars.
+"INCLUDE=$BASEDIR/../../doc[doc]" in the dir.vars.
 
 Note the files "doc.dir.vars" and "doc.tree.vars": these define the
 vars of the included directory marked as "[doc]".
