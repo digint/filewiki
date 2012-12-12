@@ -6,7 +6,7 @@
    # q is the search query, if it is prefixed by loc: then google assumes it is a lat lon separated by a +
 ~%]
 
-<a href="http://maps.google.com?q=loc:[% GALLERY_EXIF.GPSLatitude.value %]+[% GALLERY_EXIF.GPSLongitude.value %]&t=h">
+<a href="http://maps.google.com?q=loc:[% GALLERY_EXIF.GPSLatitude.value %]+[% GALLERY_EXIF.GPSLongitude.value %]&t=h" target="_geolocation">
 <img alt="map" src="[% map_icon %]" />
 </a>
 </span>
