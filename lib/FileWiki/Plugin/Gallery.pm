@@ -200,13 +200,21 @@ sub update_vars
     next unless(-e $exif_src);
 
     DEBUG "Fetching EXIF data: $exif_src";
-    my $infos = $exif->ImageInfo($exif_src);
-    foreach (keys(%$infos)) {
+    $exif->ExtractInfo($exif_src);
+    my $infos = $exif->GetInfo();
+    my @tags = $exif->GetTagList();
+    foreach (@tags) {
 #      WARN("duplicate EXIF key: $_  $exif_hash{$_}->{info} -- $infos->{$_}") if exists($exif_hash{$_});
-      $exif_hash{$_} = { desc => $exif->GetDescription($_),
-                         info => $infos->{$_} };
+      $exif_hash{$_} = { print => $exif->GetValue($_, 'PrintConv'),
+                         desc  => $exif->GetDescription($_),
+                         value => $exif->GetValue($_, 'ValueConv'),
+                         raw   => $exif->GetValue($_, 'Raw'),
+                       };
     }
   }
+
+  $page->{GALLERY_GEO_LON} = $exif_hash{GPSLongitude}->{value};
+  $page->{GALLERY_GEO_LAT} = $exif_hash{GPSLatitude}->{value};
 
   $page->{GALLERY_EXIF} = \%exif_hash;
   $page->{GALLERY_ORIGINAL_WIDTH} = $exif_hash{ImageWidth}->{info};
