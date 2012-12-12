@@ -34,8 +34,3 @@
 [% IF vars.desc %]<div class="gallery_desc">[% vars.desc %]</div>[% END %]
 
 [% END %]
-
-[% IF exif %]
-<hr/>
-[% INCLUDE gallery/exiftable.tt %]
-[% END %]

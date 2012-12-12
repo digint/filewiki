@@ -3,38 +3,41 @@
 [% BLOCK exif_section %]
 
 [% IF tag_list %]
-[% SET found=0 %]
-[% IF header %]<tr><th colspan="2">[% header %]</th></tr>[% END %]
+[% SET keys = [] %]
 [% FOREACH key IN tag_list.split(',') %]
-[% NEXT UNLESS exif.$key %]
-[% SET found=1 %]
+[% NEXT UNLESS GALLERY_EXIF.$key %]
+[% keys.push(key) %]
+[% END %]
+
+[% IF header %]<tr><th colspan="2">[% header %]</th></tr>[% END %]
+[% IF keys.size %]
+[% FOREACH key IN keys %]
 <tr><td>
-[% exif.$key.desc %]:
+[% GALLERY_EXIF.$key.desc %]:
 </td><td>
-[% exif.$key.print %]
+[% GALLERY_EXIF.$key.print %]
 </td></tr>
 [% END %]
-[% UNLESS found %]<tr><td colspan="2">(not available)</td></tr>[% END %]
+[% ELSE %]
+<tr><td colspan="2">(not available)</td></tr>
+[% END %]
 [% END %]
 
 [% END %]
 
 
+[%~### BLOCK END ###~%]
 
-[% SET exif=GALLERY_EXIF %]
 
-[% IF exif_tags %]
+[% IF exif_tags_main || exif_tags_exposure || exif_tags_additional || exif_tags_geo %]
 
 <table class="gallery_exiftable">
-<thead>
-<tr><th colspan="2">Photo Properties:</th></tr>
-</thead>
 <tbody>
 
-[% INCLUDE exif_section  header=0                 tag_list=exif_tags            %]
-[% INCLUDE exif_section  header="Exposure:"       tag_list=exif_tags_exposure   %]
-[% INCLUDE exif_section  header="Camera Details:" tag_list=exif_tags_additional %]
-[% INCLUDE exif_section  header="Geolocation:"    tag_list=exif_tags_geo        %]
+[% INCLUDE exif_section  header="Photo Properties:"  tag_list=exif_tags_main       %]
+[% INCLUDE exif_section  header="Exposure:"          tag_list=exif_tags_exposure   %]
+[% INCLUDE exif_section  header="Camera Details:"    tag_list=exif_tags_additional %]
+[% INCLUDE exif_section  header="Geolocation:"       tag_list=exif_tags_geo        %]
 
 </tbody>
 </table>

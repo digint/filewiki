@@ -34,6 +34,7 @@
 [% INCLUDE gallery/titledesc.tt %]
 <span class="header_links">
 [% PROCESS gallery/action_info.tt  id="shaded_info" %]
+[% PROCESS gallery/action_map.tt %]
 </span>
 </p>
 <div class="gallery_info" id="shaded_info" onclick="hide('shaded_info')" style="display: none;">

@@ -202,9 +202,9 @@ sub update_vars
     DEBUG "Fetching EXIF data: $exif_src";
     $exif->ExtractInfo($exif_src);
     my $infos = $exif->GetInfo();
-    my @tags = $exif->GetTagList();
+    my @tags = $exif->GetFoundTags();
     foreach (@tags) {
-#      WARN("duplicate EXIF key: $_  $exif_hash{$_}->{info} -- $infos->{$_}") if exists($exif_hash{$_});
+#      WARN("duplicate EXIF key: $_  $exif_hash{$_}->{value} -- $infos->{$_}") if exists($exif_hash{$_});
       $exif_hash{$_} = { print => $exif->GetValue($_, 'PrintConv'),
                          desc  => $exif->GetDescription($_),
                          value => $exif->GetValue($_, 'ValueConv'),
@@ -213,19 +213,16 @@ sub update_vars
     }
   }
 
-  $page->{GALLERY_GEO_LON} = $exif_hash{GPSLongitude}->{value};
-  $page->{GALLERY_GEO_LAT} = $exif_hash{GPSLatitude}->{value};
-
   $page->{GALLERY_EXIF} = \%exif_hash;
-  $page->{GALLERY_ORIGINAL_WIDTH} = $exif_hash{ImageWidth}->{info};
-  $page->{GALLERY_ORIGINAL_HEIGHT} = $exif_hash{ImageHeight}->{info};
+  $page->{GALLERY_ORIGINAL_WIDTH} = $exif_hash{ImageWidth}->{value};
+  $page->{GALLERY_ORIGINAL_HEIGHT} = $exif_hash{ImageHeight}->{value};
 
   unless($page->{GALLERY_ORIGINAL_WIDTH} && $page->{GALLERY_ORIGINAL_HEIGHT}) {
     ($page->{"GALLERY_ORIGINAL_WIDTH"}, $page->{"GALLERY_ORIGINAL_HEIGHT"}) = imgsize($page->{SRC_FILE});
   }
 
   # set date / time
-  $page->{GALLERY_TIME} = $exif_hash{DateTimeOriginal}->{info};
+  $page->{GALLERY_TIME} = $exif_hash{DateTimeOriginal}->{print} if(exists $exif_hash{DateTimeOriginal});
 
   unless($page->{GALLERY_TIME}) {
     WARN "Invalid GALLERY_TIME (missing EXIF data): $page->{SRC_FILE}";

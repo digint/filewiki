@@ -1,0 +1,13 @@
+[% IF GALLERY_EXIF.GPSLatitude && GALLERY_EXIF.GPSLongitude %]
+<span class="gallery_action">
+
+[%~# z is the zoom level (1-20)
+   # t is the map type ("m" map, "k" satellite, "h" hybrid, "p" terrain, "e" GoogleEarth)
+   # q is the search query, if it is prefixed by loc: then google assumes it is a lat lon separated by a +
+~%]
+
+<a href="http://maps.google.com?q=loc:[% GALLERY_EXIF.GPSLatitude.value %]+[% GALLERY_EXIF.GPSLongitude.value %]&t=h">
+<img alt="map" src="[% map_icon %]" />
+</a>
+</span>
+[% END %]
