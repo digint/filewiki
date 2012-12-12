@@ -69,14 +69,14 @@ Example (create webm video):
     GALLERY_VIDEO_CMD_WEBM_OPTION_AUDIO_CODEC    -codec:a libvorbis
     GALLERY_VIDEO_CMD_WEBM_OPTION_AUDIO_BITRATE  -b:a 128k
 
-=head2 GALLERY_EXIF_SIDECAR_POSTFIX
+=head2 GALLERY_SIDECAR_POSTFIX
 
 Load additional EXIF information from sidecar files. Several file
 postfixes can be specified, separated by colon (":").
 
 Example:
 
-    GALLERY_EXIF_SIDECAR_POSTFIX  .xmp:.XMP
+    GALLERY_SIDECAR_POSTFIX  .xmp:.XMP
 
 This will load EXIF information from "myfile.jpg.xmp" in addition to
 the EXIF information in "myfile.jpg".
@@ -192,8 +192,8 @@ sub update_vars
   $exif->Options(DateFormat => $page->{GALLERY_TIME_FORMAT} || $default_time_format);
 
   my @exif_files;
-  if($page->{GALLERY_EXIF_SIDECAR_POSTFIX}) {
-    push(@exif_files, $page->{SRC_FILE} . $_) foreach (split(/:/, $page->{GALLERY_EXIF_SIDECAR_POSTFIX}));
+  if($page->{GALLERY_SIDECAR_POSTFIX}) {
+    push(@exif_files, $page->{SRC_FILE} . $_) foreach (split(/:/, $page->{GALLERY_SIDECAR_POSTFIX}));
   }
   push(@exif_files, $page->{SRC_FILE});
   foreach my $exif_src (@exif_files) {

@@ -25,3 +25,4 @@
   - added FileWiki::Plugin::CSS, with template and minimizing support
   - added FileWiki::Plugin::JavaScript, with minimizing support
   - fixed INCLUDE variable handling
+  - added GALLERY_SIDECAR_POSTFIX variable for the gallery plugin
