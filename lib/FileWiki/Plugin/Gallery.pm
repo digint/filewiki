@@ -69,6 +69,18 @@ Example (create webm video):
     GALLERY_VIDEO_CMD_WEBM_OPTION_AUDIO_CODEC    -codec:a libvorbis
     GALLERY_VIDEO_CMD_WEBM_OPTION_AUDIO_BITRATE  -b:a 128k
 
+=head2 GALLERY_EXIF_SIDECAR_POSTFIX
+
+Load additional EXIF information from sidecar files. Several file
+postfixes can be specified, separated by colon (":").
+
+Example:
+
+    GALLERY_EXIF_SIDECAR_POSTFIX  .xmp:.XMP
+
+This will load EXIF information from "myfile.jpg.xmp" in addition to
+the EXIF information in "myfile.jpg".
+
 
 =head1 VARIABLE PRESETS
 
@@ -174,33 +186,38 @@ sub update_vars
   }
 
   # fetch exif data
+  my %exif_hash;
   my $exif = Image::ExifTool->new();
   $exif->Options(Unknown => 1) ;
   $exif->Options(DateFormat => $page->{GALLERY_TIME_FORMAT} || $default_time_format);
 
-  my $exif_src = $page->{SRC_FILE};
-  my $xmp_src = $exif_src;
-  $xmp_src =~ s/\.\w+$/\.xmp/;
-  $exif_src = $xmp_src if(-e $xmp_src);
+  my @exif_files;
+  if($page->{GALLERY_EXIF_SIDECAR_POSTFIX}) {
+    push(@exif_files, $page->{SRC_FILE} . $_) foreach (split(/:/, $page->{GALLERY_EXIF_SIDECAR_POSTFIX}));
+  }
+  push(@exif_files, $page->{SRC_FILE});
+  foreach my $exif_src (@exif_files) {
+    next unless(-e $exif_src);
 
-  DEBUG "Fetching EXIF data: $exif_src";
-  my $infos = $exif->ImageInfo($exif_src);
-  my %exif_hash;
-  foreach (keys(%$infos)) {
-    $exif_hash{$_} = { desc => $exif->GetDescription($_),
-                       info => $infos->{$_} };
+    DEBUG "Fetching EXIF data: $exif_src";
+    my $infos = $exif->ImageInfo($exif_src);
+    foreach (keys(%$infos)) {
+#      WARN("duplicate EXIF key: $_  $exif_hash{$_}->{info} -- $infos->{$_}") if exists($exif_hash{$_});
+      $exif_hash{$_} = { desc => $exif->GetDescription($_),
+                         info => $infos->{$_} };
+    }
   }
 
   $page->{GALLERY_EXIF} = \%exif_hash;
-  $page->{GALLERY_ORIGINAL_WIDTH} = $infos->{ImageWidth};
-  $page->{GALLERY_ORIGINAL_HEIGHT} = $infos->{ImageHeight};
+  $page->{GALLERY_ORIGINAL_WIDTH} = $exif_hash{ImageWidth}->{info};
+  $page->{GALLERY_ORIGINAL_HEIGHT} = $exif_hash{ImageHeight}->{info};
 
   unless($page->{GALLERY_ORIGINAL_WIDTH} && $page->{GALLERY_ORIGINAL_HEIGHT}) {
     ($page->{"GALLERY_ORIGINAL_WIDTH"}, $page->{"GALLERY_ORIGINAL_HEIGHT"}) = imgsize($page->{SRC_FILE});
   }
 
   # set date / time
-  $page->{GALLERY_TIME} = $infos->{DateTimeOriginal};
+  $page->{GALLERY_TIME} = $exif_hash{DateTimeOriginal}->{info};
 
   unless($page->{GALLERY_TIME}) {
     WARN "Invalid GALLERY_TIME (missing EXIF data): $page->{SRC_FILE}";

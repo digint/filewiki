@@ -34,6 +34,7 @@
 [% INCLUDE exif_section  header=0                 tag_list=exif_tags            %]
 [% INCLUDE exif_section  header="Exposure:"       tag_list=exif_tags_exposure   %]
 [% INCLUDE exif_section  header="Camera Details:" tag_list=exif_tags_additional %]
+[% INCLUDE exif_section  header="GEO Location:"   tag_list=exif_tags_geo        %]
 
 </tbody>
 </table>
