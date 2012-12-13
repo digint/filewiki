@@ -1,6 +1,6 @@
 <div id="bottom">
 <div id="badges">
-<a href="http://www.digint.ch/filewiki/"><img src="[% URI_PREFIX %]/img/filewiki_badge.png" alt="Powered by FileWiki"></a>
+<a href="http://filewiki.tty0.ch"><img src="[% URI_PREFIX %]/img/filewiki_badge.png" alt="Powered by FileWiki"></a>
 </div>
 <div id="copyright">
 &copy;&nbsp;[% copyright_year %]&nbsp;[% copyright %]

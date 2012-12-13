@@ -35,7 +35,7 @@ Perl modules.
 
 That's it! Now you can build FileWiki sites:
 
-    filewiki helloworld.org
+    filewiki examples/helloworld.org
 
 This will build the `helloworld.org` example site to the target directory
 `/tmp/filewiki/htdocs`.
@@ -43,7 +43,7 @@ This will build the `helloworld.org` example site to the target directory
 Have a look at the more complex `example.org` site, this is intended to
 give you an idea on how FileWiki works.
 
-  [download]: http://digint.ch/download/filewiki/
+  [download]: http://filewiki.tty0.ch/download
 
 
 ###Apache Handler

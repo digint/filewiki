@@ -20,7 +20,7 @@ FileWiki is a simple but powerful web site generator.
 It parses a directory tree and generates static web pages defined by
 templates, which make use of variables seeded within the tree.
 
-The full documentation is available at L<http://www.digint.ch/filewiki/>.
+The full documentation is available at L<http://filewiki.tty0.ch>.
 
 =head1 BUGS
 
@@ -64,7 +64,7 @@ use File::Spec::Functions qw(splitpath);
 
 use Template;
 
-our $VERSION = "0.30-pre1";
+our $VERSION = "0.30";
 
 # Defaults
 our $dir_vars_filename = 'dir.vars';

@@ -9,7 +9,7 @@ use FileWiki;
 use HTML::Entities;
 use FileWiki::Logger;
 
-our $VERSION = "0.10";
+our $VERSION = "0.30";
 
 =head1 NAME
 
