@@ -8,17 +8,18 @@ FileWiki::Plugin::Gallery - Gallery generator plugin for FileWiki
     PLUGIN_GALLERY_MATCH=\.(jpg|JPG)$
 
     GALLERY_CONVERT_OPTIONS    -quality 75 -auto-orient
-    GALLERY_RESIZE_THUMB       0x180 4:3
-    GALLERY_RESIZE_MINITHUMB   0x80  4:3
-    GALLERY_RESIZE_SCALED      0x720
-    GALLERY_RESIZE_BIG         2560x1440
+    GALLERY_IMAGE_THUMB       0x180 4:3
+    GALLERY_IMAGE_MINITHUMB   0x80  4:3
+    GALLERY_IMAGE_SCALED      0x720
+    GALLERY_IMAGE_BIG         2560x1440
 
 
 =head1 DESCRIPTION
 
-Generates user-defined image "resizes" (such as thumbnails and scaled
-photos) using ImageMagick's `convert` tool. Processes EXIF data using
-Image::ExifTool and provides the results as page variables.
+Generates user-defined images (such as thumbnails and scaled photos)
+from a photo collection using ImageMagick's `convert` tool. Processes
+EXIF data using Image::ExifTool and provides the results as page
+variables.
 
 
 =head1 CONFIGURATION VARIABLES
@@ -34,9 +35,9 @@ POSIX package for details about the format string.
 
 Defaults to "%Y-%m-%d %H:%M:%S"
 
-=head2 GALLERY_RESIZE_<TYPE>
+=head2 GALLERY_IMAGE_<TYPE>
 
-Specifies the resized images to be generated. The value specifies the
+Define the transformed images to be generated. The value specifies the
 maximum dimensions:
 
     WxH ratio
@@ -87,21 +88,20 @@ the EXIF information in "myfile.jpg".
 
 Note:
 
-- "resizes": e.g. thumbs, scaled photos
-- <TYPE>: the <TYPE> from GALLERY_RESIZE_<TYPE>
+- <TYPE>: the <TYPE> from GALLERY_IMAGE_<TYPE>
 
-=head2 GALLERY_RESIZE_<TYPE>_URI
+=head2 GALLERY_IMAGE_<TYPE>_URI
 
-URI's pointing to the image resizes.
+URI's pointing to the transformed image.
 
-=head2 GALLERY_RESIZE_<TYPE>_NAME
+=head2 GALLERY_IMAGE_<TYPE>_NAME
 
-File name of the resizes, in format: "$NAME_<type>.jpg"
+File name of the transformed image, in format: "$NAME_<type>.jpg".
 Note that <type> is transformed to lower case for the file name.
 
 Example (in vars):
 
-   GALLERY_RESIZE_THUMB=0x180 4:3
+   GALLERY_IMAGE_THUMB=0x180 4:3
 
 This results in "myphoto_thumb.jpg" for a source file "myphoto.jpg".
 
@@ -295,7 +295,7 @@ sub update_vars
       $page->{"GALLERY_VIDEO_STILL_IMAGE_URI"} = $uri;
       ($page->{"GALLERY_VIDEO_STILL_IMAGE_WIDTH"}, $page->{"GALLERY_VIDEO_STILL_IMAGE_HEIGHT"}) = imgsize($target_file);
 
-      # set still image as source for resizes
+      # set still image as source for transformed image
       $image_src = $target_file;
     }
     else {
@@ -309,10 +309,10 @@ sub update_vars
 
   # create thumbs
   foreach my $key (keys %$page) {
-    next unless($key =~ /^GALLERY_RESIZE_([A-Z0-9]+)$/);
+    next unless($key =~ /^GALLERY_IMAGE_([A-Z0-9]+)$/);
     my $type = $1;
 
-    # get/calculate max width/height for GALLERY_RESIZE_*
+    # get/calculate max width/height for GALLERY_IMAGE_*
     if($page->{$key} =~ m/(\d+)x(\d+)(\s+[\d\.:]+)?/) {
       my $w = $1;
       my $h = $2;
@@ -331,7 +331,7 @@ sub update_vars
 
       # create thumbs
       if($image_src) {
-        create_resize($page, $image_src, $type);
+        create_transformed_image($page, $image_src, $type);
       }
     }
     else {
@@ -353,7 +353,7 @@ sub exec_logged
 }
 
 
-sub create_resize
+sub create_transformed_image
 {
   my $page = shift;
   my $infile = shift;
@@ -362,22 +362,22 @@ sub create_resize
   # set URI and TARGET_FILE
   my $name = $page->{NAME} . '_' . lc($type) . '.jpg';
   my $outfile  = $page->{TARGET_DIR} . $name;
-  $page->{"GALLERY_RESIZE_${type}_NAME"}        = $name;
-  $page->{"GALLERY_RESIZE_${type}_URI"}         = $page->{URI_PREFIX} . $page->{URI_DIR} . $name;
-  $page->{"GALLERY_RESIZE_${type}_TARGET_FILE"} = $outfile;
+  $page->{"GALLERY_IMAGE_${type}_NAME"}        = $name;
+  $page->{"GALLERY_IMAGE_${type}_URI"}         = $page->{URI_PREFIX} . $page->{URI_DIR} . $name;
+  $page->{"GALLERY_IMAGE_${type}_TARGET_FILE"} = $outfile;
 
   die unless($infile && $outfile);
 
   if(-e $outfile) {
-    DEBUG "Skipping image resize: $outfile";
+    DEBUG "Target file exists, skipping image ($type): $outfile";
   }
   else {
-    INFO "Generating image resize: $outfile"; INDENT 1;
+    INFO "Generating image ($type): $outfile"; INDENT 1;
 
-    my $w = $page->{"GALLERY_RESIZE_${type}_MAX_WIDTH"};
-    my $h = $page->{"GALLERY_RESIZE_${type}_MAX_HEIGHT"};
+    my $w = $page->{"GALLERY_IMAGE_${type}_MAX_WIDTH"};
+    my $h = $page->{"GALLERY_IMAGE_${type}_MAX_HEIGHT"};
     if(((not $w) || ($w > $page->{GALLERY_ORIGINAL_WIDTH})) && ((not $h) || ($h > $page->{GALLERY_ORIGINAL_HEIGHT}))) {
-      WARN "Resize dimensions ($type) are larger than original image, cropping to original";
+      WARN "Target image dimensions ($type) are larger than original image, cropping to original";
       $w = $page->{GALLERY_ORIGINAL_WIDTH};
       $h = $page->{GALLERY_ORIGINAL_HEIGHT};
     }
@@ -388,7 +388,7 @@ sub create_resize
     exec_logged("convert $options -scale $geometry \"$infile\" \"$outfile\"", $page->{TARGET_DIR});
     INDENT -1;
   }
-  ($page->{"GALLERY_RESIZE_${type}_WIDTH"}, $page->{"GALLERY_RESIZE_${type}_HEIGHT"}) = imgsize($outfile) ;
+  ($page->{"GALLERY_IMAGE_${type}_WIDTH"}, $page->{"GALLERY_IMAGE_${type}_HEIGHT"}) = imgsize($outfile) ;
 
   return $outfile;
 }
@@ -411,7 +411,7 @@ sub vars_command
   die unless($infile && $outfile);
 
   if (-e $outfile) {
-    DEBUG "Skipping video resize: $outfile";
+    DEBUG "Target file exists, skipping video ($type): $outfile";
   } else {
     INFO "Executing $key: $outfile"; INDENT 1;
     my $options = '';

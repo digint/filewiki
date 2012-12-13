@@ -34,7 +34,7 @@
 
     [%# no highlight found, set to first page having a thumbnail image %]
     [% hfound = FileWiki.PageArray(ROOT => page,
-                                   match => { GALLERY_RESIZE_THUMB_URI => '1', IS_DIR => '0' },
+                                   match => { GALLERY_IMAGE_THUMB_URI => '1', IS_DIR => '0' },
                                   ).first
     %]
     [% SET highlight_page = hfound IF hfound %]
@@ -47,11 +47,11 @@
 
   [% pagelist.push({index => page, highlight => highlight_page}) %]
 
-  [% IF highlight_page.GALLERY_RESIZE_THUMB_HEIGHT && (highlight_page.GALLERY_RESIZE_THUMB_HEIGHT > max_height) %]
-    [% SET max_height = highlight_page.GALLERY_RESIZE_THUMB_HEIGHT %]
+  [% IF highlight_page.GALLERY_IMAGE_THUMB_HEIGHT && (highlight_page.GALLERY_IMAGE_THUMB_HEIGHT > max_height) %]
+    [% SET max_height = highlight_page.GALLERY_IMAGE_THUMB_HEIGHT %]
   [% END %]
-  [% IF highlight_page.GALLERY_RESIZE_THUMB_WIDTH && (highlight_page.GALLERY_RESIZE_THUMB_WIDTH > max_width) %]
-    [% SET max_width = highlight_page.GALLERY_RESIZE_THUMB_WIDTH %]
+  [% IF highlight_page.GALLERY_IMAGE_THUMB_WIDTH && (highlight_page.GALLERY_IMAGE_THUMB_WIDTH > max_width) %]
+    [% SET max_width = highlight_page.GALLERY_IMAGE_THUMB_WIDTH %]
   [% END %]
 
 [% END %]

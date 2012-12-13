@@ -51,9 +51,9 @@ meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-sca
 [% FOREACH href IN DIR.TREE %]
 [% NEXT IF href.SKIP_PREVNEXT %]
 [% NEXT IF href.IS_DIR %]
-<a href="[% href.GALLERY_RESIZE_SCALED_NAME %]">
-<img src="[% href.GALLERY_RESIZE_MINITHUMB_NAME %]" data-title="[% href.title || href.SRC_FILE_NAME %]" data-description="[% href.desc %]"
-[% IF href.GALLERY_RESIZE_BIG_NAME || href.GALLERY_ORIGINAL_NAME +%] data-big="[% href.GALLERY_RESIZE_BIG_NAME || href.GALLERY_ORIGINAL_NAME %]"[% END %]
+<a href="[% href.GALLERY_IMAGE_SCALED_NAME %]">
+<img src="[% href.GALLERY_IMAGE_MINITHUMB_NAME %]" data-title="[% href.title || href.SRC_FILE_NAME %]" data-description="[% href.desc %]"
+[% IF href.GALLERY_IMAGE_BIG_NAME || href.GALLERY_ORIGINAL_NAME +%] data-big="[% href.GALLERY_IMAGE_BIG_NAME || href.GALLERY_ORIGINAL_NAME %]"[% END %]
 />
 </a>
 [% END %]

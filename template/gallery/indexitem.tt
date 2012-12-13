@@ -13,15 +13,15 @@
 [%# margin: center image vertically %]
 [% offset_top = 0 %]
 [% margin_top = '' %]
-[% IF page.highlight.GALLERY_RESIZE_THUMB_HEIGHT && (page.highlight.GALLERY_RESIZE_THUMB_HEIGHT < max_height) %]
-[% offset_top = ((max_height - page.highlight.GALLERY_RESIZE_THUMB_HEIGHT) div 2) %]
+[% IF page.highlight.GALLERY_IMAGE_THUMB_HEIGHT && (page.highlight.GALLERY_IMAGE_THUMB_HEIGHT < max_height) %]
+[% offset_top = ((max_height - page.highlight.GALLERY_IMAGE_THUMB_HEIGHT) div 2) %]
 [% margin_top = ' style="margin-top: ' _ offset_top _ 'px;"' %]
 [% END %]
 
 <a href="[% link_uri %]">
 <div class="gallery_mosaic" style="width: [% max_width %]px; height: [% max_height %]px;"[% img_events %]>
-[% IF page.highlight.GALLERY_RESIZE_THUMB_URI %]
-<img src="[% page.highlight.GALLERY_RESIZE_THUMB_URI %]" alt="[% page.index.NAME %]" width="[% page.highlight.GALLERY_RESIZE_THUMB_WIDTH %]" height="[% page.highlight.GALLERY_RESIZE_THUMB_HEIGHT %]"[% margin_top %]/>
+[% IF page.highlight.GALLERY_IMAGE_THUMB_URI %]
+<img src="[% page.highlight.GALLERY_IMAGE_THUMB_URI %]" alt="[% page.index.NAME %]" width="[% page.highlight.GALLERY_IMAGE_THUMB_WIDTH %]" height="[% page.highlight.GALLERY_IMAGE_THUMB_HEIGHT %]"[% margin_top %]/>
 [% IF page.index.GALLERY_VIDEO %]
 <img class="gallery_mosaic_type" style="top: [% offset_top + 16 %]px;" src="[% video_icon %]">
 [% END %]
