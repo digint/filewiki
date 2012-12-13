@@ -208,7 +208,8 @@ sub update_vars
       $exif_hash{$_} = { print => $exif->GetValue($_, 'PrintConv'),
                          desc  => $exif->GetDescription($_),
                          value => $exif->GetValue($_, 'ValueConv'),
-                         raw   => $exif->GetValue($_, 'Raw'),
+                         # Raw sometimes returns an ARRAY, leading to perl error:
+                         # raw   => $exif->GetValue($_, 'Raw'),
                        };
     }
   }
