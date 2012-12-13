@@ -204,12 +204,17 @@ sub update_vars
     my $infos = $exif->GetInfo();
     my @tags = $exif->GetFoundTags();
     foreach (@tags) {
-#      WARN("duplicate EXIF key: $_  $exif_hash{$_}->{value} -- $infos->{$_}") if exists($exif_hash{$_});
-      $exif_hash{$_} = { print => $exif->GetValue($_, 'PrintConv'),
-                         desc  => $exif->GetDescription($_),
-                         value => $exif->GetValue($_, 'ValueConv'),
-                         # Raw sometimes returns an ARRAY, leading to perl error:
-                         # raw   => $exif->GetValue($_, 'Raw'),
+      # make sure we're in scalar context. If not, GetValue can return ARRAY in some cases.
+      my $print = $exif->GetValue($_, 'PrintConv');
+      my $value = $exif->GetValue($_, 'ValueConv');
+      my $raw   = $exif->GetValue($_, 'Raw');
+      my $desc  = $exif->GetDescription($_);
+
+      # WARN("duplicate EXIF key: $_  (old: $exif_hash{$_}->{value}; new: $value") if exists($exif_hash{$_});
+      $exif_hash{$_} = { print => $print,
+                         desc  => $desc,
+                         value => $value,
+                         raw   => $raw,
                        };
     }
   }
