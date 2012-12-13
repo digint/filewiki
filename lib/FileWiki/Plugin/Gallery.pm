@@ -16,8 +16,9 @@ FileWiki::Plugin::Gallery - Gallery generator plugin for FileWiki
 
 =head1 DESCRIPTION
 
-Generates image thumbs and resizes using ImageMagick's `convert`
-tool. Provides EXIF information in page vars.
+Generates user-defined image "resizes" (such as thumbnails and scaled
+photos) using ImageMagick's `convert` tool. Processes EXIF data using
+Image::ExifTool and provides the results as page variables.
 
 
 =head1 CONFIGURATION VARIABLES
@@ -33,7 +34,7 @@ POSIX package for details about the format string.
 
 Defaults to "%Y-%m-%d %H:%M:%S"
 
-=head2 GALLERY_RESIZE_*
+=head2 GALLERY_RESIZE_<TYPE>
 
 Specifies the resized images to be generated. The value specifies the
 maximum dimensions:
@@ -45,17 +46,17 @@ The ratio can be omitted if both W and H are non-zero.
 =head2 GALLERY_VIDEO_MATCH
 
 Treats files matching this expression as video files. Every video file
-executes all commands specified by the GALLERY_VIDEO_CMD_* variables,
+executes all commands specified by the GALLERY_VIDEO_CMD_<TYPE> variables,
 and sets the GALLERY_VIDEO variable.
 
-=head2 GALLERY_VIDEO_CMD_*
+=head2 GALLERY_VIDEO_CMD_<TYPE>
 
 Specifies commands to be executed for video files. Video commands
 expand the following placeholders:
 
  - __INFILE__  : Input file
  - __OUTFILE__ : Output file
- - __OPTIONS__ : Options specified by GALLERY_VIDEO_CMD_XXX_OPTIONS_*
+ - __OPTIONS__ : Options specified by GALLERY_VIDEO_CMD_<TYPE>_OPTIONS_<myoption>
                  variables.
 
 Example (create webm video):
@@ -84,9 +85,25 @@ the EXIF information in "myfile.jpg".
 
 =head1 VARIABLE PRESETS
 
-=head2 GALLERY_THUMB_URI, GALLERY_MINITHUMB_UIR, GALLERY_SCALED_URI
+Note:
+
+- "resizes": e.g. thumbs, scaled photos
+- <TYPE>: the <TYPE> from GALLERY_RESIZE_<TYPE>
+
+=head2 GALLERY_RESIZE_<TYPE>_URI
 
 URI's pointing to the image resizes.
+
+=head2 GALLERY_RESIZE_<TYPE>_NAME
+
+File name of the resizes, in format: "$NAME_<type>.jpg"
+Note that <type> is transformed to lower case for the file name.
+
+Example (in vars):
+
+   GALLERY_RESIZE_THUMB=0x180 4:3
+
+This results in "myphoto_thumb.jpg" for a source file "myphoto.jpg".
 
 =head2 GALLERY_TIME
 
