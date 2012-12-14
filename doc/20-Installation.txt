@@ -43,7 +43,7 @@ This will build the `helloworld.org` example site to the target directory
 Have a look at the more complex `example.org` site, this is intended to
 give you an idea on how FileWiki works.
 
-  [download]: http://filewiki.tty0.ch/download
+  [download]: http://www.digint.ch/download/filewiki/releases
 
 
 ###Apache Handler

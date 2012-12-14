@@ -63,13 +63,13 @@ The rest of the documentation is distributed in POD format. The POD pages
 are installed when you 'make install' and can be viewed using 'perldoc',
 e.g.
 
-    perldoc Template::Plugin::FileWiki
+    perldoc FileWiki::Plugin::Gallery
 
 
 The documentation is also available in HTML format on the FileWiki
 home page at:
 
-    http://filewiki.tty0.ch
+    http://www.digint.ch/filewiki
 
 
 DEVELOPMENT

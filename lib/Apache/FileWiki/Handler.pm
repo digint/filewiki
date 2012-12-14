@@ -48,7 +48,7 @@ files in any ways, thus allowing read and write operations on EVERY
 file on your filesystem (of course limited to the user/group
 permissions of your web server).
 
-The full FileWiki documentation is available at L<http://filewiki.tty0.ch>.
+The full FileWiki documentation is available at L<http://www.digint.ch/filewiki>.
 
 =head1 TODO
 
