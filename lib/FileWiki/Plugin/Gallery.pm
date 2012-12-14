@@ -279,7 +279,7 @@ sub update_vars
     # run the GALLERY_VIDEO_CMD_* commands
     foreach my $key (keys %$page) {
       next unless($key =~ /^GALLERY_VIDEO_CMD_([A-Z0-9]+)$/);
-      my ($name, $uri, $target_file) = vars_command($page, $key, $page->{SRC_FILE}, $1);
+      my ($name, $uri, $target_file) = create_generic($page, $key, $page->{SRC_FILE}, $1);
       my $mime_type = $page->{$key . "_MIME_TYPE"};
       ERROR "Variable ${key}_MIME_TYPE is not provided: $page->{SRC_FILE}" unless($mime_type);
       push(@videos, { mime_type   => $mime_type,
@@ -290,7 +290,7 @@ sub update_vars
 
     if(scalar @videos) {
       # create still image
-      my ($name, $uri, $target_file) = vars_command($page, "GALLERY_VIDEO_STILL_IMAGE_CMD", $videos[0]->{target_file}, "JPG");
+      my ($name, $uri, $target_file) = create_generic($page, "GALLERY_VIDEO_STILL_IMAGE_CMD", $videos[0]->{target_file}, "JPG");
       $page->{"GALLERY_VIDEO_STILL_IMAGE_NAME"} = $name;
       $page->{"GALLERY_VIDEO_STILL_IMAGE_URI"} = $uri;
       ($page->{"GALLERY_VIDEO_STILL_IMAGE_WIDTH"}, $page->{"GALLERY_VIDEO_STILL_IMAGE_HEIGHT"}) = imgsize($target_file);
@@ -331,7 +331,7 @@ sub update_vars
 
       # create thumbs
       if($image_src) {
-        create_transformed_image($page, $image_src, $type);
+        create_image($page, $image_src, $type);
       }
     }
     else {
@@ -353,7 +353,7 @@ sub exec_logged
 }
 
 
-sub create_transformed_image
+sub create_image
 {
   my $page = shift;
   my $infile = shift;
@@ -394,7 +394,7 @@ sub create_transformed_image
 }
 
 
-sub vars_command
+sub create_generic
 {
   my $page = shift;
   my $key = shift;
