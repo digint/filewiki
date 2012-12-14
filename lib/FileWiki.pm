@@ -529,8 +529,8 @@ sub _site_tree
     }
 
     my $uri_unprefixed = set_uri(\%page);
-    my $target_file = undef;
-    $target_file = $page{OUTPUT_DIR} . $uri_unprefixed if($page{OUTPUT_DIR});
+    die "OUTPUT_DIR is not set, refusing to continue" ($page{OUTPUT_DIR});
+    my $target_file = $page{OUTPUT_DIR} . $uri_unprefixed;
     my (undef, $target_dir, undef) = splitpath($target_file);
 
     my $target_mtime_epoch = undef;
