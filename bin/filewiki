@@ -108,21 +108,29 @@ INFO $version_info;
 TRACE "$0: vars passed to FileWiki:"; INDENT 1;
 TRACE FileWiki::dump_vars(\%vars); INDENT -1;
 
+my $exitcode = 0;
 my $start_time = time;
 my $filewiki = FileWiki->new(%vars);
 
 if($opts{s}) {
   my $sitemap = $filewiki->sitemap();
-  print "\nSitemap:\n";
+  print "Sitemap:\n";
   print $sitemap;
   print "\n";
 }
 else {
-  $filewiki->create();
-  $filewiki->command($opts{c}) if($opts{c});
+  my $file_list = $filewiki->create();
+  my @files = split("\n", $file_list);
+  print "Created " . scalar(@files) . " pages.\n";
+
+  if($opts{c}) {
+    my ($err, $msg, $output) = $filewiki->command($opts{c});
+    print "Command \"$opts{c}\" " . ($err ? "failed: $msg" : "executed.") . "\n";
+    $exitcode = 1 if($err);
+  }
 }
 
 INFO "Time elapsed: " . (time - $start_time) . "s";
-exit 0;
+exit $exitcode;
 
 1;

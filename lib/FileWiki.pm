@@ -95,7 +95,6 @@ sub new
   return $self;
 }
 
-
 sub eval_module
 {
   my $module = shift;
@@ -642,9 +641,12 @@ sub site_tree
   return $self->{root} if $self->{root};
 
   INFO "Parsing site structure: $self->{vars}->{BASEDIR}"; INDENT 1;
+  my $start_time = time;
 
   my $basedir = $self->{vars}->{BASEDIR} || die("No BASEDIR specified");
   $self->{root} = _site_tree($basedir, "", %{$self->{vars}});
+
+  INFO "Time elapsed: " . (time - $start_time) . "s";
 
   INDENT -1;
 
@@ -835,7 +837,7 @@ sub create
         my $html = $self->process_page($page);
 
         # write page to file
-        INFO "Writing file: $dfile";
+        INFO ">>> $dfile";
         if (open(OUTFILE, ">$dfile")) {
           print OUTFILE $html;
           close(OUTFILE);
@@ -848,7 +850,7 @@ sub create
         } else {
           ERROR "Failed to write file \"$dfile\": $!";
         }
-        return "";
+        return $dfile . "\n";
       },
     } );
 
@@ -870,7 +872,7 @@ sub command
   my $cmd = $root->{$cmd_key};
 
   unless($cmd) {
-    return (-1, ERROR "Variable \"$cmd_key\" is not defined in vars.", "");
+    return (-1, ERROR("Variable \"$cmd_key\" is not defined in vars."), "");
   }
 
   INFO "Executing: '$cmd'"; INDENT 1;

@@ -57,6 +57,8 @@ sub process_page
   return $data;
 }
 
+
+# called by FileWiki when building 
 sub get_uri_filename
 {
   my $self = shift;
@@ -68,6 +70,9 @@ sub get_uri_filename
 }
 
 sub update_vars
-{ }
+{
+#  my $self = shift;
+#  my $page = shift;
+}
 
 1;
