@@ -122,6 +122,10 @@ keys.
                    exif_key...
                  }
 
+=head2 GALLERY_DISABLE_EXIF_WARNINGS
+
+Disable warnings generated when EXIF data is missing (especially on
+missing GALLERY_TIME)
 
 =head1 AUTHOR
 
@@ -248,7 +252,7 @@ sub update_vars
   $page->{GALLERY_TIME} = $exif_hash{DateTimeOriginal}->{print} if(exists $exif_hash{DateTimeOriginal});
 
   unless($page->{GALLERY_TIME}) {
-    WARN "Invalid GALLERY_TIME (missing EXIF data): $page->{SRC_FILE}";
+    WARN "Invalid GALLERY_TIME (missing EXIF data): $page->{SRC_FILE}" unless($page->{GALLERY_DISABLE_EXIF_WARNINGS});
 
     #    WARN "No EXIF \"DateTimeOriginal\" found, setting date/time from MTIME: $page->{SRC_FILE}";
     #    $page->{GALLERY_DATE} = $page->{GALLERY_DATE} || time2str($page->{GALLERY_DATE_FORMAT} || $default_date_format, $page->{SRC_FILE_MTIME});

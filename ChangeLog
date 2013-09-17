@@ -27,3 +27,6 @@
   - fixed INCLUDE variable handling
   - added EXIF sidecar support (GALLERY_SIDECAR_POSTFIX variable)
   - renamed GALLERY_RESIZE_<TYPE> to GALLERY_IMAGE_<TYPE>
+
+* filewiki-current
+  - added GALLERY_DISABLE_EXIF_WARNINGS
