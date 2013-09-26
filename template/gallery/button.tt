@@ -1,0 +1,17 @@
+[% IF mobile_view %]
+
+[% IF enabled %]
+<span class="button_enabled"><a href="[% link %]">[% text %]</a></span>
+[% ELSE %]
+<span class="button_disabled">[% text %]</span>
+[% END %]
+
+[% ELSE %]
+
+[% IF enabled %]
+<a href="[% link %]">[% text %]</a>
+[% ELSE %]
+[% text %]
+[% END %]
+
+[% END %]

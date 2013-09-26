@@ -1,0 +1,3 @@
+[% UNLESS mobile_view %]
+&nbsp;|&nbsp;
+[% END %]

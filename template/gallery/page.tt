@@ -46,17 +46,17 @@
 [%~### top prev/next links ###~%]
 
 <div class="prevnext_top">
-[% IF PAGE_PREV %]
-<a href="[% PAGE_PREV.URI %]">&laquo; prev</a>
-[% ELSE %]
-&laquo; prev
-[% END %]
-&nbsp;|&nbsp;
-[% IF PAGE_NEXT %]
-<a href="[% PAGE_NEXT.URI %]">next &raquo;</a>
-[% ELSE %]
-next &raquo;
-[% END %]
+[% PROCESS gallery/button.tt
+    link    = PAGE_PREV.URI
+    enabled = PAGE_PREV
+    text    = "&laquo; prev"
+%]
+[% INCLUDE gallery/button_separator.tt %]
+[% PROCESS gallery/button.tt
+    link    = PAGE_NEXT.URI
+    enabled = PAGE_NEXT
+    text    = "next &raquo;"
+%]
 </div>
 
 
@@ -80,6 +80,26 @@ next &raquo;
 
 
 [%~### bottom prev/next links ###~%]
+
+[% IF mobile_view %]  [%~### mobile view (buttons only) ###~%]
+
+[% IF summary %]<div class="gallery_summary">[% summary %]</div>[% END %]
+[% IF desc %]<div class="gallery_desc">[% desc %]</div>[% END %]
+<div class="prevnext_bottom">
+[% PROCESS gallery/button.tt
+    link    = PAGE_PREV.URI
+    enabled = PAGE_PREV
+    text    = "&laquo; prev"
+%]
+[% INCLUDE gallery/button_separator.tt %]
+[% PROCESS gallery/button.tt
+    link    = PAGE_NEXT.URI
+    enabled = PAGE_NEXT
+    text    = "next &raquo;"
+%]
+</div>
+
+[% ELSE %]  [%~### web wiev (minithumbs with link) ###~%]
 
 <table class="prevnext_bottom">
 <tbody>
@@ -124,6 +144,7 @@ next &raquo;
 </tbody>
 </table>
 
+[% END %]
 
 [%~### footer ###%]
 
