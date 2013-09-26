@@ -37,9 +37,6 @@
 [% PROCESS gallery/action_map.tt %]
 </span>
 </p>
-<div class="gallery_info" id="shaded_info" onclick="hide('shaded_info')" style="display: none;">
-[% INCLUDE gallery/exiftable.tt %]
-</div>
 </div>
 
 
@@ -59,6 +56,10 @@
 %]
 </div>
 
+
+<div class="gallery_info" id="shaded_info" onclick="hide('shaded_info')" style="display: none;">
+[% INCLUDE gallery/exiftable.tt %]
+</div>
 
 [%~### image / video ###~%]
 
@@ -83,8 +84,11 @@
 
 [% IF mobile_view %]  [%~### mobile view (buttons only) ###~%]
 
+<div class="gallery_attributes">
 [% IF summary %]<div class="gallery_summary">[% summary %]</div>[% END %]
 [% IF desc %]<div class="gallery_desc">[% desc %]</div>[% END %]
+</div>
+
 <div class="prevnext_bottom">
 [% PROCESS gallery/button.tt
     link    = PAGE_PREV.URI
