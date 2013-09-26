@@ -42,6 +42,7 @@
 
 [%~### top prev/next links ###~%]
 
+[% UNLESS mobile_view %]
 <div class="prevnext_top">
 [% PROCESS gallery/button.tt
     link    = PAGE_PREV.URI
@@ -55,7 +56,7 @@
     text    = "next &raquo;"
 %]
 </div>
-
+[% END %]
 
 <div class="gallery_info" id="shaded_info" onclick="hide('shaded_info')" style="display: none;">
 [% INCLUDE gallery/exiftable.tt %]

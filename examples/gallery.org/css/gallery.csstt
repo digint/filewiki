@@ -91,7 +91,7 @@ a:visited {
 }
 
 .prevnext_top {
-    margin-bottom: 1.5em;
+    margin-bottom: 1em;
 }
 
 .button_enabled {
