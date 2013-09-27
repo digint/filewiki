@@ -22,6 +22,12 @@
 
 [% counter = counter + 1 %]
 [% END %]
+
+[% WHILE counter mod gallery_cols != 0 %]
+<td class="gallery_cell_empty" style="width: [% max_width %]px;"></td>
+[% counter = counter + 1 %]
+[% END %]
+
 </tr>
 </tbody>
 </table>
