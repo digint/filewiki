@@ -33,24 +33,25 @@
 <p>
 [% INCLUDE gallery/titledesc.tt %]
 <span class="header_links">
-[% PROCESS gallery/action_info.tt  id="shaded_info" %]
-[% PROCESS gallery/action_map.tt %]
+[% INCLUDE gallery/action_info.tt  id="shaded_info" %]
+[% INCLUDE gallery/action_popout.tt  link=GALLERY_ORIGINAL_URI || GALLERY_IMAGE_BIG_URI %]
+[% INCLUDE gallery/action_map.tt %]
 </span>
 </p>
 </div>
 
 
-[%~### top prev/next links ###~%]
+[%~### top prev/next links (only on web-view) ###~%]
 
 [% UNLESS mobile_view %]
 <div class="prevnext_top">
-[% PROCESS gallery/button.tt
+[% INCLUDE gallery/button.tt
     link    = PAGE_PREV.URI
     enabled = PAGE_PREV
     text    = "&laquo; prev"
 %]
 [% INCLUDE gallery/button_separator.tt %]
-[% PROCESS gallery/button.tt
+[% INCLUDE gallery/button.tt
     link    = PAGE_NEXT.URI
     enabled = PAGE_NEXT
     text    = "next &raquo;"
@@ -58,11 +59,21 @@
 </div>
 [% END %]
 
+
+[%~### EXIF information (on top of video) ###~%]
+
 <div class="gallery_info" id="shaded_info" onclick="hide('shaded_info')" style="display: none;">
 [% INCLUDE gallery/exiftable.tt %]
 </div>
 
+
 [%~### image / video ###~%]
+
+[% IF mobile_view %]
+[% gallery_original_image_link = PAGE_NEXT.URI %]
+[% ELSE %]
+[% gallery_original_image_link = GALLERY_ORIGINAL_URI || GALLERY_IMAGE_BIG_URI %]
+[% END %]
 
 [% IF GALLERY_VIDEO %]
 <div class="gallery_video">
@@ -74,30 +85,29 @@
 </div>
 [% ELSE %]
 <div class="gallery_image">
-[% IF GALLERY_IMAGE_BIG_URI || GALLERY_ORIGINAL_URI %]<a href="[% GALLERY_IMAGE_BIG_URI || GALLERY_ORIGINAL_URI %]">[% END %]
+[% IF gallery_original_image_link %]<a href="[% gallery_original_image_link %]">[% END %]
 <img src="[% GALLERY_IMAGE_SCALED_URI %]" alt="[% SRC_FILE_NAME %]" width="[% GALLERY_IMAGE_SCALED_WIDTH %]" height="[% GALLERY_IMAGE_SCALED_HEIGHT %]"/>
-[% IF GALLERY_IMAGE_BIG_URI || GALLERY_ORIGINAL_URI %]</a>[% END %]
+[% IF gallery_original_image_link %]</a>[% END %]
 </div>
 [% END %]
 
 
 [%~### bottom prev/next links ###~%]
 
-[% IF mobile_view %]  [%~### mobile view (buttons only) ###~%]
+[% IF mobile_view ~%]  [%~### mobile view (buttons only) ###~%]
 
 <div class="gallery_attributes">
 [% IF summary %]<div class="gallery_summary">[% summary %]</div>[% END %]
 [% IF desc %]<div class="gallery_desc">[% desc %]</div>[% END %]
 </div>
-
 <div class="prevnext_bottom">
-[% PROCESS gallery/button.tt
+[% INCLUDE gallery/button.tt
     link    = PAGE_PREV.URI
     enabled = PAGE_PREV
     text    = "&laquo; prev"
 %]
 [% INCLUDE gallery/button_separator.tt %]
-[% PROCESS gallery/button.tt
+[% INCLUDE gallery/button.tt
     link    = PAGE_NEXT.URI
     enabled = PAGE_NEXT
     text    = "next &raquo;"
