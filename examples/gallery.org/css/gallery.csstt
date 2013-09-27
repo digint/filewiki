@@ -99,19 +99,12 @@ a:visited {
     border: 1px solid #DDDDDD;
     border-radius: 4px 4px 4px 4px;
     margin: 1.5em 1em 1.5em 0;
-/*    margin-right: 1em; */
     padding: 6px 0;
 }
 .button_enabled a {
     color: #DDDDDD;
     padding: 6px 1.5em;
 }
-/* hover does not work with border-radius */
-/*
-.button_enabled a:hover {
-    background-color: #444444;
-}
-*/
 
 .button_disabled {
     font-weight: bold;
@@ -119,7 +112,6 @@ a:visited {
     border-radius: 4px 4px 4px 4px;
     border-color: #888888;
     margin: 1.5em 1em 1.5em 0;
-/*    margin-right: 1em; */
     color: #888888;
     padding: 6px 1.5em;
 
@@ -136,8 +128,7 @@ a:visited {
 .prevnext_bottom {
     border: 0 none;
     padding: 0;
-    margin: 1.5em 0; /* better for mobile view */
-/*    margin: 2em 0 0 0; */
+    margin: 1.5em 0;
 }
 .prevnext_bottom .prev {
     text-align: left;
@@ -220,7 +211,7 @@ a:visited {
 }
 
 
-#galleria{
+#galleria {
     background-color: #333333;
     width: 1280px;
     height: 720px;
