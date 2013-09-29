@@ -64,7 +64,7 @@ use File::Spec::Functions qw(splitpath);
 
 use Template;
 
-our $VERSION = "0.30";
+our $VERSION = "0.31-dev";
 
 # Defaults
 our $dir_vars_filename = 'dir.vars';
