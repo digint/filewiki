@@ -12,10 +12,10 @@ title="Gallery"
 [% INCLUDE filewiki/head.tt %]
 
 <body>
-<div class="welcome_head">
+<div id="welcome_head">
 <p>Welcome to FileWiki's Photo Gallery!</p>
 </div>
-<div class="welcome_content">
+<div id="welcome_content">
 <p>
 <a href="[% URI_PREFIX %]/photos/index.html">
 <img src="[% URI_PREFIX %]/img/zurich.jpg" alt="Enter Gallery" height="270" width="480"/>
@@ -26,11 +26,11 @@ title="Gallery"
 <p>
 This is your FileWiki photo gallery site. Have fun!
 </p>
+</div>
 
 [% PROCESS gallery/bottom.tt %]
 [% PROCESS filewiki/debug.tt %]
 
-</div>
 </body>
 </html>
 
