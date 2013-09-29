@@ -52,9 +52,9 @@ use base qw( FileWiki::Plugin );
 
 use FileWiki::Logger;
 use FileWiki::Filter;
-use Pod::Simple::HTML;
+use Pod::Simple::XHTML;
 
-our $VERSION = "0.30";
+our $VERSION = "0.31";
 
 my $match_default = '\.(pod|pm|pl)$';
 
@@ -87,16 +87,25 @@ sub new
 sub transform_pod
 {
   my $in = shift;
-  my $out = '';
+  my $out;
 
   DEBUG "Converting POD";
 
-  my $parser = Pod::Simple::HTML->new();
+  my $parser = Pod::Simple::XHTML->new();
+
+  # use the first line of the verbatim block to set the standard for
+  # indentation of the rest of the block.
+  $parser->strip_verbatim_indent(sub {
+      my $lines = shift;
+      (my $indent = $lines->[0]) =~ s/\S.*//;
+      return $indent;
+  });
+
+  $parser->html_header('');
+  $parser->html_footer('');
   $parser->output_string(\$out);
   $parser->parse_string_document($in);
 
-  $out =~ s/.*\<\!-- start doc --\>//ms;
-  $out =~ s/\<\!-- end doc --\>.*//ms;
   return $out;
 }
 
