@@ -7,7 +7,7 @@ FileWiki::Plugin::Gallery - Gallery generator plugin for FileWiki
     PLUGINS=Gallery
     PLUGIN_GALLERY_MATCH=\.(jpg|JPG)$
 
-    GALLERY_CONVERT_OPTIONS    -quality 75 -auto-orient
+    GALLERY_CONVERT_OPTIONS   -quality 75 -auto-orient
     GALLERY_IMAGE_THUMB       0x180 4:3
     GALLERY_IMAGE_MINITHUMB   0x80  4:3
     GALLERY_IMAGE_SCALED      0x720
