@@ -30,3 +30,5 @@
 
 * filewiki-current
   - added GALLERY_DISABLE_EXIF_WARNINGS
+  - gallery templates: bugfixes, added mobile_view variable
+  - generate XHTML in FileWiki::Plugin::POD
