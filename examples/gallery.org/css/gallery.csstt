@@ -30,8 +30,7 @@ a:visited {
 /*  ID's                                                                     */
 /*****************************************************************************/
 
-div#welcome_content,
-div#bottom
+div#welcome_content
 {
     max-width: [% welcome_page_max_width %]px;
 }
