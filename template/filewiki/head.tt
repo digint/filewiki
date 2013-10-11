@@ -18,10 +18,16 @@
 
 <title>[% head_title_prefix %][% title || NAME %]</title>
 [% IF shortcut_icon %]
-<link rel="shortcut icon" href="[% shortcut_icon %]"/>
+<link rel="shortcut icon" type="image/x-icon" href="[% shortcut_icon %]"/>
 [% END %]
 [% IF apple_touch_icon %]
 <link rel="apple-touch-icon" href="[% apple_touch_icon %]"/>
+[% END %]
+[% IF apple_touch_icon_72x72 %]
+<link rel="apple-touch-icon" sizes="72x72" href="[% apple_touch_icon_72x72 %]"/>
+[% END %]
+[% IF apple_touch_icon_114x114 %]
+<link rel="apple-touch-icon" sizes="114x114" href="[% apple_touch_icon_114x114 %]"/>
 [% END %]
 
 [% FOREACH style_file IN stylesheet.split(':') %]
