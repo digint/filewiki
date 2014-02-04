@@ -25,8 +25,8 @@ Target (output) directory of the website. Mandatory for the
 allowed.
 
 NOTE: The given directory as well as all subdirectories will be
-created on the fly, without checking or user inerraction. Make sure that
-you provide a reasonable value here.
+created on the fly, without checking or user inerraction. Make sure to
+provide a reasonable value here.
 
 Example:
 
@@ -51,9 +51,9 @@ Example:
 This enables the Markdown and Copy plugin.
 
 
-##PLUGIN_&lt;plugin&gt;_MATCH
+###PLUGIN_&lt;plugin&gt;_MATCH
 
-Defines a match on files names for a plugin. The given plugin will be
+Defines a match on file names for a plugin. The given plugin will be
 enabled if the file matches the expression.
 
 Example:
@@ -114,8 +114,8 @@ generated is in a subdirectory within some other site.
 ###URI_DIR
 
 Set the root URI to a new value. This will make the source directory
-(as well all including files and folders recursively) appear under a
-new root URI.
+(as well as all including files and folders recursively) appear under
+a new root URI.
 
 NOTE: Set this in `dir.vars`. You will get unexpected result when set
 in `tree.vars`!
