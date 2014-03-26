@@ -9,7 +9,7 @@ use FileWiki;
 use HTML::Entities;
 use FileWiki::Logger;
 
-our $VERSION = "0.30";
+our $VERSION = "0.31-dev";
 
 =head1 NAME
 
@@ -134,7 +134,7 @@ Defaults to site root.
 =item page_current
 
 The page to be considered as currently displayed.
-Affects the highlight behaviour.
+Affects the highlight and collapse behaviour.
 Defaults to current page.
 
 =item depth
@@ -144,7 +144,7 @@ If set, stops traversing directories at deeper levels.
 =item collapse
 
 If set, displays only top-level directories and the pages which are on
-the same level as the current page.
+the same level as the current page (see page_current above).
 Useful for menu.
 Defaults to false.
 
@@ -189,22 +189,6 @@ Example (display perl modules in perl-style):
               { match => '\.pm$',     replace => ''   },
               { match => '/',         replace => '::' } ],
 
-
-=item list_tag_open
-
-Opening tag for a list (and sublist). Defaults to "<ul>".
-
-=item list_tag_close
-
-Closing tag for a list (and sublist). Defaults to "</ul>".
-
-=item list_item_tag_open
-
-Opening tag for a list (and sublist) item. Defaults to "<li>".
-
-=item list_item_tag_close
-
-Closing tag for a list (and sublist) item. Defaults to "</li>".
 
 =back
 
@@ -307,6 +291,7 @@ sub tree_item
 {
   my $page = shift;
   my $args = shift;
+  my %flags = @_;
   my $prev_level = $args->{prev_level};
   my $tag_stack = $args->{tag_stack};
   my $level = $page->{LEVEL};
@@ -316,8 +301,10 @@ sub tree_item
   return ""  unless($item_html);
 
   if(($$prev_level < $level)) {
-    $html .= $args->{list_tag_open} . "\n";
-    push @$tag_stack, $args->{list_tag_close} . "\n";
+    $html .= '<ul';
+    $html .= ' class="collapse"' if($flags{collapse});
+    $html .= ">\n";
+    push @$tag_stack, "</ul>\n";
   }
   elsif($$prev_level == $level) {
     $html .= pop @$tag_stack; # /li
@@ -330,8 +317,8 @@ sub tree_item
     }
   }
 
-  $html .= $args->{list_item_tag_open} . "\n";
-  push @$tag_stack, $args->{list_item_tag_close} . "\n";
+  $html .= "<li>\n";
+  push @$tag_stack, "</li>\n";
 
   $html .= $item_html;
 
@@ -347,7 +334,7 @@ sub list_item
   my $args = shift;
 
   my $html = page_link($page, $args);
-  $html = $args->{list_item_tag_open} . $html . $args->{list_item_tag_close} if($html);
+  $html = "<li>" . $html . "</li>" if($html);
   return $html;
 }
 
@@ -356,12 +343,8 @@ sub set_default_list_args
 {
   my $page = shift;
   my $args = shift;
-  $args->{ROOT}                ||= $page->{ROOT};
-  $args->{page_current}        ||= $page;
-  $args->{list_tag_open}       ||= '<ul>';
-  $args->{list_tag_close}      ||= '</ul>';
-  $args->{list_item_tag_open}  ||= '<li>';
-  $args->{list_item_tag_close} ||= '</li>';
+  $args->{ROOT}         ||= $page->{ROOT};
+  $args->{page_current} ||= $page;
 
   $args->{regexp} = [ $args->{regexp} ] if(exists($args->{regexp}) && (ref $args->{regexp} ne "ARRAY"));
 }
@@ -396,9 +379,9 @@ sub PageList
   DEBUG "Creating PageList: $args->{ROOT}->{URI}"; INDENT 1;
 
   my $html;
-  $html .= $args->{list_tag_open};
+  $html .= "<ul>";
   $html .= FileWiki::traverse($args);
-  $html .= $args->{list_tag_close};
+  $html .= "</ul>";
 
   INDENT -1;
 
@@ -414,7 +397,7 @@ sub PageTree
   my $page = $self->{_CONTEXT}->{STASH};
 
   set_default_list_args($page, $args);
-  $args->{text_key}         ||= "NAME";
+  $args->{text_key} ||= "NAME";
   $args->{CALLBACK} = \&tree_item;
   $args->{tag_stack} = \@tag_stack;
 

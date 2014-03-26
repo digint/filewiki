@@ -681,6 +681,7 @@ sub _traverse
 {
   my $args = shift;
   my $tree = shift;
+  my %flags = @_;
   my $match = $args->{match};
   my $last_level = $args->{last_level};
   my $collapse = $args->{collapse};
@@ -702,15 +703,16 @@ sub _traverse
         }
       }
     }
-    $ret .= &$callback($p, $args) unless($skip);
+    $ret .= &$callback($p, $args, %flags) unless($skip);
 
     if($p->{IS_DIR})
     {
       # p is directory, recurse into it
-      if((not $collapse) || $p->{PAGEHASH}->{$page_current->{URI}}) {
-        $ret .= _traverse($args, $p->{TREE});
-      } else {
+      my $collapsed = not ($page_current && $p->{PAGEHASH}->{$page_current->{URI}}); # current page not present in pagehash
+      if($collapse && $collapsed) {
         DEBUG "Collapsing $p->{URI}";
+      } else {
+        $ret .= _traverse($args, $p->{TREE}, %flags, collapse => $collapsed);
       }
     }
   }
