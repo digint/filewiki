@@ -27,7 +27,8 @@ First, [download] the newest FileWiki release.
 Unzip the tarball, go to the filewiki directory and type:
 
     perl Makefile.PL
-    make install
+    make
+    sudo make install
 
 This will install the `filewiki` executable along with the FileWiki
 Perl modules to your system. The Makefile will warn you about missing

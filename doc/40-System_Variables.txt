@@ -214,7 +214,7 @@ Key to use for sorting pages within a directory. Defaults to "INDEX".
 Strategy to use for sorting pages within a directory. Supported values
 are:
 
-- `sortkey-only`: (default) sort by SORT_KEY.
+- `sortkey-only`: sort by SORT_KEY (default).
 - `dir-first`: sort by SORT_KEY, but put directories in front.
 - `dir-last`: sort by SORT_KEY, but push directories to back.
 
@@ -224,7 +224,7 @@ are:
 Order to use for sorting pages within a directory. Supported values
 are:
 
-- `asc`: (default) sort ascending.
+- `asc`: sort ascending (default).
 - `desc`: sort descending.
 
 
@@ -239,8 +239,7 @@ files which include the currently parsed file again!
 
 Include files/directories. Multiple includes are separated by a
 colon. Optionally, you can specify a prefix from where to read
-additional tree-, page- and file-vars can be defined in square
-brackets.
+additional tree-, page- and file-vars in square brackets.
 
 Example (include files):
 
