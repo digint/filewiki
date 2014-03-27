@@ -3,19 +3,20 @@
    #   counter
 ~%]
 
-[% img_events = "" %]
-[% link_uri = page.index.IS_DIR ? page.index.INDEX_PAGE.URI : page.index.URI %]
+[%
+    link_uri     = page.index.IS_DIR ? page.index.INDEX_PAGE.URI : page.index.URI
+    img_events   = page.index.IS_DIR ? "" : " onmouseover=\"show('shaded$counter')\" onmouseout=\"hide('shaded$counter')\""
+    overlay_attr = page.index.IS_DIR ? "" : " id=\"shaded$counter\" style=\"display: none;\""
 
-[% UNLESS page.index.IS_DIR %]
-[% img_events = " onmouseover=\"show('shaded$counter')\" onmouseout=\"hide('shaded$counter')\"" %]
-[% END %]
+    offset_top = 0
+    margin_top = ''  # margin: center image vertically
+%]
 
-[%# margin: center image vertically %]
-[% offset_top = 0 %]
-[% margin_top = '' %]
 [% IF page.highlight.GALLERY_IMAGE_THUMB_HEIGHT && (page.highlight.GALLERY_IMAGE_THUMB_HEIGHT < max_height) %]
-[% offset_top = ((max_height - page.highlight.GALLERY_IMAGE_THUMB_HEIGHT) div 2) %]
-[% margin_top = ' style="margin-top: ' _ offset_top _ 'px;"' %]
+[% 
+    offset_top = ((max_height - page.highlight.GALLERY_IMAGE_THUMB_HEIGHT) div 2)
+    margin_top = ' style="margin-top: ' _ offset_top _ 'px;"'
+%]
 [% END %]
 
 <a href="[% link_uri %]">
@@ -26,18 +27,13 @@
 <img class="gallery_mosaic_type" style="top: [% offset_top + 16 %]px;" src="[% video_icon %]"/>
 [% END %]
 [% END %]
-[% UNLESS page.index.IS_DIR %]
-<div class="gallery_mosaic_overlay" id="shaded[% counter %]" style="display: none;">
-<div class="shaded_desc">
-[% INCLUDE gallery/imagedesc.tt vars=page.index %]
-</div>
-</div>
-[% END %]
-</div>
-[% IF page.index.IS_DIR %]
+
+<div class="gallery_mosaic_overlay"[% overlay_attr %]>
 [% INCLUDE gallery/imagedesc.tt
-     vars=page.index
-     title_prefix="Album: "
+     vars         = page.index
+     title_prefix = page.index.IS_DIR ? "Album: " : ''
  %]
-[% END %]
+</div>
+
+</div>
 </a>

@@ -1,33 +1,33 @@
-<table>
-<tbody>
+[% gallery_cell_margin = 1 %]
+[% gallery_cell_padding = 2 %]
 
-[% counter = 0 %]
+<div class="gallery_indexmatrix" style="max-width:[% (max_width + (gallery_cell_margin * 2) + (gallery_cell_padding * 2)) * gallery_cols %]px;">
+
+[% counter = 1 %]
 [% FOREACH page IN pagelist %]
 
-[% IF counter mod gallery_cols == 0 %]
-[% UNLESS counter == 0 %]</tr>[% END %]
-<tr>
-[% END %]
-
 [% IF page.index.IS_DIR %]
-<td class="gallery_cell_dir" style="width: [% max_width %]px;">
+<div class="gallery_cell gallery_cell_dir" style="width:[% max_width %]px;margin:[% gallery_cell_margin %]px;padding:[% gallery_cell_padding %]px;">
 [% ELSE %]
-<td class="gallery_cell_file" style="width: [% max_width %]px;">
+<div class="gallery_cell gallery_cell_file" style="width:[% max_width %]px;margin:[% gallery_cell_margin %]px;padding:[% gallery_cell_padding %]px;">
 [% END %]
 
 [%# NOTE: indexitem.tt uses variables "page" and "counter" %]
 [% INCLUDE gallery/indexitem.tt %]
 
-</td>
+</div>
+
+<!----
+
+[% IF counter mod gallery_cols == 0 %]
+<div class="gallery_clear"></div>
+[% END %]
+
+---->
 
 [% counter = counter + 1 %]
 [% END %]
 
-[% WHILE counter mod gallery_cols != 0 %]
-<td class="gallery_cell_empty" style="width: [% max_width %]px;"></td>
-[% counter = counter + 1 %]
-[% END %]
+<div class="gallery_clear"></div>
 
-</tr>
-</tbody>
-</table>
+</div>
