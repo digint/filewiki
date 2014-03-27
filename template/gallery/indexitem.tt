@@ -4,9 +4,9 @@
 ~%]
 
 [%
-    link_uri     = page.index.IS_DIR ? page.index.INDEX_PAGE.URI : page.index.URI
-    img_events   = page.index.IS_DIR ? "" : " onmouseover=\"show('shaded$counter')\" onmouseout=\"hide('shaded$counter')\""
-    overlay_attr = page.index.IS_DIR ? "" : " id=\"shaded$counter\" style=\"display: none;\""
+    link_uri              = page.index.IS_DIR ? page.index.INDEX_PAGE.URI : page.index.URI
+    cell_class            = page.index.IS_DIR ? "gallery_cell_dir" : "gallery_cell_file"
+    overlay_shade_events  = page.index.IS_DIR ? "" : " onmouseover=\"show('shaded$counter')\" onmouseout=\"hide('shaded$counter')\""
 
     offset_top = 0
     margin_top = ''  # margin: center image vertically
@@ -19,21 +19,35 @@
 %]
 [% END %]
 
+<div class="[% cell_class %]" [% overlay_shade_events %]>
 <a href="[% link_uri %]">
-<div class="gallery_mosaic" style="width: [% max_width %]px; height: [% max_height %]px;"[% img_events %]>
+<div class="gallery_mosaic" style="width:[% max_width %]px;height:[% max_height %]px;" [% margin_top %]>
 [% IF page.highlight.GALLERY_IMAGE_THUMB_URI %]
-<img src="[% page.highlight.GALLERY_IMAGE_THUMB_URI %]" alt="[% page.index.NAME %]" width="[% page.highlight.GALLERY_IMAGE_THUMB_WIDTH %]" height="[% page.highlight.GALLERY_IMAGE_THUMB_HEIGHT %]"[% margin_top %]/>
+<img src="[% page.highlight.GALLERY_IMAGE_THUMB_URI %]" alt="[% page.index.NAME %]" width="[% page.highlight.GALLERY_IMAGE_THUMB_WIDTH %]" height="[% page.highlight.GALLERY_IMAGE_THUMB_HEIGHT %]"/>
 [% IF page.index.GALLERY_VIDEO %]
 <img class="gallery_mosaic_type" style="top: [% offset_top + 16 %]px;" src="[% video_icon %]"/>
 [% END %]
 [% END %]
 
-<div class="gallery_mosaic_overlay"[% overlay_attr %]>
+[% UNLESS page.index.IS_DIR %]
+<div class="gallery_mosaic_overlay gallery_cell_caption" id="shaded[% counter %]" style="display: none;">
 [% INCLUDE gallery/imagedesc.tt
      vars         = page.index
      title_prefix = page.index.IS_DIR ? "Album: " : ''
  %]
 </div>
+[% END %]
 
 </div>
+
+[% IF page.index.IS_DIR %]
+<div class="gallery_cell_caption">
+[% INCLUDE gallery/imagedesc.tt
+     vars         = page.index
+     title_prefix = page.index.IS_DIR ? "Album: " : ''
+ %]
+</div>
+[% END %]
+
 </a>
+</div>
