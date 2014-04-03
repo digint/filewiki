@@ -72,8 +72,10 @@ sub get_uri_filename
 # called by FileWiki if plugin->{vars_provider} is set
 sub update_vars
 {
-#  my $self = shift;
-#  my $page = shift;
+  my $self = shift;
+  my $page = shift;
+
+  ERROR "Plugin $self->{name} identifies itself as vars_provider, but does not implement the update_vars() method!";
 }
 
 1;
