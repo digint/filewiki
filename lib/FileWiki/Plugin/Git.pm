@@ -5,13 +5,17 @@ FileWiki::Plugin::Git - git plugin for FileWiki
 =head1 SYNOPSIS
 
     PLUGINS=Git
-    PLUGIN_GIT_MATCH=.*
 
 =head1 DESCRIPTION
 
 Provides page variables from source files under git control.
 
 =head1 CONFIGURATION VARIABLES
+
+=head2 PLUGIN_GIT_MATCH
+
+Defines a match on file names for the git plugin. The git plugin will only be
+enabled if the file matches the expression. Defaults to '.*' (all files).
 
 =head2 GIT_BIN
 
@@ -98,7 +102,7 @@ use Date::Format qw(time2str);
 our $VERSION = "0.40";
 
 my $match_default = '.*';
-my $git_exe_default = 'git';
+my $git_bin_default = 'git';
 
 my @git_log_format = (
   { format => '%H',  key => 'GIT_COMMIT_HASH'                                            },
@@ -116,7 +120,7 @@ sub new
 {
   my $class = shift;
   my $page = shift;
-  my $match = $page->{uc("PLUGIN_GIT_MATCH")} || $match_default;
+  my $match = $page->{PLUGIN_GIT_MATCH} || $match_default;
 
   return undef unless($page->{SRC_FILE} =~ m/$match/);
 
@@ -134,7 +138,7 @@ sub update_vars
   my $self = shift;
   my $page = shift;
   my $file = $page->{SRC_FILE};
-  my $cmd = $page->{GIT_BIN} || $git_exe_default;
+  my $cmd = $page->{GIT_BIN} || $git_bin_default;
   $cmd .= ' log -1 --format="';
   $cmd .= $_->{format} . '%n'  foreach (@git_log_format);
   $cmd .= '" "' . $file . '"';
