@@ -2,7 +2,7 @@
 <div id="copyright">
 &copy; [% copyright %]
 </div>
-<div id="mdate">
+<div id="mtime">
 Updated [% MTIME %]
 </div>
 <div id="bottom_links">

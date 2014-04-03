@@ -149,7 +149,7 @@ If set, affects modification date for the target (output) file of a
 page.
 
 This is particulary useful if you use rsync -t for installing the
-site, and you don't want a page's mdate to change on every install.
+site, and you don't want a page's mtime to change on every install.
 
 
 ###TIME_FORMAT
