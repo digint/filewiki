@@ -64,7 +64,7 @@ use File::Spec::Functions qw(splitpath);
 
 use Template;
 
-our $VERSION = "0.31-dev";
+our $VERSION = "0.40-dev";
 
 # Defaults
 our $dir_vars_filename = 'dir.vars';
@@ -321,22 +321,33 @@ sub load_plugins
   return @ret;
 }
 
-
-sub get_handler
+sub assign_plugins
 {
   my $page = shift;
 
+  $page->{PROVIDER} = [];
   foreach my $plugin (load_plugins($page)) {
-    my $handler = $plugin->new($page);
-    if($handler) {
-      TRACE "Using plugin: $handler->{name}";
-      return $handler;
-      last;
+    my $object = $plugin->new($page);
+    if($object) {
+      if($object->{vars_provider}) {
+        DEBUG "Using vars provider plugin: $object->{name}";
+        push(@{$page->{PROVIDER}}, $object);
+      }
+      if($object->{page_handler}) {
+        if($page->{HANDLER}) {
+          WARN "Multiple page handler plugins defined for '$page->{SRC_FILE}': using $page->{HANDLER}->{name}, ignoring $object->{name}";
+        }
+        else {
+          DEBUG "Using handler plugin: $object->{name}";
+          $page->{HANDLER} = $object;
+        }
+      }
+      if($object->{read_nested_vars}) {
+        $page->{VARS_NESTED} = 1;  # triggers reading below
+      }
     }
   }
-  return undef;
 }
-
 
 sub _site_tree
 {
@@ -477,9 +488,9 @@ sub _site_tree
     my @stat = stat $file;
 
     # set date
-    my $time_format = $tree_vars{TIME_FORMAT} || $default_time_format;
-    my $mtime = time2str($time_format, $stat[9]);
-    my $build_date = time2str($time_format, $tree_vars{BUILD_TIME});
+    $tree_vars{TIME_FORMAT} ||= $default_time_format;
+    my $mtime = time2str($tree_vars{TIME_FORMAT}, $stat[9]);
+    my $build_date = time2str($tree_vars{TIME_FORMAT}, $tree_vars{BUILD_TIME});
 
     # page vars default to tree_vars
     my %page = ( INDEX       => $name,
@@ -505,18 +516,16 @@ sub _site_tree
                       vars => \%page) if($tree_vars{VARS_OVERLAY}->{$file});
 
 
-    # attach plugin to the page
+    # assign plugins to the page
     $page{SRC_FILE} = $file;
-    my $handler = get_handler(\%page);
-    unless($handler) {
-      TRACE "No match, ignoring file: $file"; INDENT -1;
+    my $read_nested_vars = assign_plugins(\%page);
+    unless($page{HANDLER}) {
+      TRACE "No page handler plugin match, ignoring file: $file"; INDENT -1;
       next;
     }
-    $page{HANDLER} = $handler;
 
     # page nested vars file supersede the page vars
-    if($handler->{read_nested_vars})
-    {
+    if($page{VARS_NESTED}) {
       %page = read_vars(file => $file,
                         vars => \%page,
                         nested => 1,
@@ -542,7 +551,6 @@ sub _site_tree
 
     %page = (INDEX       => $page{NAME},  # default index
              %page,
-             SRC_FILE    => $file,
              TARGET_FILE => $target_file,  # full path
              TARGET_DIR  => $target_dir,
              TARGET_MTIME_EPOCH => $target_mtime_epoch,
@@ -561,8 +569,10 @@ sub _site_tree
     # set a link to self, useful in templates
     $page{VARS} = \%page;
 
-    # call the handler hook
-    $handler->update_vars(\%page);
+    # call all vars provider hooks
+    foreach (@{$page{PROVIDER}}) {
+      $_->update_vars(\%page);
+    }
 
     expand_match_vars(\%page);
     sanitize_vars(\%page);

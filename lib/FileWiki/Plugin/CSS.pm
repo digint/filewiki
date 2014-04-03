@@ -51,7 +51,7 @@ use base qw( FileWiki::Plugin );
 use FileWiki::Logger;
 use FileWiki::Filter;
 
-our $VERSION = "0.30";
+our $VERSION = "0.40";
 
 my $match_default = '\.csstt$';
 
@@ -66,8 +66,9 @@ sub new
 
   my $self = {
     name => $class,
-    target_file_ext => 'css',
+    page_handler     => 1,
     read_nested_vars => 1,
+    target_file_ext  => 'css',
     filter => [
       \&FileWiki::Filter::read_source,
       \&FileWiki::Filter::sanitize_newlines,

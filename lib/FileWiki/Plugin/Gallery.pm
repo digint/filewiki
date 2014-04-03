@@ -83,6 +83,10 @@ Example:
 This will load EXIF information from "myfile.jpg.xmp" in addition to
 the EXIF information in "myfile.jpg".
 
+=head2 GALLERY_DISABLE_EXIF_WARNINGS
+
+Disable warnings generated when EXIF data is missing (especially on
+missing GALLERY_TIME)
 
 =head1 VARIABLE PRESETS
 
@@ -121,11 +125,6 @@ keys.
                                }
                    exif_key...
                  }
-
-=head2 GALLERY_DISABLE_EXIF_WARNINGS
-
-Disable warnings generated when EXIF data is missing (especially on
-missing GALLERY_TIME)
 
 =head1 AUTHOR
 
@@ -166,7 +165,7 @@ use Image::ExifTool;
 use Image::Size qw(imgsize);
 use File::Path qw(mkpath);
 
-our $VERSION = "0.30";
+our $VERSION = "0.40";
 
 my $match_default = '\.(bmp|gif|jpeg|jpeg2000|mng|png|psd|raw|svg|tif|tiff|gif|jpeg|jpg|png|pdf|mp4|avi|BMP|GIF|JPEG|JPEG2000|MNG|PNG|PSD|RAW|SVG|TIF|TIFF|GIF|JPEG|JPG|PNG|PDF|MP4|AVI)$';
 my $video_match_default = '\.(mp4|avi|MP4|AVI)$';
@@ -183,7 +182,9 @@ sub new
   return undef unless($page->{SRC_FILE} =~ m/$match/);
 
   my $self = {
-    name => $class,
+    name            => $class,
+    page_handler    => 1,
+    vars_provider   => 1,
     target_file_ext => 'html',
     filter => [
       \&FileWiki::Filter::apply_template,

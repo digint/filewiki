@@ -48,7 +48,7 @@ use FileWiki::Filter;
 use File::Spec::Functions qw(splitpath);
 
 
-our $VERSION = "0.30";
+our $VERSION = "0.40";
 
 sub new
 {
@@ -62,7 +62,7 @@ sub new
 
   my $self = {
     name => $class,
-    file => $page->{SRC_FILE},
+    page_handler => 1,
     filter => [
       \&FileWiki::Filter::read_source,
      ],
@@ -76,7 +76,8 @@ sub new
 sub get_uri_filename
 {
   my $self = shift;
-  my (undef, undef, $file) = splitpath($self->{file});
+  my $page = shift;
+  my (undef, undef, $file) = splitpath($page->{SRC_FILE});
 
   return $file;
 }

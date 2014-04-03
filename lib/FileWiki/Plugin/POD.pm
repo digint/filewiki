@@ -54,7 +54,7 @@ use FileWiki::Logger;
 use FileWiki::Filter;
 use Pod::Simple::XHTML;
 
-our $VERSION = "0.31";
+our $VERSION = "0.40";
 
 my $match_default = '\.(pod|pm|pl)$';
 
@@ -69,8 +69,9 @@ sub new
 
   my $self = {
     name => $class,
-    target_file_ext => 'html',
+    page_handler     => 1,
     read_nested_vars => 1,
+    target_file_ext  => 'html',
     filter => [
       \&FileWiki::Filter::read_source,
       \&FileWiki::Filter::sanitize_newlines,

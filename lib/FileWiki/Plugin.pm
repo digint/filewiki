@@ -34,7 +34,7 @@ use warnings;
 use FileWiki::Logger;
 
 
-our $VERSION = "0.30";
+our $VERSION = "0.40";
 
 sub process_page
 {
@@ -58,7 +58,7 @@ sub process_page
 }
 
 
-# called by FileWiki when building 
+# called by FileWiki for determining the target file name
 sub get_uri_filename
 {
   my $self = shift;
@@ -69,6 +69,7 @@ sub get_uri_filename
   return $name . '.' . $target_file_ext;
 }
 
+# called by FileWiki if plugin->{vars_provider} is set
 sub update_vars
 {
 #  my $self = shift;

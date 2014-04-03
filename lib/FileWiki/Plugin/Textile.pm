@@ -55,7 +55,7 @@ use FileWiki::Filter;
 
 use Text::Textile;
 
-our $VERSION = "0.30";
+our $VERSION = "0.40";
 
 my $match_default = '\.(textile)$';
 
@@ -70,8 +70,9 @@ sub new
 
   my $self = {
     name => $class,
-    target_file_ext => 'html',
+    page_handler     => 1,
     read_nested_vars => 1,
+    target_file_ext => 'html',
     filter => [
       \&FileWiki::Filter::read_source,
       \&FileWiki::Filter::sanitize_newlines,
