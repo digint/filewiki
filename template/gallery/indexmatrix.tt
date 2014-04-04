@@ -6,8 +6,8 @@
 [% counter = 1 %]
 [% FOREACH page IN pagelist %]
 
-[%# NOTE: indexitem.tt uses variables "page" and "counter" %]
-[% INCLUDE gallery/indexitem.tt %]
+[%# NOTE: mosaic.tt uses variables "page" and "counter" %]
+[% INCLUDE gallery/mosaic.tt %]
 
 [% counter = counter + 1 %]
 [% END %]
