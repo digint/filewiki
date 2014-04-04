@@ -33,5 +33,7 @@
   - gallery templates: bugfixes, added mobile_view variable
   - generate XHTML in FileWiki::Plugin::POD
   - Template::Plugin::FileWiki->PageTree() generates <ul class="collapse">
+  - Template::Plugin::FileWiki->PageTree() generates "highlight" class in <li> instead of <a>
   - adapted plugin framework to allow vars-provider plugins
   - added FileWiki::Plugin::Git, which provides variables such as "git commit date"
+  - Template::Plugin::FileWiki 

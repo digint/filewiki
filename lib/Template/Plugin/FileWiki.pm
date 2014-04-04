@@ -236,18 +236,6 @@ sub page_link
   my $page = shift;
   my $args = shift;
   my $uri = $page->{INDEX_PAGE}->{URI} || $page->{URI}; # directories point to their index_page
-  my $page_current = $args->{page_current};
-  my $highlight;
-
-  # highlight target page
-  $highlight = ($page_current && ($page_current->{URI} eq $page->{URI}));
-
-  # highlight parent directory
-  $highlight ||= $args->{highlight_parents} && $page->{IS_DIR} && $page_current && exists($page->{PAGEHASH}->{$page_current->{URI}});
-
-  # max depth is reached, and current page is subpage
-  $highlight ||= ((exists($args->{depth}) && ($args->{depth} == $page->{LEVEL})) &&
-                  $page->{IS_DIR} && $page_current && exists($page->{PAGEHASH}->{$page_current->{URI}}));
 
 
   # set text and title
@@ -278,14 +266,12 @@ sub page_link
   my $html;
   $html .= "<a href=\"$uri\"";
   $html .= " title=\"$title\""     if($title);
-  $html .= " class=\"highlight\""  if($highlight);
   $html .= ">";
   $html .= "$text";
   $html .= "</a>\n";
 
   return $html;
 }
-
 
 sub tree_item
 {
@@ -295,6 +281,21 @@ sub tree_item
   my $prev_level = $args->{prev_level};
   my $tag_stack = $args->{tag_stack};
   my $level = $page->{LEVEL};
+  my $page_current = $args->{page_current};
+  my $highlight;
+
+  # highlight target page
+  $highlight = ($page_current && ($page_current->{URI} eq $page->{URI}));
+
+  # highlight parent directory
+  $highlight ||= $args->{highlight_parents} && $page->{IS_DIR} && $page_current && exists($page->{PAGEHASH}->{$page_current->{URI}});
+
+  # max depth is reached, and current page is subpage
+  $highlight ||= ((exists($args->{depth}) && ($args->{depth} == $page->{LEVEL})) &&
+                  $page->{IS_DIR} && $page_current && exists($page->{PAGEHASH}->{$page_current->{URI}}));
+
+
+
   my $html = '';
 
   my $item_html = page_link($page, $args);
@@ -303,8 +304,8 @@ sub tree_item
   if(($$prev_level < $level)) {
     $html .= '<ul';
     $html .= ' class="collapse"' if($flags{collapse});
-    $html .= ">\n";
-    push @$tag_stack, "</ul>\n";
+    $html .= '>';
+    push @$tag_stack, '</ul>';
   }
   elsif($$prev_level == $level) {
     $html .= pop @$tag_stack; # /li
@@ -317,8 +318,10 @@ sub tree_item
     }
   }
 
-  $html .= "<li>\n";
-  push @$tag_stack, "</li>\n";
+  $html .= '<li';
+  $html .=  ' class="highlight"' if($highlight);
+  $html .= '>';
+  push @$tag_stack, '</li>';
 
   $html .= $item_html;
 
