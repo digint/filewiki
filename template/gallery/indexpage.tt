@@ -44,6 +44,10 @@ SKIP_PREVNEXT=1
 [% END %]
 </span>
 </p>
+</div>
+
+[%~### Folder information ###~%]
+
 <div class="gallery_info" id="shaded_info" onclick="hide('shaded_info')" style="display: none;">
 [% INCLUDE gallery/imagedesc.tt
      vars=DIR
@@ -51,8 +55,6 @@ SKIP_PREVNEXT=1
      size=pagelist.size()
 %]
 </div>
-</div>
-
 
 [%~### index matrix ###~%]
 

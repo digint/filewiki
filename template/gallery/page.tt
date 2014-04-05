@@ -60,7 +60,7 @@
 [% END %]
 
 
-[%~### EXIF information (on top of video) ###~%]
+[%~### EXIF information (on top of image) ###~%]
 
 <div class="gallery_info" id="shaded_info" onclick="hide('shaded_info')" style="display: none;">
 [% INCLUDE gallery/exiftable.tt %]
@@ -86,7 +86,7 @@
 [% ELSE %]
 <div class="gallery_image">
 [% IF gallery_original_image_link %]<a href="[% gallery_original_image_link %]">[% END %]
-<img src="[% GALLERY_IMAGE_SCALED_URI %]" alt="[% SRC_FILE_NAME %]" width="[% GALLERY_IMAGE_SCALED_WIDTH %]" height="[% GALLERY_IMAGE_SCALED_HEIGHT %]"/>
+<img src="[% GALLERY_IMAGE_SCALED_URI %]" alt="[% SRC_FILE_NAME %]" style="max-width:[% GALLERY_IMAGE_SCALED_WIDTH %]px;"/>
 [% IF gallery_original_image_link %]</a>[% END %]
 </div>
 [% END %]

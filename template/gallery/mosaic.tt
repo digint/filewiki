@@ -1,27 +1,45 @@
 [%~# needs variables:
    #   page = { index => ..., highlight => ... } 
    #   counter
+   #
+   # honors page variables:
+   #   gallery_mosaic_style
+   #   gallery_mosaic_fixed_width:  affects mosaic_style, set to 'auto' to have the maximum width of all images
+   #   gallery_mosaic_fixed_height: affects mosaic_style, set to 'auto' to have the maximum width of all images
 ~%]
+
+[% DEFAULT gallery_mosaic_style="" %]
 
 [%
     link_uri              = page.index.IS_DIR ? page.index.INDEX_PAGE.URI : page.index.URI
     cell_class            = page.index.IS_DIR ? "gallery_cell_dir" : "gallery_cell_file"
-    overlay_shade_events  = page.index.IS_DIR ? "" : " onmouseover=\"show('shaded$counter')\" onmouseout=\"hide('shaded$counter')\""
+
+    overlay_shade_events      = page.index.IS_DIR ? "" : " onmouseover=\"show('shaded$counter')\" onmouseout=\"hide('shaded$counter')\""
+    overlay_shade_target_attr = page.index.IS_DIR ? "" : " id=\"shaded$counter\" style=\"display: none;\""
+
+    mosaic_fixed_width  = (DIR.gallery_mosaic_fixed_width  == 'auto') ? max_width  : DIR.gallery_mosaic_fixed_width
+    mosaic_fixed_height = (DIR.gallery_mosaic_fixed_height == 'auto') ? max_height : DIR.gallery_mosaic_fixed_height
+
+    mosaic_style      = gallery_mosaic_style
+    mosaic_style      = mosaic_fixed_width  ? (mosaic_style _ "width:" _ mosaic_fixed_width _ "px;")    : mosaic_style
+    mosaic_style      = mosaic_fixed_height ? (mosaic_style _ "height:" _ mosaic_fixed_height _ "px;")  : mosaic_style
+    mosaic_style_attr = mosaic_style ? ' style="' _ mosaic_style _ '"' : ""
 
     offset_top = 0
-    margin_top = ''  # margin: center image vertically
+    margin_top = ""   # margin: center image vertically
 %]
 
 [% IF page.highlight.GALLERY_IMAGE_THUMB_HEIGHT && (page.highlight.GALLERY_IMAGE_THUMB_HEIGHT < max_height) %]
 [% 
     offset_top = ((max_height - page.highlight.GALLERY_IMAGE_THUMB_HEIGHT) div 2)
-    margin_top = ' style="margin-top: ' _ offset_top _ 'px;"'
+    margin_top = " style=\"margin-top:${offset_top}px;\""
 %]
 [% END %]
 
+<div class="gallery_cell_wrap">
 <div class="[% cell_class %]" [% overlay_shade_events %]>
 <a href="[% link_uri %]">
-<div class="gallery_mosaic" style="width:[% max_width %]px;height:[% max_height %]px;" [% margin_top %]>
+<div class="gallery_mosaic" [% mosaic_style_attr %] [% margin_top %]>
 [% IF page.highlight.GALLERY_IMAGE_THUMB_URI %]
 <img src="[% page.highlight.GALLERY_IMAGE_THUMB_URI %]" alt="[% page.index.NAME %]" width="[% page.highlight.GALLERY_IMAGE_THUMB_WIDTH %]" height="[% page.highlight.GALLERY_IMAGE_THUMB_HEIGHT %]"/>
 [% IF page.index.GALLERY_VIDEO %]
@@ -29,25 +47,13 @@
 [% END %]
 [% END %]
 
-[% UNLESS page.index.IS_DIR %]
-<div class="gallery_mosaic_overlay gallery_cell_caption" id="shaded[% counter %]" style="display: none;">
+<div class="gallery_cell_caption" [% overlay_shade_target_attr %]>
 [% INCLUDE gallery/imagedesc.tt
      vars         = page.index
      title_prefix = page.index.IS_DIR ? "Album: " : ''
- %]
-</div>
-[% END %]
-
-</div>
-
-[% IF page.index.IS_DIR %]
-<div class="gallery_cell_caption">
-[% INCLUDE gallery/imagedesc.tt
-     vars         = page.index
-     title_prefix = page.index.IS_DIR ? "Album: " : ''
- %]
-</div>
-[% END %]
-
-</a>
-</div>
+%]
+</div>   [%~# gallery_cell_caption  ~%]
+</div>   [%~# gallery_mosaic        ~%]
+</a>     [%~# a                     ~%]
+</div>   [%~# gallery_cell_dir/file ~%]
+</div>   [%~# gallery_cell_wrap     ~%]
