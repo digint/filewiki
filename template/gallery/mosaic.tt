@@ -17,21 +17,23 @@
     overlay_shade_events      = page.index.IS_DIR ? "" : " onmouseover=\"show('shaded$counter')\" onmouseout=\"hide('shaded$counter')\""
     overlay_shade_target_attr = page.index.IS_DIR ? "" : " id=\"shaded$counter\" style=\"display: none;\""
 
-    mosaic_fixed_width  = (DIR.gallery_mosaic_fixed_width  == 'auto') ? max_width  : DIR.gallery_mosaic_fixed_width
-    mosaic_fixed_height = (DIR.gallery_mosaic_fixed_height == 'auto') ? max_height : DIR.gallery_mosaic_fixed_height
+    mosaic_fixed_width  = (DIR.gallery_mosaic_fixed_width  == 'auto') ? pagelist_max_width  : DIR.gallery_mosaic_fixed_width
+    mosaic_fixed_height = (DIR.gallery_mosaic_fixed_height == 'auto') ? pagelist_max_height : DIR.gallery_mosaic_fixed_height
 
     mosaic_style      = gallery_mosaic_style
     mosaic_style      = mosaic_fixed_width  ? (mosaic_style _ "width:" _ mosaic_fixed_width _ "px;")    : mosaic_style
     mosaic_style      = mosaic_fixed_height ? (mosaic_style _ "height:" _ mosaic_fixed_height _ "px;")  : mosaic_style
     mosaic_style_attr = mosaic_style ? ' style="' _ mosaic_style _ '"' : ""
 
+    image_class       = (page.highlight.GALLERY_IMAGE_THUMB_WIDTH < page.highlight.GALLERY_IMAGE_THUMB_HEIGHT) ? 'portrait' : 'landscape'
+
     offset_top = 0
     margin_top = ""   # margin: center image vertically
 %]
 
-[% IF page.highlight.GALLERY_IMAGE_THUMB_HEIGHT && (page.highlight.GALLERY_IMAGE_THUMB_HEIGHT < max_height) %]
+[% IF page.highlight.GALLERY_IMAGE_THUMB_HEIGHT && (page.highlight.GALLERY_IMAGE_THUMB_HEIGHT < pagelist_max_height) %]
 [% 
-    offset_top = ((max_height - page.highlight.GALLERY_IMAGE_THUMB_HEIGHT) div 2)
+    offset_top = ((pagelist_max_height - page.highlight.GALLERY_IMAGE_THUMB_HEIGHT) div 2)
     margin_top = " style=\"margin-top:${offset_top}px;\""
 %]
 [% END %]

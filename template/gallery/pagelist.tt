@@ -3,8 +3,9 @@
    #   highlight => highlight_page }
 ~%]
 
-[% max_width = 0 %]
-[% max_height = 0 %]
+[% pagelist_max_width = 0 %]
+[% pagelist_max_height = 0 %]
+[% pagelist_all_dir = 1 %]
 [% pagelist = [] %]
 [% FOREACH page IN DIR.TREE %]
   [% NEXT IF page.SKIP_PREVNEXT %]
@@ -47,11 +48,13 @@
 
   [% pagelist.push({index => page, highlight => highlight_page}) %]
 
-  [% IF highlight_page.GALLERY_IMAGE_THUMB_HEIGHT && (highlight_page.GALLERY_IMAGE_THUMB_HEIGHT > max_height) %]
-    [% SET max_height = highlight_page.GALLERY_IMAGE_THUMB_HEIGHT %]
+  [% IF highlight_page.GALLERY_IMAGE_THUMB_HEIGHT && (highlight_page.GALLERY_IMAGE_THUMB_HEIGHT > pagelist_max_height) %]
+    [% SET pagelist_max_height = highlight_page.GALLERY_IMAGE_THUMB_HEIGHT %]
   [% END %]
-  [% IF highlight_page.GALLERY_IMAGE_THUMB_WIDTH && (highlight_page.GALLERY_IMAGE_THUMB_WIDTH > max_width) %]
-    [% SET max_width = highlight_page.GALLERY_IMAGE_THUMB_WIDTH %]
+  [% IF highlight_page.GALLERY_IMAGE_THUMB_WIDTH && (highlight_page.GALLERY_IMAGE_THUMB_WIDTH > pagelist_max_width) %]
+    [% SET pagelist_max_width = highlight_page.GALLERY_IMAGE_THUMB_WIDTH %]
   [% END %]
+
+  [% SET pagelist_all_dir = 0 UNLESS page.IS_DIR %]
 
 [% END %]

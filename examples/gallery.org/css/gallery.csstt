@@ -9,6 +9,15 @@
     page_margin_bottom = 8 # px
 %]
 
+[% IF gallery_dir_index_fixed %]
+[%
+    match = gallery_dir_index_mosaic_ratio.match('^(\d+):(\d+)')
+    gallery_dir_index_mosaic_ratio_x = match.0
+    gallery_dir_index_mosaic_ratio_y = match.1
+    gallery_dir_index_mosaic_fixed_width = (gallery_dir_index_mosaic_fixed_height * gallery_dir_index_mosaic_ratio_x) / gallery_dir_index_mosaic_ratio_y
+%]
+[% END %]
+
 
 body {
     margin: 0;
@@ -289,42 +298,99 @@ a:visited {
     padding-top: 2ex;
 }
 
+[% IF gallery_dir_index_fixed %]
+
+/* note: class "gallery_dir_index" is set by indexmatrix.tt if all mosaics are directories */
+.gallery_dir_index .gallery_mosaic {
+    width: [% gallery_dir_index_mosaic_fixed_width %]px;
+    height: [% gallery_dir_index_mosaic_fixed_height %]px;
+}
+.gallery_dir_index .gallery_mosaic img {
+    width: auto;
+    height: auto;
+    max-width: [% gallery_dir_index_mosaic_fixed_width %]px;
+    max-height: [% gallery_dir_index_mosaic_fixed_height %]px;
+}
+
+[% END %]
 
 /*****************************************************************************/
 /*  Resized images: maximum height of 120px                                  */
 /*****************************************************************************/
 
-@media (max-width: 768px)
+[% IF gallery_resized_thumbs_viewport_threshold %]
+
+@media (max-width: [%gallery_resized_thumbs_viewport_threshold %]px)
 {
+    /* viewports (portrait width):
+       ---------------------------
+       ipad     = 768
+       nexus 10 = 800
+       nexus 7  = 600
+       iphone   = 320
+       misc phones = 480 / 360 / 320
+    */
+
     .gallery_mosaic {
-	width: auto !important;
-	height: auto !important;
+	width: auto;
+	height: auto;
     }
 
     .gallery_mosaic img {
 	width: auto;
 	height: auto;
-	max-height: 120px;
+	max-height: [% gallery_resized_thumbs_fixed_height %]px;
     }
+
+[% IF gallery_dir_index_fixed %]
+
+    [% gallery_resized_thumbs_fixed_width = (gallery_resized_thumbs_fixed_height * gallery_dir_index_mosaic_ratio_x) / gallery_dir_index_mosaic_ratio_y %]
+
+    .gallery_dir_index .gallery_mosaic {
+	width: [% gallery_resized_thumbs_fixed_width %]px;
+	height: [% gallery_resized_thumbs_fixed_height %]px;
+    }
+    .gallery_dir_index .gallery_mosaic img {
+	max-width: [% gallery_resized_thumbs_fixed_width %]px;
+	max-height: [% gallery_resized_thumbs_fixed_height %]px;
+    }
+[% END %]
 }
+[% END %]
 
 
 /*****************************************************************************/
 /*  Two columns, fixed to 50% width                                          */
 /*****************************************************************************/
 
-@media (max-width: 480px)
+[% IF gallery_two_columns_viewport_threshold %]
+
+@media (max-width: [% gallery_two_columns_viewport_threshold %]px)
 {
-    .gallery_cell_wrap {
-	max-width: 50%;
-    }
-    .gallery_mosaic img{
-	width: 100%;
-	max-height: none;
-    }
     .header_links {
 	display: block;
 	margin-left: 0;
 	margin-top: 1em;
     }
+
+    .gallery_cell_wrap {
+	max-width: 50%;
+    }
+    .gallery_mosaic img {
+	width: 100%;
+	max-height: none;
+    }
+
+[% IF gallery_dir_index_fixed %]
+    .gallery_dir_index .gallery_mosaic img {
+	width: 100%;
+	max-width: none;
+	max-height: none;
+    }
+    .gallery_dir_index .gallery_mosaic {
+	width: auto;
+	height: auto;
+    }
+[% END %]
 }
+[% END %]

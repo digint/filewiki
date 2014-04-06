@@ -1,3 +1,6 @@
+[% additional_class = pagelist_all_dir ? ' gallery_dir_index' : '' %]
+
+<div class="gallery_index[% additional_class %]">
 [% counter = 1 %]
 [% FOREACH page IN pagelist %]
 
@@ -6,3 +9,4 @@
 
 [% counter = counter + 1 %]
 [% END %]
+</div>

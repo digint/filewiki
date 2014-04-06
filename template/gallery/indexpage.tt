@@ -58,10 +58,8 @@ SKIP_PREVNEXT=1
 
 [%~### index matrix ###~%]
 
-<div class="gallery_index">
 [%# NOTE: indexmatrix.tt require variables "pagelist" %]
 [% INCLUDE gallery/indexmatrix.tt %]
-</div>
 
 
 [%~### footer ###~%]
