@@ -241,6 +241,7 @@ a:visited {
 }
 .gallery_info td {
     padding-right: 1ex;
+    vertical-align: top;
 }
 
 .gallery_mosaic_wrap {
