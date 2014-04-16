@@ -12,7 +12,7 @@
 
 [%
     link_uri              = page.index.IS_DIR ? page.index.INDEX_PAGE.URI : page.index.URI
-    cell_class            = page.index.IS_DIR ? "gallery_cell_dir" : "gallery_cell_file"
+    mosaic_outer_class    = page.index.IS_DIR ? "gallery_mosaic_dir" : "gallery_mosaic_file"
 
     overlay_shade_events      = page.index.IS_DIR ? "" : " onmouseover=\"show('shaded$counter')\" onmouseout=\"hide('shaded$counter')\""
     overlay_shade_target_attr = page.index.IS_DIR ? "" : " id=\"shaded$counter\" style=\"display: none;\""
@@ -38,8 +38,8 @@
 %]
 [% END %]
 
-<div class="gallery_cell_wrap">
-<div class="[% cell_class %]" [% overlay_shade_events %]>
+<div class="gallery_mosaic_wrap">
+<div class="[% mosaic_outer_class %]" [% overlay_shade_events %]>
 <a href="[% link_uri %]">
 <div class="gallery_mosaic" [% mosaic_style_attr %] [% margin_top %]>
 [% IF page.highlight.GALLERY_IMAGE_THUMB_URI %]
@@ -49,13 +49,13 @@
 [% END %]
 [% END %]
 
-<div class="gallery_cell_caption" [% overlay_shade_target_attr %]>
+<div class="gallery_mosaic_caption" [% overlay_shade_target_attr %]>
 [% INCLUDE gallery/imagedesc.tt
      vars         = page.index
      title_prefix = page.index.IS_DIR ? "Album: " : ''
 %]
-</div>   [%~# gallery_cell_caption  ~%]
+</div>   [%~# gallery_mosaic_caption  ~%]
 </div>   [%~# gallery_mosaic        ~%]
 </a>     [%~# a                     ~%]
-</div>   [%~# gallery_cell_dir/file ~%]
-</div>   [%~# gallery_cell_wrap     ~%]
+</div>   [%~# gallery_mosaic_dir/file ~%]
+</div>   [%~# gallery_mosaic_wrap     ~%]
