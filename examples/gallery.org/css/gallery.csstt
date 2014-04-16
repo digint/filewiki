@@ -280,6 +280,10 @@ a:visited {
     min-height: 6em;
 }
 
+.gallery_mosaic_caption .gallery_desc {
+    display: none;
+}
+
 .gallery_mosaic_caption,
 .gallery_mosaic img {
     border-radius: 3px;
