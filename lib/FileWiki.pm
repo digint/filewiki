@@ -188,6 +188,10 @@ sub read_vars
     # include vars
     if($key eq "INCLUDE_VARS") {
       DEBUG "INCLUDE_VARS: including $val";
+      unless(-r "$val") {
+        WARN "Failed to include vars from file '$val': File not found";
+        next;
+      }
       %vars = read_vars(file => $val, vars => \%vars);
       next;
     }
