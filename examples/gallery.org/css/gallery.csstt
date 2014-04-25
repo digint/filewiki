@@ -2,15 +2,43 @@
 
 [% DEFAULT
     link_color = "#95DDFF"
-    welcome_page_max_width = 480  # px
+    welcome_page_image_width = 480  # px
+    page_margin_left   = 8 # px
+    page_margin_right  = 8 # px
+    page_margin_top    = 8 # px
+    page_margin_bottom = 8 # px
 %]
+
+[% IF gallery_dir_index_fixed %]
+[%
+    match = gallery_dir_index_mosaic_ratio.match('^(\d+):(\d+)')
+    gallery_dir_index_mosaic_ratio_x = match.0
+    gallery_dir_index_mosaic_ratio_y = match.1
+    gallery_dir_index_mosaic_fixed_width = (gallery_dir_index_mosaic_fixed_height * gallery_dir_index_mosaic_ratio_x) / gallery_dir_index_mosaic_ratio_y
+%]
+[% END %]
 
 
 body {
+    margin: 0;
+    padding: 0;
     font-family: Verdana, "Bitstream Vera Sans", sans-serif;
-    font-size: 0.75em;
+    font-size: 75%;
     background-color: #333333;
     color: #DDDDDD;
+}
+
+
+.gallery_header {
+    margin-top: [% page_margin_top %]px;
+}
+.gallery_header,
+.gallery_image,
+.prevnext_bottom,
+#welcome_content,
+#bottom {
+    margin-left: [% page_margin_left %]px;
+    margin-right: [% page_margin_right %]px;
 }
 
 img {
@@ -30,14 +58,14 @@ a:visited {
 /*  ID's                                                                     */
 /*****************************************************************************/
 
-div#welcome_content
+#welcome_wrap
 {
-    max-width: [% welcome_page_max_width %]px;
+    max-width: [% welcome_page_image_width + page_margin_left + page_margin_right %]px;
 }
-
-#welcome_head {
-    font-weight: bold;
-    font-size: 2em;
+#welcome_content img
+{
+    width: 100%;
+    height: auto;
 }
 
 #bottom {
@@ -45,7 +73,8 @@ div#welcome_content
     color: #8C8C8C;
     font-size: 0.9em;
     padding: 4px;
-    margin: 40px 0 24px;
+    margin-top: 40px;
+    margin-bottom: 24px;
 }
 
 #badges {
@@ -78,6 +107,7 @@ div#welcome_content
 /*  Classes                                                                  */
 /*****************************************************************************/
 
+.welcome_head,
 .gallery_header_title {
     font-weight: bold;
     font-size: 2.0em;
@@ -87,53 +117,52 @@ div#welcome_content
     font-size: 1.5em;
 }
 
-.gallery_functions {
-}
-
-
 .gallery_index p {
     margin: 0.3em 0;
 }
 
-.gallery_index a:link {
-    color: #DDDDDD;
-}
+.gallery_index a:link,
 .gallery_index a:visited {
     color: #DDDDDD;
 }
 
+[% IF gallery_index_table_layout %]
 .gallery_index table {
     border-spacing: 2px;
     border: 0 none;
     margin: 9px 0px;
     padding: 0;
 }
-
-.gallery_index td {
-    padding: 6px 2px;
-}
 .gallery_index tr {
     vertical-align: top;
 }
+[% END %]
 
-
-.gallery_cell_dir, .gallery_cell_file {
-    padding: 2px;
-    text-align: center;
+.gallery_image img {
+    width: 100%;
+    height: auto;
 }
 
-.gallery_cell_dir {
-    background-color: #555555;
+.gallery_title,
+.gallery_date,
+.gallery_summary,
+.gallery_desc,
+.gallery_keywords,
+.gallery_size {
+    margin: 0.25em 0.75em;
 }
 
 .gallery_title {
     font-weight: bold;
-    padding: 1.8ex 0 0.5ex;
+    margin-top: 1em;
 }
 
-.gallery_date, .gallery_summary, .gallery_desc, .gallery_keywords, .gallery_size {
+.gallery_date,
+.gallery_summary,
+.gallery_desc,
+.gallery_keywords,
+.gallery_size {
     font-size: 0.9em;
-    padding-bottom: 0.5ex;
 }
 
 .header_links {
@@ -187,7 +216,8 @@ div#welcome_content
 .prevnext_bottom {
     border: 0 none;
     padding: 0;
-    margin: 1.5em 0;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
 }
 .prevnext_bottom .prev {
     text-align: left;
@@ -211,26 +241,58 @@ div#welcome_content
 }
 .gallery_info td {
     padding-right: 1ex;
+    vertical-align: top;
+}
+
+.gallery_mosaic_wrap {
+    vertical-align: top;
+    text-align: center;
+    display: inline-block;
+}
+
+.gallery_mosaic_dir,
+.gallery_mosaic_file {
+    padding: 4px 3px 2px 3px;  /* more top-padding, for nicer cell_dir background */
+    margin: 1px;
+}
+.gallery_mosaic_dir {
+    background-color: #555555;
 }
 
 .gallery_mosaic {
     position: relative;
 }
-.gallery_mosaic_overlay {
+.gallery_mosaic_caption {
+    width: 100%;
     position: absolute;
     bottom: 0; 
-    width: 100%;
+    padding-bottom: 0.25em;
 }
-.gallery_mosaic_type {
-  position: absolute;
-  right: 16px;
-}
-
-.shaded_desc {
+.gallery_mosaic_file .gallery_mosaic_caption {
     background-color: #DDDDDD;
     opacity: 0.7;
     color: #000000;
-    padding: 0px 0.75em;
+}
+.gallery_mosaic_dir .gallery_mosaic {
+    /* make some extra room for the caption */
+    padding-bottom: 6em;
+}
+.gallery_mosaic_dir .gallery_mosaic_caption {
+    min-height: 6em;
+}
+
+.gallery_mosaic_caption .gallery_desc {
+    display: none;
+}
+
+.gallery_mosaic_caption,
+.gallery_mosaic img {
+    border-radius: 3px;
+}
+
+.gallery_mosaic_type {
+    position: absolute;
+    right: 16px;
 }
 
 .gallery_exiftable th {
@@ -240,3 +302,100 @@ div#welcome_content
 .gallery_exiftable tbody th {
     padding-top: 2ex;
 }
+
+[% IF gallery_dir_index_fixed %]
+
+/* note: class "gallery_dir_index" is set by indexmatrix.tt if all mosaics are directories */
+.gallery_dir_index .gallery_mosaic {
+    width: [% gallery_dir_index_mosaic_fixed_width %]px;
+    height: [% gallery_dir_index_mosaic_fixed_height %]px;
+}
+.gallery_dir_index .gallery_mosaic img {
+    width: auto;
+    height: auto;
+    max-width: [% gallery_dir_index_mosaic_fixed_width %]px;
+    max-height: [% gallery_dir_index_mosaic_fixed_height %]px;
+}
+
+[% END %]
+
+/*****************************************************************************/
+/*  Resized images: maximum height of 120px                                  */
+/*****************************************************************************/
+
+[% IF gallery_resized_thumbs_viewport_threshold %]
+
+@media (max-width: [%gallery_resized_thumbs_viewport_threshold %]px)
+{
+    /* viewports (portrait width):
+       ---------------------------
+       ipad     = 768
+       nexus 10 = 800
+       nexus 7  = 600
+       iphone   = 320
+       misc phones = 480 / 360 / 320
+    */
+
+    .gallery_mosaic {
+	width: auto;
+	height: auto;
+    }
+
+    .gallery_mosaic img {
+	width: auto;
+	height: auto;
+	max-height: [% gallery_resized_thumbs_fixed_height %]px;
+    }
+
+[% IF gallery_dir_index_fixed %]
+
+    [% gallery_resized_thumbs_fixed_width = (gallery_resized_thumbs_fixed_height * gallery_dir_index_mosaic_ratio_x) / gallery_dir_index_mosaic_ratio_y %]
+
+    .gallery_dir_index .gallery_mosaic {
+	width: [% gallery_resized_thumbs_fixed_width %]px;
+	height: [% gallery_resized_thumbs_fixed_height %]px;
+    }
+    .gallery_dir_index .gallery_mosaic img {
+	max-width: [% gallery_resized_thumbs_fixed_width %]px;
+	max-height: [% gallery_resized_thumbs_fixed_height %]px;
+    }
+[% END %]
+}
+[% END %]
+
+
+/*****************************************************************************/
+/*  Two columns, fixed to 50% width                                          */
+/*****************************************************************************/
+
+[% IF gallery_two_columns_viewport_threshold %]
+
+@media (max-width: [% gallery_two_columns_viewport_threshold %]px)
+{
+    .header_links {
+	display: block;
+	margin-left: 0;
+	margin-top: 1em;
+    }
+
+    .gallery_mosaic_wrap {
+	max-width: 50%;
+    }
+    .gallery_mosaic img {
+	width: 100%;
+	max-height: none;
+    }
+
+[% IF gallery_dir_index_fixed %]
+    .gallery_dir_index .gallery_mosaic img {
+	width: 100%;
+	max-width: none;
+	max-height: none;
+    }
+    .gallery_dir_index .gallery_mosaic {
+	width: auto;
+	height: auto;
+    }
+[% END %]
+}
+[% END %]

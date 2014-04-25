@@ -29,11 +29,14 @@
   - renamed GALLERY_RESIZE_<TYPE> to GALLERY_IMAGE_<TYPE>
 
 * filewiki-current
-  - added GALLERY_DISABLE_EXIF_WARNINGS
-  - gallery templates: bugfixes, added mobile_view variable
   - generate XHTML in FileWiki::Plugin::POD
   - Template::Plugin::FileWiki->PageTree() generates <ul class="collapse">
   - Template::Plugin::FileWiki->PageTree() generates "highlight" class in <li> instead of <a>
   - adapted plugin framework to allow vars-provider plugins
   - added FileWiki::Plugin::Git, which provides variables such as "git commit date"
-  - Template::Plugin::FileWiki 
+  - added GALLERY_DISABLE_EXIF_WARNINGS
+  - gallery templates: refactoring of gallery mosaic display (use
+    display-block instead of tables): introduced new mosaic_* classes.
+  - gallery templates: support for smartphones (two columns, fixed to
+    50% width) and tablets (resized images, maximum height of 120px)
+  - gallery templates: added mobile_view variable

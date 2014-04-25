@@ -1,33 +1,12 @@
-<table>
-<tbody>
+[% additional_class = pagelist_all_dir ? ' gallery_dir_index' : '' %]
 
-[% counter = 0 %]
+<div class="gallery_index[% additional_class %]">
+[% counter = 1 %]
 [% FOREACH page IN pagelist %]
 
-[% IF counter mod gallery_cols == 0 %]
-[% UNLESS counter == 0 %]</tr>[% END %]
-<tr>
-[% END %]
-
-[% IF page.index.IS_DIR %]
-<td class="gallery_cell_dir" style="width: [% max_width %]px;">
-[% ELSE %]
-<td class="gallery_cell_file" style="width: [% max_width %]px;">
-[% END %]
-
-[%# NOTE: indexitem.tt uses variables "page" and "counter" %]
-[% INCLUDE gallery/indexitem.tt %]
-
-</td>
+[%# NOTE: mosaic.tt uses variables "page" and "counter" %]
+[% INCLUDE gallery/mosaic.tt %]
 
 [% counter = counter + 1 %]
 [% END %]
-
-[% WHILE counter mod gallery_cols != 0 %]
-<td class="gallery_cell_empty" style="width: [% max_width %]px;"></td>
-[% counter = counter + 1 %]
-[% END %]
-
-</tr>
-</tbody>
-</table>
+</div>
