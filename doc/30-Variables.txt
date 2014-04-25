@@ -12,8 +12,8 @@ Declaration
 -----------
 
 Variables are declared in a simple "key=value" or "key value"
-format. Already defined variables (and some [system variables]) can
-be reused in the declaration by the '$' (dollar) sign.
+format. Variable expansion is performed in occurrence of either
+`$myvar`, `${myvar}`, or `${{myvar}}` (late expansion).
 
 - Lines starting with '#' (hash) are ignored
 - Trailing whitespaces are cut off
@@ -31,8 +31,6 @@ This results in both "title" and "menu" variables to have the value
 
     title  "Summary"
     menu   $title
-
-
 
 
 Propagation
@@ -88,7 +86,6 @@ Example:
 
     Page text...
 
-
 As a special feature for pages which are also parsed outside FileWiki
 (e.g. perl modules), a "comment" character is defined by the first
 character preceding <code>&lt;filewiki_vars&gt;</code>.
@@ -104,3 +101,64 @@ Example (equivalent to example above):
 
 In this example, the "comment" character is set to '#', and all
 variables are parsed.
+
+
+Variable Substitution
+---------------------
+
+###Early Expansion
+
+Variable early expansion happens directly at the time the key/value
+line is read from disk. This is the normal usecase when propagating
+variables through directories.
+
+Early expansion for expressions is accepted in form:
+
+  - `$KEY`: expand to the value of variable `KEY`, or ""
+    if `KEY` is not found.
+
+  - `${KEY_EXPR[:MATCH_EXPR]}` : expand to `$1` of the match
+    expression applied to the value of `KEY_EXPR`, where `KEY_EXPR` is
+    an expression in form `KEY0[|KEY1...]`, returning the first valid
+    value from KEYn.
+
+Examples:
+
+    OUTPUT_DIR     /tmp/filewiki/htdocs
+    URI_PREFIX     $OUTPUT_DIR
+    stylesheet     $URI_PREFIX/filewiki.css
+
+
+###Late Expansion
+
+Variable late expansion happens after all variables are read by a page
+or directory node. This is particulary useful if you want to define a
+variable derived from internal variables set by plugins.
+
+Late expansion for expressions is accepted in form:`${{KEY_EXPR[:MATCH_EXPR]}}`.
+
+Example
+
+    commit_msg     This page was committed by: ${{GIT_AUTHOR_NAME}}.
+    date_tag       ${{NAME:^(\d\d\d\d-\d\d-\d\d)-}}
+
+For files named like "yyyy-mm-dd-myfile", this sets a variable
+`date_tag` from the source file name.
+
+
+###Logical Expressions
+
+Expressions in form `$((...))` are executed at late expansion time.
+
+Logical expressions are accepted in form:
+
+  - `$(( EXPR0 || EXPR1 || ... ))`: expand to the value of expression
+    `EXPR0`, or `EXPR1`...
+
+Example
+
+    original_date=$(( ${{GALLERY_TIME:(\S+)\s+\S+}} || ${{NAME:^(\d\d\d\d-\d\d-\d\d)-}} ))
+
+Sets variable `original_date` from GALLERY_TIME, falling back to the date
+prefix of NAME.
+

@@ -315,38 +315,14 @@ Template Example:
 Returns the variable `my_var` from `dir.vars`.
 
 
-
 Transformation Variables
 ------------------------
-
-###MATCH_&lt;var&gt;
-
-Creates a new variable `<var>`, with it's value being the result of a
-match expression on another variable. Does nothing if `<var>` is
-already defined.
-
-Note: This is only executed on pages. Use `DIR_MATCH` for matches on
-directory (`DIR`) nodes.
-
-Example:
-
-    MATCH_date=NAME:^(\d\d\d\d-\d\d-\d\d)-
-
-For files named like "yyyy-mm-dd-myfile", this creates a new variable
-`date`, setting its value to the date prefix of the file.
-
-
-
-###DIR_MATCH_&lt;var&gt;
-
-Same as `MATCH_<var>`, but operates on directory (`DIR`) nodes.
-
-
 
 ###SANITIZE_&lt;var&gt;
 
 Transforms the variable `<var>`. Replaces underscores '_' with white
-spaces.
+spaces. This transformation happens after "variable late expansion"
+(see above).
 
 Example:
 

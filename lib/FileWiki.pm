@@ -108,14 +108,105 @@ sub eval_module
 }
 
 
-sub check_var
+sub expand_var
 {
-  my ($vars, $key, $file) = @_;
-  unless(exists($vars->{$key})) {
-    WARN "Variable \"$key\" is not defined in $file line $.\n";
-    return "<undef>";
+  # expand variable in form 'VAR' or 'VAR0|VAR1|...VARn'
+  my ($vars, $expr, %args) = @_;
+  my $value = undef;
+  foreach my $key (split(/\|/, $expr))
+  {
+    next unless($key);
+    unless($key =~ /^\w+$/) {
+      ERROR "Illegal variable name \"$key\" in expansion \"$expr\" in " . ($args{debug_file} || "<unknown>") . " line $.\n";
+      return undef;
+    }
+
+    if(defined($vars->{$key}) && ($vars->{$key} ne "")) {
+      $value = $vars->{$key} // "";
+    }
+    elsif(defined($vars->{$key})) {
+      # return an empty string if one of the vars was defined
+      $value = "";
+    }
   }
-  return $vars->{$key};
+
+  if(defined($value)) {
+    TRACE "Expanding variable expression: \"$expr\"";
+  } else {
+    WARN "Failed to expand variable \"$expr\" in " . ($args{debug_file} || "<unknown>") . ($. ? " line $." : "") . "\n";
+  }
+
+  # $value ||= "<undef>";  # nice for debugging
+  return $value;
+}
+
+
+sub expand_expr
+{
+  # expand expressions in form 'KEY' or 'KEY:REGEXP'
+  my ($vars, $expr, %args) = @_;
+  my $saved_expr = $expr;
+  my $expanded;
+
+  $expr =~ s/^\$//;  # remove '$'
+
+  # recursively dive into '$(( ... ))' constructs
+  if($expr =~ s/^\(\((.*)\)\)$/$1/) {   # remove '((...))'
+    $expr =~ s/^\s*//;
+    $expr =~ s/\s*$//;
+
+    TRACE "Expanding logical expression: \"$saved_expr\""; INDENT 1;
+
+    # handle '$(( A || B ))' (very simple matching, sorry...)
+    foreach (split(/ \|\| /, $expr)) {
+      my $ret = expand_expr($vars, $_, %args);
+      if($ret) {
+        $expanded = $ret;
+        last;
+      }
+    }
+    $expanded //= "";  # soft fail
+  }
+  else
+  {
+    $expr =~ s/^{(.*)}$/$1/;       # remove '{}'
+    if($expr =~ s/^{(.*)}$/$1/) {  # remove '{}' second time (late expansion)
+      return $saved_expr unless($args{enable_late_expansion});
+    }
+
+    TRACE "Expanding expression: \"$saved_expr\""; INDENT 1;
+
+    my $var_expr = $expr;
+    my $match_expr = undef;
+    if($expr =~ /^(.*?):(.*)/) {
+      ($var_expr, $match_expr) = ($1, $2);
+    }
+
+    # expand variable
+    $expanded = expand_var($vars, $var_expr, %args);
+    $expanded //= "";  # soft fail
+
+    if(defined($match_expr))
+    {
+      # apply match expression to the value
+      TRACE "Expanding match expression: \"$match_expr\"";
+
+      if($expanded =~ m/$match_expr/) {
+        if(defined($1)) {
+          $expanded = $1;
+        } else {
+          WARN "Bad match expression \"$match_expr\" on string \"$expanded\" in " . ($args{debug_file} || "<unknown>") . ($. ? " line $." : "") . "\n";
+          $expanded = "";
+        }
+      }
+      else {
+        WARN "Bad match expression \"$match_expr\" on string \"$expanded\" in " . ($args{debug_file} || "<unknown>") . ($. ? " line $." : "") . "\n";
+        $expanded = "";
+      }
+    }
+  }
+  TRACE "result: \"$saved_expr\" -> \"$expanded\""; INDENT -1;
+  return $expanded;
 }
 
 
@@ -171,9 +262,9 @@ sub read_vars
     $vars{VARS_PRE_EXPAND} = { } unless exists $vars{VARS_PRE_EXPAND};
     $vars{VARS_PRE_EXPAND}->{$key} = $val;
 
-    if($val =~ /^\$(\w+)$/) {
+    if($val =~ /^\$\w+$/) {
       # directly assignment (important to assign references)
-      $vars{$key} = check_var(\%vars, $1, $file);
+      $vars{$key} = expand_expr(\%vars, $val, debug_file => $file);
       next;
     }
 
@@ -182,8 +273,8 @@ sub read_vars
     $val =~ s/"$//;
 
     # expand variables
-    $val =~ s/\${(\w+)}/check_var(\%vars, $1, $file)/eg;
-    $val =~ s/\$(\w+)/check_var(\%vars, $1, $file)/eg;
+    $val =~ s/(\${[^{].*?[^}]})/expand_expr(\%vars, $1, debug_file => $file)/eg;
+    $val =~ s/(\$\w+)/expand_expr(\%vars, $1, debug_file => $file)/eg;
 
     # include vars
     if($key eq "INCLUDE_VARS") {
@@ -205,43 +296,34 @@ sub read_vars
 }
 
 
-sub expand_match_vars
+sub expand_late_vars
 {
   my $vars = shift;
-  my $prefix = $vars->{IS_DIR} ? "DIR_MATCH_" : "MATCH_";
+  DEBUG "Expanding late-expand vars"; INDENT 1;
+  foreach my $key (keys %$vars)
+  {
+    # sanity check
+    next unless(defined($vars->{$key}));
+    next if(ref($vars->{$key}));
+    my $warn_system_variable = 0;
 
-  foreach my $key (keys (%$vars)) {
-    next unless($key =~ m/^$prefix(.+)/);
-
-    my $key_set = $1;
-    if (defined($vars->{$key_set})) {
-      DEBUG "Resulting key '$key_set' is already defined, ignoring '$key'";
-      next;
+    # expand late-expand logical expressions of form: $((myexpr))
+    if($vars->{$key} =~ s/(\$\(\(.*?\)\))/expand_expr($vars, $1, enable_late_expansion => 1)/eg) {
+      $warn_system_variable = 1;
     }
 
-    my $val = $vars->{$key};
-    if ($val =~ m/^(\w+):(.*)/) {
-      my ($match_key, $match_expr) = ($1, $2);
-      unless($match_key && $match_expr) {
-        ERROR "Bad match variable. Expected \"<key>:<regexp>\", got \"$key=$val\".";
-        next;
-      }
-      TRACE "Expanding $key";
-
-      if (defined($vars->{$match_key})) {
-        if ($vars->{$match_key} =~ m/$match_expr/) {
-          if ($1) {
-            $vars->{$key_set} = $1;
-            DEBUG "Matched $match_key, expanding $key_set=$1";
-          } else {
-            WARN "Bad match expression (no result): $match_expr";
-          }
-        }
-      } else {
-        DEBUG "Key '$match_key' not found while expanding '$key'";
-      }
+    # expand late-expand values of form: ${{myvar}}
+    if($vars->{$key} =~ s/(\${{.*?}})/expand_expr($vars, $1, enable_late_expansion => 1)/eg) {
+      $warn_system_variable = 1;
     }
+
+    if($warn_system_variable && (uc($key) eq $key)) {
+      WARN "Late expansion to a system or plugin variable is discouraged: key='$key'";
+    }
+
   }
+  INDENT -1;
+  return $vars;
 }
 
 
@@ -250,18 +332,19 @@ sub sanitize_vars
   my $vars = shift;
   foreach my $key (keys (%$vars)) {
     next unless($key =~ m/^SANITIZE_(.+)/);
-    my $key_set = $1;
+    my $target_key = $1;
     next unless($vars->{$key});  # value is false
-    unless(defined($vars->{$key_set})) {
-      TRACE "Resulting key '$key_set' is not defined, ignoring '$key'";
+    unless(defined($vars->{$target_key})) {
+      TRACE "Resulting key '$target_key' is not defined, ignoring '$key'";
       next;
     }
-    my $val = $vars->{$key_set};
+    my $val = $vars->{$target_key};
     if($val =~ s/_/ /g) {
-      $vars->{$key_set} = $val;
-      DEBUG "Sanitized key: $key_set=\"$val\"";
+      $vars->{$target_key} = $val;
+      DEBUG "Sanitized key: $target_key=\"$val\"";
     }
   }
+  return $vars;
 }
 
 
@@ -275,8 +358,10 @@ sub process_page
   {
     DEBUG "Processing page: $page->{URI}"; INDENT 1;
 
+    # override SRC_TEXT if data was passed
     $page->{SRC_TEXT} = $data if($data);
 
+    # call the page process handler
     $data = $page->{HANDLER}->process_page($page, $self);
 
     INDENT -1;
@@ -417,7 +502,7 @@ sub _site_tree
   # set the handler and vars needed for a directory index page
   my $dir_uri_unprefixed = set_uri(\%dir_vars);
 
-  expand_match_vars(\%dir_vars);
+  expand_late_vars(\%dir_vars);
   sanitize_vars(\%dir_vars);
 
   TRACE "Dir vars:" ; INDENT 1;
@@ -522,7 +607,7 @@ sub _site_tree
 
     # assign plugins to the page
     $page{SRC_FILE} = $file;
-    my $read_nested_vars = assign_plugins(\%page);
+    assign_plugins(\%page);
     unless($page{HANDLER}) {
       TRACE "No page handler plugin match, ignoring file: $file"; INDENT -1;
       next;
@@ -578,7 +663,7 @@ sub _site_tree
       $_->update_vars(\%page);
     }
 
-    expand_match_vars(\%page);
+    expand_late_vars(\%page);
     sanitize_vars(\%page);
 
     push @pagetree, \%page;
