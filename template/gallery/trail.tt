@@ -16,7 +16,7 @@
 [% END %]
 [% IF last %]
 [% last.title || last.NAME %]
-[% IF last.date || last.GALLERY_DATE %]&nbsp;([% last.date || last.GALLERY_DATE %])[% END %]
+[% IF last.date %]&nbsp;([% last.date %])[% END %]
 [% ELSE %]
 [% title || SRC_FILE_NAME %]
 [% END %]
