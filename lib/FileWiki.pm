@@ -117,7 +117,7 @@ sub expand_var
   {
     next unless($key);
     unless($key =~ /^\w+$/) {
-      ERROR "Illegal variable name \"$key\" in expansion \"$expr\" in " . ($args{debug_file} || "<unknown>") . " line $.\n";
+      ERROR "Illegal variable name \"$key\" in expansion \"$expr\"" . ($args{debug_file} ? " in $args{debug_file} line $." : "") . "\n";
       return undef;
     }
 
@@ -133,7 +133,7 @@ sub expand_var
   if(defined($value)) {
     TRACE "Expanding variable expression: \"$expr\"";
   } else {
-    WARN "Failed to expand variable \"$expr\" in " . ($args{debug_file} || "<unknown>") . ($. ? " line $." : "") . "\n";
+    DEBUG "Failed to expand variable \"$expr\"" . ($args{debug_file} ? " in $args{debug_file} line $." : "") . "\n";
   }
 
   # $value ||= "<undef>";  # nice for debugging
@@ -165,7 +165,6 @@ sub expand_expr
         last;
       }
     }
-    $expanded //= "";  # soft fail
   }
   else
   {
@@ -184,27 +183,20 @@ sub expand_expr
 
     # expand variable
     $expanded = expand_var($vars, $var_expr, %args);
-    $expanded //= "";  # soft fail
-
-    if(defined($match_expr))
+    if(defined($expanded) && defined($match_expr))
     {
       # apply match expression to the value
-      TRACE "Expanding match expression: \"$match_expr\"";
-
       if($expanded =~ m/$match_expr/) {
-        if(defined($1)) {
-          $expanded = $1;
-        } else {
-          WARN "Bad match expression \"$match_expr\" on string \"$expanded\" in " . ($args{debug_file} || "<unknown>") . ($. ? " line $." : "") . "\n";
-          $expanded = "";
-        }
+        TRACE "Expanding match expression: \"$match_expr\"";
+        $expanded = $1 // "";  # soft fail
       }
       else {
-        WARN "Bad match expression \"$match_expr\" on string \"$expanded\" in " . ($args{debug_file} || "<unknown>") . ($. ? " line $." : "") . "\n";
+        DEBUG "Match expression failed: \"$match_expr\" on string \"$expanded\"" . ($args{debug_file} ? " in $args{debug_file} line $." : "") . "\n";
         $expanded = "";
       }
     }
   }
+  $expanded //= "";  # soft fail
   TRACE "result: \"$saved_expr\" -> \"$expanded\""; INDENT -1;
   return $expanded;
 }

@@ -35,8 +35,8 @@
   - adapted plugin framework to allow vars-provider plugins
   - added FileWiki::Plugin::Git, which provides variables such as "git commit date"
   - support of variable substitution:
-    - support variable-expanstion in form: ${myvar} and ${myvar:match_expr}
-    - support late-expansion in form: ${{myvar}} and ${{myvar:match_expr}}
+    - support variable expansion in form: ${myvar} and ${myvar:match_expr}
+    - support variable late expansion in form: ${{myvar}} and ${{myvar:match_expr}}
     - support logical expressions in form: $(( EXPR1 || EXPR2 ))
     - removed obsolete MATCH_<var> and DIR_MATCH_<var> hacks, this can
       now be solved with variable substitution
