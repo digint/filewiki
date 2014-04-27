@@ -71,6 +71,10 @@ our $dir_vars_filename = 'dir.vars';
 our $tree_vars_filename = 'tree.vars';
 our $default_time_format = '%C';
 
+# variable declaration
+my $var_decl = qr/[A-Za-z_][A-Za-z_0-9]*/;
+
+
 sub new
 {
   my ($class, %vars) = @_;
@@ -112,17 +116,20 @@ sub expand_var
 {
   # expand variable in form 'VAR' or 'VAR0|VAR1|...VARn'
   my ($vars, $expr, %args) = @_;
+  my $debug_location = $args{debug_file} ? " in $args{debug_file} line $." : " for $vars->{SRC_FILE}";
   my $value = undef;
+
   foreach my $key (split(/\|/, $expr))
   {
     next unless($key);
-    unless($key =~ /^\w+$/) {
-      ERROR "Illegal variable name \"$key\" in expansion \"$expr\"" . ($args{debug_file} ? " in $args{debug_file} line $." : "") . "\n";
+    unless($key =~ /^$var_decl$/) {
+      ERROR "Illegal variable name \"$key\" in expansion \"$expr\"$debug_location\n";
       return undef;
     }
 
     if(defined($vars->{$key}) && ($vars->{$key} ne "")) {
-      $value = $vars->{$key} // "";
+      $value = $vars->{$key};
+      last;
     }
     elsif(defined($vars->{$key})) {
       # return an empty string if one of the vars was defined
@@ -131,9 +138,13 @@ sub expand_var
   }
 
   if(defined($value)) {
-    TRACE "Expanding variable expression: \"$expr\"";
+    TRACE "Expanding variable expression: \"$expr\" -> \"$value\"";
   } else {
-    DEBUG "Failed to expand variable \"$expr\"" . ($args{debug_file} ? " in $args{debug_file} line $." : "") . "\n";
+    if($args{enable_late_expansion}) {
+      DEBUG "Failed to expand variable \"$expr\"$debug_location\n";
+    } else {
+      WARN "Failed to expand variable \"$expr\"$debug_location\n";
+    }
   }
 
   # $value ||= "<undef>";  # nice for debugging
@@ -145,13 +156,18 @@ sub expand_expr
 {
   # expand expressions in form 'KEY' or 'KEY:REGEXP'
   my ($vars, $expr, %args) = @_;
+  my $debug_location = $args{debug_file} ? " in $args{debug_file} line $." : " for $vars->{SRC_FILE}";
   my $saved_expr = $expr;
   my $expanded;
 
   $expr =~ s/^\$//;  # remove '$'
 
-  # recursively dive into '$(( ... ))' constructs
-  if($expr =~ s/^\(\((.*)\)\)$/$1/) {   # remove '((...))'
+  if($expr =~ s/^\(\((.*)\)\)$/$1/)   # remove '((...))'
+  {
+    # recursively dive into '$(( ... ))' constructs
+
+    return $saved_expr unless($args{enable_late_expansion});
+
     $expr =~ s/^\s*//;
     $expr =~ s/\s*$//;
 
@@ -176,23 +192,26 @@ sub expand_expr
     TRACE "Expanding expression: \"$saved_expr\""; INDENT 1;
 
     my $var_expr = $expr;
-    my $match_expr = undef;
-    if($expr =~ /^(.*?):(.*)/) {
-      ($var_expr, $match_expr) = ($1, $2);
+    my $regexp_expr = undef;
+    if($expr =~ /^(.*?)\/\/(.*)/) {  # 'var_expr//regexp'
+      ($var_expr, $regexp_expr) = ($1, $2);
     }
 
     # expand variable
     $expanded = expand_var($vars, $var_expr, %args);
-    if(defined($expanded) && defined($match_expr))
+
+    # apply regular expression
+    if(defined($expanded) && defined($regexp_expr))
     {
-      # apply match expression to the value
-      if($expanded =~ m/$match_expr/) {
-        TRACE "Expanding match expression: \"$match_expr\"";
-        $expanded = $1 // "";  # soft fail
-      }
-      else {
-        DEBUG "Match expression failed: \"$match_expr\" on string \"$expanded\"" . ($args{debug_file} ? " in $args{debug_file} line $." : "") . "\n";
-        $expanded = "";
+      if($regexp_expr =~ /^(.*?[^\\])\/(.*)/) {
+        my $match   = $1;
+        my $replace = '"' . $2 . '"';
+        TRACE "Applying regular expression: match=\"$match\", replace=$replace";
+
+        # use double eval (security risk here!)
+        unless($expanded =~ s/$match/$replace/gee) {
+          DEBUG "Regular expression failed: match=\"$match\", replace=$replace on string \"$expanded\"$debug_location\n";
+        }
       }
     }
   }
@@ -243,7 +262,7 @@ sub read_vars
     last if /^[<\[]\/filewiki_vars[>\]]/;
     next if /^\s*\#/;
     next if /^\s*$/;
-    my ($key, $val) = /^\s*(\w+)[\s=]+(.*?)\s*$/;
+    my ($key, $val) = /^\s*($var_decl)[\s=]+(.*?)\s*$/;
 
     unless($key) {
       WARN "Ambiguous variable declaration: $file line $.";
@@ -254,7 +273,7 @@ sub read_vars
     $vars{VARS_PRE_EXPAND} = { } unless exists $vars{VARS_PRE_EXPAND};
     $vars{VARS_PRE_EXPAND}->{$key} = $val;
 
-    if($val =~ /^\$\w+$/) {
+    if($val =~ /^\$$var_decl$/) {
       # directly assignment (important to assign references)
       $vars{$key} = expand_expr(\%vars, $val, debug_file => $file);
       next;
@@ -266,7 +285,7 @@ sub read_vars
 
     # expand variables
     $val =~ s/(\${[^{].*?[^}]})/expand_expr(\%vars, $1, debug_file => $file)/eg;
-    $val =~ s/(\$\w+)/expand_expr(\%vars, $1, debug_file => $file)/eg;
+    $val =~ s/(\$$var_decl)/expand_expr(\%vars, $1, debug_file => $file)/eg;
 
     # include vars
     if($key eq "INCLUDE_VARS") {

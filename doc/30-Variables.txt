@@ -4,8 +4,7 @@ Variables
 Flexible variable declaration and propagation is the heart of the
 FileWiki system.  While some variables affect the FileWiki system,
 they are basically used as input to the template processor. Every page
-merges its `vars` from various locations (see
-[Propagation](#propagation) below).
+merges its `vars` from various locations (see "Propagation" below).
 
 
 Declaration
@@ -13,23 +12,22 @@ Declaration
 
 Variables are declared in a simple "key=value" or "key value"
 format. Variable expansion is performed in occurrence of either
-`$myvar`, `${myvar}`, or `${{myvar}}` (late expansion).
+`$myvar`, `${myvar}`, or `${{myvar}}` (see "Variable Expansion"
+below).
 
-- Lines starting with '#' (hash) are ignored
-- Trailing whitespaces are cut off
-- Values can be quoted
-
-  [system variables]: system_variables.html
+  - Lines starting with '#' (hash) are ignored
+  - Trailing whitespaces are cut off
+  - Values can be quoted
 
 Example:
 
-    title=Summary
+    title=FileWiki Documentation
     menu=$title
 
 This results in both "title" and "menu" variables to have the value
 "Summary". This is equivalent to:
 
-    title  "Summary"
+    title  "FileWiki Documentation"
     menu   $title
 
 
@@ -103,8 +101,8 @@ In this example, the "comment" character is set to '#', and all
 variables are parsed.
 
 
-Variable Substitution
----------------------
+Variable Expansion
+------------------
 
 ###Early Expansion
 
@@ -117,16 +115,16 @@ Early expansion for expressions is accepted in form:
   - `$KEY`: expand to the value of variable `KEY`, or ""
     if `KEY` is not found.
 
-  - `${KEY_EXPR[:MATCH_EXPR]}` : expand to `$1` of the match
-    expression applied to the value of `KEY_EXPR`, where `KEY_EXPR` is
-    an expression in form `KEY0[|KEY1...]`, returning the first valid
+  - `${KEY_EXPR[//REGEXP]}`: globally applies replace expression
+    `REGEXP` to the value of `KEY_EXPR`, where `KEY_EXPR` is an
+    expression in form `KEY0[|KEY1...]`, returning the first valid
     value from KEYn.
 
 Examples:
 
-    OUTPUT_DIR     /tmp/filewiki/htdocs
-    URI_PREFIX     $OUTPUT_DIR
-    stylesheet     $URI_PREFIX/filewiki.css
+    OUTPUT_DIR   /tmp/filewiki/htdocs
+    URI_PREFIX   $OUTPUT_DIR
+    stylesheet   $URI_PREFIX/filewiki.css
 
 
 ###Late Expansion
@@ -135,18 +133,20 @@ Variable late expansion happens after all variables are read by a page
 or directory node. This is particulary useful if you want to define a
 variable derived from internal variables set by plugins.
 
-Late expansion for expressions is accepted in form:`${{KEY_EXPR[:MATCH_EXPR]}}`.
+Late expansion for expressions is accepted in form:`${{KEY_EXPR[//REGEXP]}}`.
 
 Example
 
-    commit_msg     This page was committed by: ${{GIT_AUTHOR_NAME}}.
-    date_tag       ${{NAME:^(\d\d\d\d-\d\d-\d\d)-}}
+    commit_msg   This page was committed by: ${{GIT_AUTHOR_NAME}}.
+    date         ${{NAME//^(\d\d\d\d-\d\d-\d\d)-}/$1}
+    title        ${{NAME//^\d\d\d\d-\d\d-\d\d-(.*)}/$1}
 
-For files named like "yyyy-mm-dd-myfile", this sets a variable
-`date_tag` from the source file name.
+For files named like "yyyy-mm-dd-myfile", this sets a variables
+`date` and `title` from the source file name.
 
 
-###Logical Expressions
+Logical Expressions
+-------------------
 
 Expressions in form `$((...))` are executed at late expansion time.
 
@@ -157,7 +157,7 @@ Logical expressions are accepted in form:
 
 Example
 
-    original_date=$(( ${{GALLERY_TIME:(\S+)\s+\S+}} || ${{NAME:^(\d\d\d\d-\d\d-\d\d)-}} ))
+    original_date=$(( ${{GALLERY_TIME//(\S+)\s+\S+/$1}} || ${{NAME//^(\d\d\d\d-\d\d-\d\d)-/$1}} ))
 
 Sets variable `original_date` from GALLERY_TIME, falling back to the date
 prefix of NAME.
