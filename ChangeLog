@@ -34,10 +34,10 @@
   - Template::Plugin::FileWiki->PageTree() generates "highlight" class in <li> instead of <a>
   - adapted plugin framework to allow vars-provider plugins
   - added FileWiki::Plugin::Git, which provides variables such as "git commit date"
-  - support of variable substitution:
-    - support variable expansion in form: ${myvar} and ${myvar//regexp}
-    - support variable late expansion in form: ${{myvar}} and ${{myvar//regexp}}
-    - support logical expressions in form: $(( EXPR1 || EXPR2 ))
+  - enhanced support of variable expansion:
+    - support variable expansion in form: ${myvar} and ${myvar//match/replace}
+    - support variable late expansion in form: ${{myvar}} and ${{myvar//match/replace}}
+    - support logical expressions in form: $(( [[!]CONDITION:] EXPR0 || EXPR1 || ... ))
     - removed obsolete MATCH_<var> and DIR_MATCH_<var> hacks, this can
       now be solved with variable substitution
   - Gallery changes:

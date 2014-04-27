@@ -115,10 +115,10 @@ Early expansion for expressions is accepted in form:
   - `$KEY`: expand to the value of variable `KEY`, or ""
     if `KEY` is not found.
 
-  - `${KEY_EXPR[//REGEXP]}`: globally applies replace expression
-    `REGEXP` to the value of `KEY_EXPR`, where `KEY_EXPR` is an
-    expression in form `KEY0[|KEY1...]`, returning the first valid
-    value from KEYn.
+  - `${KEY_EXPR[//MATCH/REPLACE]}`: performs regular expression
+    `s/MATCH/REPLACE/g` on the value of `KEY_EXPR`, where `KEY_EXPR`
+    is an expression in form `KEY0[|KEY1...]`, returning the first
+    valid value from KEYn.
 
 Examples:
 
@@ -133,9 +133,10 @@ Variable late expansion happens after all variables are read by a page
 or directory node. This is particulary useful if you want to define a
 variable derived from internal variables set by plugins.
 
-Late expansion for expressions is accepted in form:`${{KEY_EXPR[//REGEXP]}}`.
+Late expansion for expressions is accepted in
+form:`${{KEY_EXPR[//MATCH/REPLACE]}}`.
 
-Example
+Example:
 
     commit_msg   This page was committed by: ${{GIT_AUTHOR_NAME}}.
     date         ${{NAME//^(\d\d\d\d-\d\d-\d\d)-}/$1}
@@ -152,13 +153,18 @@ Expressions in form `$((...))` are executed at late expansion time.
 
 Logical expressions are accepted in form:
 
-  - `$(( EXPR0 || EXPR1 || ... ))`: expand to the value of expression
-    `EXPR0`, or `EXPR1`...
+  - `$(( [[!]CONDITION:] EXPR0 || EXPR1 || ... ))`: expands to
+    expression `EXPR0`, or to `EXPR1`..., whichever expression
+    resolves to true first. Expands to an empty string if `CONDITION`
+    resolves to false.
 
-Example
+Example:
 
-    original_date=$(( ${{GALLERY_TIME//(\S+)\s+\S+/$1}} || ${{NAME//^(\d\d\d\d-\d\d-\d\d)-/$1}} ))
+    date    $(( ${{GALLERY_TIME}} || ${{NAME//^(\d\d\d\d-\d\d-\d\d)-/$1}} || ${{MTIME}} ))
+    title   $((IS_DIR: ${{NAME//^\d\d\d\d-\d\d-\d\d-/}} ))
 
-Sets variable `original_date` from GALLERY_TIME, falling back to the date
-prefix of NAME.
+This sets variable `date` from GALLERY_TIME, falling back to the date
+prefix of NAME, finally falling back to MTIME. Sets variable `title`
+to the title portion of NAME, but only if `IS_DIR` variable is set
+(i.e. only for a directory node).
 

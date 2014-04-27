@@ -173,12 +173,26 @@ sub expand_expr
 
     TRACE "Expanding logical expression: \"$saved_expr\""; INDENT 1;
 
-    # handle '$(( A || B ))' (very simple matching, sorry...)
-    foreach (split(/ \|\| /, $expr)) {
-      my $ret = expand_expr($vars, $_, %args);
-      if($ret) {
-        $expanded = $ret;
-        last;
+    # handle '$(( [!]CONDITION: ...))
+    my $skip = 0;
+    if($expr =~ s/^(.*?):\s*//) {
+      my $cond_expr = $1;
+      my $inverted = 0;
+      $inverted = 1 if($cond_expr =~ s/^!\s*//);
+      $skip = expand_var($vars, $cond_expr, %args) ? 0 : 1;
+      $skip = !$skip if($inverted);
+      TRACE "Conditional expression resolves to false, skipping" if($skip);
+    }
+
+    unless($skip)
+    {
+      # handle '$(( A || B ))' (very simple matching, sorry...)
+      foreach (split(/ \|\| /, $expr)) {
+        my $ret = expand_expr($vars, $_, %args);
+        if($ret) {
+          $expanded = $ret;
+          last;
+        }
       }
     }
   }
@@ -203,9 +217,8 @@ sub expand_expr
     # apply regular expression
     if(defined($expanded) && defined($regexp_expr))
     {
-      if($regexp_expr =~ /^(.*?[^\\])\/(.*)/) {
-        my $match   = $1;
-        my $replace = '"' . $2 . '"';
+      if($regexp_expr =~ /^(.*?[^\\])\/(.*)/) {  # 'match/replace'
+        my ($match, $replace) = ($1, "\"$2\"");  # quote $2, because of eval() below
         TRACE "Applying regular expression: match=\"$match\", replace=$replace";
 
         # use double eval (security risk here!)
