@@ -39,8 +39,8 @@ Propagation
 Parsed from file "tree.vars" in every directory.
 
 `tree.vars` are propagated to `dir.vars` and `page.vars`, and are
-persistent within sub-directories. In sub-directories, they supersede
-the `tree.vars` of the parent directory.
+persistent within sub-directories. `tree.vars` in sub-directories
+supersede the `tree.vars` of the parent directory.
 
 
 #### dir vars
@@ -63,7 +63,8 @@ Parsed from file "&lt;source_file&gt;.vars".
 
 #### nested vars
 
-Parsed from within source files.
+Parsed from within the source files (if supported by the plugin
+enabled).
 
 Nested vars supersede the `page.vars`. FileWiki starts to parse nested
 variables from the source file after it first encounters a line
@@ -85,7 +86,7 @@ Example:
     Page text...
 
 As a special feature for pages which are also parsed outside FileWiki
-(e.g. perl modules), a "comment" character is defined by the first
+(e.g. perl modules), a "un-comment" character is defined by the first
 character preceding <code>&lt;filewiki_vars&gt;</code>.
 
 Example (equivalent to example above):
@@ -97,7 +98,7 @@ Example (equivalent to example above):
     #</filewiki_vars>
     File text...
 
-In this example, the "comment" character is set to '#', and all
+In this example, the "un-comment" character is set to '#', and all
 variables are parsed.
 
 
@@ -107,7 +108,7 @@ Variable Expansion
 ###Early Expansion
 
 Variable early expansion happens directly at the time the key/value
-line is read from disk. This is the normal usecase when propagating
+line is read from disk. This is the common case for propagating
 variables through directories.
 
 Early expansion for expressions is accepted in form:
@@ -131,7 +132,10 @@ Examples:
 
 Variable late expansion happens after all variables are read by a page
 or directory node. This is particulary useful if you want to define a
-variable derived from internal variables set by plugins.
+variable derived from internal variables set by plugins. Note that
+setting system variables on late-expansion time might lead to
+undefined behaviour, as the plugins might rely on these variables
+before late-expansion happens.
 
 Late expansion for expressions is accepted in
 form:`${{KEY_EXPR[//MATCH/REPLACE]}}`.

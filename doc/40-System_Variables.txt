@@ -41,8 +41,8 @@ enabled, the source file will not be processed.
 Currently provided plugins are: Copy, HTML, TemplateToolkit, Markdown,
 Textile, POD and Gallery.
 
-Refer to FileWiki::Plugin::* Modules documentation for further information about
-each plugin.
+Refer to FileWiki::Plugin::* modules documentation for further
+information about each plugin.
 
 Example:
 

@@ -62,17 +62,14 @@ use Time::Piece;
 use File::Path qw(mkpath);
 use File::Spec::Functions qw(splitpath);
 
-use Template;
-
 our $VERSION = "0.40-dev";
 
 # Defaults
-our $dir_vars_filename = 'dir.vars';
-our $tree_vars_filename = 'tree.vars';
 our $default_time_format = '%C';
 
-# variable declaration
-my $var_decl = qr/[A-Za-z_][A-Za-z_0-9]*/;
+our $dir_vars_filename = 'dir.vars';
+our $tree_vars_filename = 'tree.vars';
+our $var_decl = qr/[A-Za-z_][A-Za-z_0-9]*/;
 
 
 sub new
@@ -656,17 +653,15 @@ sub _site_tree
     my $target_file = $page{OUTPUT_DIR} . $uri_unprefixed;
     my (undef, $target_dir, undef) = splitpath($target_file);
 
-    my $target_mtime_epoch = undef;
     if($page{TARGET_MTIME}) {
       my $time = Time::Piece->strptime($page{TARGET_MTIME}, "%Y-%m-%d %H:%M:%S");
-      $target_mtime_epoch = $time->epoch;
+      $page{TARGET_MTIME_EPOCH} = $time->epoch;
     }
 
     %page = (INDEX       => $page{NAME},  # default index
              %page,
              TARGET_FILE => $target_file,  # full path
              TARGET_DIR  => $target_dir,
-             TARGET_MTIME_EPOCH => $target_mtime_epoch,
              LEVEL       => $level,
              IS_DIR      => 0,
 
