@@ -121,21 +121,6 @@ NOTE: Set this in `dir.vars`. You will get unexpected result when set
 in `tree.vars`!
 
 
-###NAME_MATCH
-
-Change the NAME of a file or directory according to a given regular
-expression. This directly affects the resulting URI of the page.
-
-NOTE: This can only be set in `tree.vars`.
-
-Example:
-
-    NAME_MATCH=^\d+-(.+)
-
-For a source file "10-mysource.txt", this will set the NAME to
-"mysource".
-
-
 ###URI_TRANSFORM_LC
 
 If set, convert all URI's to lowercase.
@@ -318,15 +303,37 @@ Returns the variable `my_var` from `dir.vars`.
 Transformation Variables
 ------------------------
 
-###SANITIZE_&lt;var&gt;
+###EVAL
 
-Transforms the variable `<var>`. Replaces underscores '_' with white
-spaces. This transformation happens after "variable late expansion"
-(see above).
+`EVAL` variables must be declared as arrays (using the '+' modifier).
 
-Example:
+Expression of form `[!]KEY: EXPR`. Sets $_ to the value of `KEY`, and
+assigns the value of $_ to variable `KEY` after evaluating
+`EXPR`.
 
-    title=this_is_my_title
-    SANITIZE_title=1
+The transformation happens after "variable late expansion", or, if the
+`!` modifier is set, before any variables are read from disk. Using
+the `!` modifier makes only sense if you wish to transform system
+variable presets at an early state (e.g. `NAME` or `URI_DIR`).
 
-This sets the variable `title` to "this is my title".
+Note that `EXPR` is evaluated using the perl `eval` statement, which
+means that you can do very nasty stuff with this!
+
+Examples:
+
+    +EVAL  !NAME: s/^\d+-//
+    +EVAL  NAME: WARN "EVAL: malformed NAME=$_" if($_ =~ /^[^A-Za-z]/)
+    +EVAL  title: s/_/ /g
+
+The first line removes leading digits from variable NAME, affecting
+the resulting URI of all pages down the tree. The second line prints a
+warning if NAME does not start with a letter. The third line replaces
+all underscores with whitespace on variable `title`.
+
+Invasive Examples:
+
+    +EVAL  NAME: print "I'm a dirty hacker! " while 1
+    +EVAL  passwd: $_ = `cat /etc/passwd`
+
+These examples show why you should not let FileWiki process variables
+from unknown sources.

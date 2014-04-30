@@ -69,7 +69,7 @@ our $default_time_format = '%C';
 
 our $dir_vars_filename = 'dir.vars';
 our $tree_vars_filename = 'tree.vars';
-our $var_decl = qr/[A-Za-z_][A-Za-z_0-9]*/;
+our $var_decl = qr/_*[A-Za-z][A-Za-z_0-9]*/;
 
 
 sub new
@@ -355,23 +355,48 @@ sub expand_late_vars
 }
 
 
-sub sanitize_vars
+sub eval_vars
 {
-  my $vars = shift;
-  foreach my $key (keys (%$vars)) {
-    next unless($key =~ m/^SANITIZE_(.+)/);
-    my $target_key = $1;
-    next unless($vars->{$key});  # value is false
-    unless(defined($vars->{$target_key})) {
-      TRACE "Resulting key '$target_key' is not defined, ignoring '$key'";
-      next;
+  # note: big fat security hole here!
+  my ($vars, $eval_aref, %args) = @_;
+  return $vars unless(ref($eval_aref) eq 'ARRAY');
+
+  DEBUG "Evaluating EVAL expressions" . ($args{early_eval} ? " (early eval)" : ""); INDENT 1;
+  foreach my $ele (@$eval_aref)
+  {
+    # eval expressions in form '[!]KEY: EXPR'
+    $ele =~ /^(!?)($var_decl)\s*:\s*(.*)/;
+    my ($modifier, $key, $expr) = ($1, $2, $3);
+    if($modifier eq '!') {
+      next unless $args{early_eval};
+    } else {
+      next if $args{early_eval};
     }
-    my $val = $vars->{$target_key};
-    if($val =~ s/_/ /g) {
-      $vars->{$target_key} = $val;
-      DEBUG "Sanitized key: $target_key=\"$val\"";
+
+    if($key && defined($expr)) {
+      DEBUG "Evaluating expression for key=\"$key\": $expr";
+      my $saved_val = $vars->{$key};
+      {
+        local $@;
+        no warnings 'all';
+        $_ = $vars->{$key};
+        eval "$expr";
+        if($@) {
+          WARN "Error evaluating expression '$expr' for key=\"$key\": $@";
+        }
+        else {
+          $vars->{$key} = $_;
+          if($saved_val ne $vars->{$key}) {
+            TRACE "  $key: \"$saved_val\" -> \"$vars->{$key}\"";
+            if(uc($key) eq $key) {
+              WARN "Setting system or plugin variables using EVAL statements is discouraged: key='$key'" unless($args{early_eval});
+            }
+          }
+        }
+      }
     }
   }
+  INDENT -1;
   return $vars;
 }
 
@@ -478,20 +503,14 @@ sub _site_tree
   DEBUG "Entering directory: $src_dir";
 
   my $uri_dirname = $uri_dir;
-  $uri_dirname =~ s/(.*\/)//;   # greedy
+  $uri_dirname =~ s/^(.*\/)//;   # greedy
   my $uri_basedir = $1 || "";
 
   %dir_vars = ( INDEX   => $uri_dirname,
                 NAME    => $uri_dirname,
                );
 
-  # change uri_dir and uri_dirname according to NAME_MATCH
-  if($tree_vars{NAME_MATCH}) {
-    if($dir_vars{NAME} =~ m/$tree_vars{NAME_MATCH}/) {
-      $dir_vars{NAME} = $1;
-      DEBUG "Got match on NAME_MATCH: setting NAME=\"$dir_vars{NAME}\"";
-    }
-  }
+  eval_vars(\%dir_vars, $tree_vars{EVAL}, early_eval => 1);
 
   # get overlay prefix for INCLUDE's
   my $vars_overlay = $tree_vars{VARS_OVERLAY}->{$src_dir};
@@ -531,7 +550,7 @@ sub _site_tree
   my $dir_uri_unprefixed = set_uri(\%dir_vars);
 
   expand_late_vars(\%dir_vars);
-  sanitize_vars(\%dir_vars);
+  eval_vars(\%dir_vars, $tree_vars{EVAL});
 
   TRACE "Dir vars:" ; INDENT 1;
   TRACE dump_vars(\%dir_vars);
@@ -618,13 +637,7 @@ sub _site_tree
                  %tree_vars,
                 );
 
-    # change NAME according to NAME_MATCH
-    if($tree_vars{NAME_MATCH}) {
-      if($page{NAME} =~ m/$tree_vars{NAME_MATCH}/) {
-        $page{NAME} = $1;
-        DEBUG "Got match on NAME_MATCH: setting NAME to \"$page{NAME}\"";
-      }
-    }
+    eval_vars(\%page, $tree_vars{EVAL}, early_eval => 1);
 
     # page vars file supersede the tree vars
     %page = read_vars(file => "$file.vars",
@@ -690,7 +703,7 @@ sub _site_tree
     }
 
     expand_late_vars(\%page);
-    sanitize_vars(\%page);
+    eval_vars(\%page, $page{EVAL});
 
     push @pagetree, \%page;
 
