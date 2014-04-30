@@ -34,6 +34,7 @@
   - Template::Plugin::FileWiki->PageTree() generates "highlight" class in <li> instead of <a>
   - adapted plugin framework to allow vars-provider plugins
   - added FileWiki::Plugin::Git, which provides variables such as "git commit date"
+  - added array variable declaration of form: "+mykey=value"
   - enhanced support of variable expansion:
     - support variable expansion in form: ${myvar} and ${myvar//match/replace}
     - support variable late expansion in form: ${{myvar}} and ${{myvar//match/replace}}

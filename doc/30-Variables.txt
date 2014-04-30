@@ -17,7 +17,8 @@ below).
 
   - Lines starting with '#' (hash) are ignored
   - Trailing whitespaces are cut off
-  - Values can be quoted
+  - Double quotes are removed at beginning and end of value
+  - Keys starting with '+' (plus) are appended to an array
 
 Example:
 

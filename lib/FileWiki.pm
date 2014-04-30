@@ -272,16 +272,16 @@ sub read_vars
     last if /^[<\[]\/filewiki_vars[>\]]/;
     next if /^\s*\#/;
     next if /^\s*$/;
-    my ($key, $val) = /^\s*($var_decl)[\s=]+(.*?)\s*$/;
+    my ($modifier, $key, $val) = /^\s*(\+?)($var_decl)[\s=]+(.*?)\s*$/;
 
-    unless($key) {
+    unless($key && defined($modifier) && defined($val)) {
       WARN "Ambiguous variable declaration: $file line $.";
       next;
     }
 
     # store raw value before expanding
-    $vars{VARS_PRE_EXPAND} = { } unless exists $vars{VARS_PRE_EXPAND};
-    $vars{VARS_PRE_EXPAND}->{$key} = $val;
+    $vars{VARS_PRE_EXPAND} = { } unless(exists($vars{VARS_PRE_EXPAND}));
+    $vars{VARS_PRE_EXPAND}->{$key} = $val unless($modifier eq '+');
 
     if($val =~ /^\$$var_decl$/) {
       # directly assignment (important to assign references)
@@ -308,8 +308,15 @@ sub read_vars
       next;
     }
 
-    $vars{$key} = $val;
-    TRACE "$key=$val";
+    if($modifier eq '+') {
+      $vars{$key} = [] unless(ref($vars{$key}) eq 'ARRAY');
+      push(@{$vars{$key}}, $val);
+      TRACE "+$key=$val";
+    }
+    else {
+      $vars{$key} = $val;
+      TRACE "$key=$val";
+    }
   }
   INDENT -1;
   close($fh);
@@ -886,7 +893,11 @@ sub dump_vars
   foreach my $key (sort keys %$page) {
     if(grep(/^$key$/, @strip)) {
       $dump .= "$key=***stripped***\n";
-    } else {
+    }
+    elsif(ref($page->{$key}) eq 'ARRAY') {
+      $dump .= "$key=[ " . join(", ", map qq("$_"), @{$page->{$key}}) . " ]\n";
+    }
+    else {
       $dump .= "$key=" . (defined($page->{$key}) && $page->{$key}) . "\n";
     }
   }
