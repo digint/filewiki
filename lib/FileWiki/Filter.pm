@@ -32,6 +32,9 @@ use strict;
 use warnings;
 
 use FileWiki::Logger;
+use Template;
+
+our $VERSION = "0.40";
 
 
 sub read_source

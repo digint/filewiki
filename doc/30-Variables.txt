@@ -4,35 +4,31 @@ Variables
 Flexible variable declaration and propagation is the heart of the
 FileWiki system.  While some variables affect the FileWiki system,
 they are basically used as input to the template processor. Every page
-merges its `vars` from various locations (see
-[Propagation](#propagation) below).
+merges its `vars` from various locations (see "Propagation" below).
 
 
 Declaration
 -----------
 
 Variables are declared in a simple "key=value" or "key value"
-format. Already defined variables (and some [system variables]) can
-be reused in the declaration by the '$' (dollar) sign.
+format. Variable expansion is performed in occurrence of either
+`$myvar`, `${myvar}`, or `${{myvar}}` (see "Variable Expansion"
+below).
 
-- Lines starting with '#' (hash) are ignored
-- Trailing whitespaces are cut off
-- Values can be quoted
-
-  [system variables]: system_variables.html
+  - Lines starting with '#' (hash) are ignored
+  - Trailing whitespaces are cut off
+  - Values can be quoted
 
 Example:
 
-    title=Summary
+    title=FileWiki Documentation
     menu=$title
 
 This results in both "title" and "menu" variables to have the value
 "Summary". This is equivalent to:
 
-    title  "Summary"
+    title  "FileWiki Documentation"
     menu   $title
-
-
 
 
 Propagation
@@ -43,8 +39,8 @@ Propagation
 Parsed from file "tree.vars" in every directory.
 
 `tree.vars` are propagated to `dir.vars` and `page.vars`, and are
-persistent within sub-directories. In sub-directories, they supersede
-the `tree.vars` of the parent directory.
+persistent within sub-directories. `tree.vars` in sub-directories
+supersede the `tree.vars` of the parent directory.
 
 
 #### dir vars
@@ -67,7 +63,8 @@ Parsed from file "&lt;source_file&gt;.vars".
 
 #### nested vars
 
-Parsed from within source files.
+Parsed from within the source files (if supported by the plugin
+enabled).
 
 Nested vars supersede the `page.vars`. FileWiki starts to parse nested
 variables from the source file after it first encounters a line
@@ -88,9 +85,8 @@ Example:
 
     Page text...
 
-
 As a special feature for pages which are also parsed outside FileWiki
-(e.g. perl modules), a "comment" character is defined by the first
+(e.g. perl modules), a "un-comment" character is defined by the first
 character preceding <code>&lt;filewiki_vars&gt;</code>.
 
 Example (equivalent to example above):
@@ -102,5 +98,77 @@ Example (equivalent to example above):
     #</filewiki_vars>
     File text...
 
-In this example, the "comment" character is set to '#', and all
+In this example, the "un-comment" character is set to '#', and all
 variables are parsed.
+
+
+Variable Expansion
+------------------
+
+###Early Expansion
+
+Variable early expansion happens directly at the time the key/value
+line is read from disk. This is the common case for propagating
+variables through directories.
+
+Early expansion for expressions is accepted in form:
+
+  - `$KEY`: expand to the value of variable `KEY`, or ""
+    if `KEY` is not found.
+
+  - `${KEY_EXPR[//MATCH/REPLACE]}`: performs regular expression
+    `s/MATCH/REPLACE/g` on the value of `KEY_EXPR`, where `KEY_EXPR`
+    is an expression in form `KEY0[|KEY1...]`, returning the first
+    valid value from KEYn.
+
+Examples:
+
+    OUTPUT_DIR   /tmp/filewiki/htdocs
+    URI_PREFIX   $OUTPUT_DIR
+    stylesheet   $URI_PREFIX/filewiki.css
+
+
+###Late Expansion
+
+Variable late expansion happens after all variables are read by a page
+or directory node. This is particulary useful if you want to define a
+variable derived from internal variables set by plugins. Note that
+setting system variables on late-expansion time might lead to
+undefined behaviour, as the plugins might rely on these variables
+before late-expansion happens.
+
+Late expansion for expressions is accepted in
+form:`${{KEY_EXPR[//MATCH/REPLACE]}}`.
+
+Example:
+
+    commit_msg   This page was committed by: ${{GIT_AUTHOR_NAME}}.
+    date         ${{NAME//^(\d\d\d\d-\d\d-\d\d)-}/$1}
+    title        ${{NAME//^\d\d\d\d-\d\d-\d\d-(.*)}/$1}
+
+For files named like "yyyy-mm-dd-myfile", this sets a variables
+`date` and `title` from the source file name.
+
+
+Logical Expressions
+-------------------
+
+Expressions in form `$((...))` are executed at late expansion time.
+
+Logical expressions are accepted in form:
+
+  - `$(( [[!]CONDITION:] EXPR0 || EXPR1 || ... ))`: expands to
+    expression `EXPR0`, or to `EXPR1`..., whichever expression
+    resolves to true first. Expands to an empty string if `CONDITION`
+    resolves to false.
+
+Example:
+
+    date    $(( ${{GALLERY_TIME}} || ${{NAME//^(\d\d\d\d-\d\d-\d\d)-/$1}} || ${{MTIME}} ))
+    title   $((IS_DIR: ${{NAME//^\d\d\d\d-\d\d-\d\d-/}} ))
+
+This sets variable `date` from GALLERY_TIME, falling back to the date
+prefix of NAME, finally falling back to MTIME. Sets variable `title`
+to the title portion of NAME, but only if `IS_DIR` variable is set
+(i.e. only for a directory node).
+
