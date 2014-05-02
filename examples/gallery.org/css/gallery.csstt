@@ -34,7 +34,9 @@ body {
 }
 .gallery_header,
 .gallery_image,
+.prevnext_top,
 .prevnext_bottom,
+.gallery_attributes,
 #welcome_content,
 #bottom {
     margin-left: [% page_margin_left %]px;
@@ -208,9 +210,11 @@ a:visited {
 
 .gallery_attributes .gallery_summary {
     font-size: 1.5em;
+    margin-left: 0;
 }
 .gallery_attributes .gallery_desc {
     font-size: 1em;
+    margin-left: 0;
 }
 
 .prevnext_bottom {
@@ -218,6 +222,7 @@ a:visited {
     padding: 0;
     margin-top: 1.5em;
     margin-bottom: 1.5em;
+    white-space: nowrap;
 }
 .prevnext_bottom .prev {
     text-align: left;
@@ -252,7 +257,8 @@ a:visited {
 
 .gallery_mosaic_dir,
 .gallery_mosaic_file {
-    padding: 4px 3px 2px 3px;  /* more top-padding, for nicer cell_dir background */
+    [% mosaic_padding_bottom = 2  # px %]
+    padding: 4px 3px [%= mosaic_padding_bottom %]px 3px;  /* more top-padding, for nicer cell_dir background */
     margin: 1px;
 }
 .gallery_mosaic_dir {
@@ -265,7 +271,7 @@ a:visited {
 .gallery_mosaic_caption {
     width: 100%;
     position: absolute;
-    bottom: 0; 
+    bottom: [% mosaic_padding_bottom %]px;
     padding-bottom: 0.25em;
 }
 .gallery_mosaic_file .gallery_mosaic_caption {
