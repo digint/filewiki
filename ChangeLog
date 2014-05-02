@@ -43,6 +43,8 @@
     - removed obsolete NAME_MATCH, MATCH_<var>, DIR_MATCH_<var> and SANITIZE_<var>
       hacks, this can now be solved with variable substitution and eval expressions
   - Gallery changes:
+    - replaced GALLERY_IMAGE_<TYPE> declaration by GALLERY_IMAGE_TARGETS
+    - replaced GALLERY_CONVERT_OPTIONS by GALLERY_IMAGE_CMD_JPG
     - added GALLERY_DISABLE_EXIF_WARNINGS
     - gallery templates: refactoring of gallery mosaic display (use
       display-block instead of tables): introduced new mosaic_* classes.

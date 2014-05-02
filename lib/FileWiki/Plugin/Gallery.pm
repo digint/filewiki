@@ -7,11 +7,16 @@ FileWiki::Plugin::Gallery - Gallery generator plugin for FileWiki
     PLUGINS=Gallery
     PLUGIN_GALLERY_MATCH=\.(jpg|JPG)$
 
-    GALLERY_CONVERT_OPTIONS   -quality 75 -auto-orient
-    GALLERY_IMAGE_THUMB       0x180 4:3
-    GALLERY_IMAGE_MINITHUMB   0x80  4:3
-    GALLERY_IMAGE_SCALED      0x720
-    GALLERY_IMAGE_BIG         2560x1440
+    GALLERY_IMAGE_TARGETS                 THUMB:jpg, MINITHUMB:jpg, SCALED:jpg, BIG:jpg
+
+    GALLERY_IMAGE_DIMENSIONS_THUMB        0x180 4:3
+    GALLERY_IMAGE_DIMENSIONS_MINITHUMB    0x80  4:3
+    GALLERY_IMAGE_DIMENSIONS_SCALED       0x720
+    GALLERY_IMAGE_DIMENSIONS_BIG          2560x1440
+
+    GALLERY_IMAGE_CMD_JPG                 convert __OPTIONS__ -scale __GEOMETRY__ __INFILE__ __OUTFILE__
+    GALLERY_IMAGE_CMD_JPG_OPTION_ORIENT   -auto-orient
+    GALLERY_IMAGE_CMD_JPG_OPTION_QUALITY  -quality 75
 
 
 =head1 DESCRIPTION
@@ -24,10 +29,6 @@ variables.
 
 =head1 CONFIGURATION VARIABLES
 
-=head2 GALLERY_CONVERT_OPTIONS
-
-Options to be passed to ImageMagick's `convert` tool.
-
 =head2 GALLERY_TIME_FORMAT
 
 Time format used for GALLERY_TIME variable. See "strftime" in the
@@ -35,20 +36,56 @@ POSIX package for details about the format string.
 
 Defaults to "%Y-%m-%d %H:%M:%S"
 
-=head2 GALLERY_IMAGE_<TYPE>
+=head2 GALLERY_IMAGE_TARGETS
 
-Define the transformed images to be generated. The value specifies the
-maximum dimensions:
+Define the image targets to be generated, of form:
 
-    WxH ratio
+    <target>:<type> [, <target>:<type>]...
 
-The ratio can be omitted if both W and H are non-zero.
+Example:
+
+    GALLERY_IMAGE_TARGETS                   THUMB:jpg, MINITHUMB:jpg, SCALED:jpg
+
+This creates three image targets for every source file "myphoto.png":
+"myphoto_thumb.jpg", "myphoto_minithumb.jpg" and "myphoto_scaled.jpg".
+
+=head2 GALLERY_IMAGE_DIMENSIONS_<TARGET>
+
+Define the dimensions of the transformed images to be generated. The
+value specifies the maximum dimensions:
+
+    WxH [ratio]
+
+Example:
+
+    GALLERY_IMAGE_DIMENSIONS_THUMB          0x180
+    GALLERY_IMAGE_DIMENSIONS_MINITHUMB      0x80  4:3
+
+The thumbs scale proportionally to a height of 180px. The minithumbs
+scale proportionally to fit into 106x80px.
 
 =head2 GALLERY_VIDEO_MATCH
 
 Treats files matching this expression as video files. Every video file
-executes all commands specified by the GALLERY_VIDEO_CMD_<TYPE> variables,
-and sets the GALLERY_VIDEO variable.
+executes all commands specified by the GALLERY_VIDEO_CMD_<TYPE>
+variables, and sets the GALLERY_VIDEO variable.
+
+=head2 GALLERY_IMAGE_CMD_<TYPE>
+
+Specifies commands to be executed for image files. Image commands
+expand the following placeholders:
+
+ - __INFILE__   : Input file
+ - __OUTFILE__  : Output file
+ - __OPTIONS__  : Options specified by GALLERY_IMAGE_CMD_<TYPE>_OPTIONS_<myoption>
+                  variables.
+ - __GEOMETRY__ : Image geometry, computed from GALLERY_IMAGE_DIMENSIONS_<TARGET>.
+
+Example (create resized jpg using imagemagick):
+
+    GALLERY_IMAGE_CMD_JPG                        convert __OPTIONS__ -scale __GEOMETRY__ __INFILE__ __OUTFILE__
+    GALLERY_IMAGE_CMD_JPG_OPTION_ORIENT          -auto-orient
+    GALLERY_IMAGE_CMD_JPG_OPTION_QUALITY         -quality 75
 
 =head2 GALLERY_VIDEO_CMD_<TYPE>
 
@@ -92,22 +129,16 @@ missing GALLERY_TIME)
 
 Note:
 
-- <TYPE>: the <TYPE> from GALLERY_IMAGE_<TYPE>
+- <TARGET>: a target listed in GALLERY_IMAGE_TARGETS
 
-=head2 GALLERY_IMAGE_<TYPE>_URI
+=head2 GALLERY_IMAGE_<TARGET>_URI
 
 URI's pointing to the transformed image.
 
-=head2 GALLERY_IMAGE_<TYPE>_NAME
+=head2 GALLERY_IMAGE_<TARGET>_NAME
 
-File name of the transformed image, in format: "$NAME_<type>.jpg".
-Note that <type> is transformed to lower case for the file name.
-
-Example (in vars):
-
-   GALLERY_IMAGE_THUMB=0x180 4:3
-
-This results in "myphoto_thumb.jpg" for a source file "myphoto.jpg".
+File name of the transformed image, in format: "$NAME_<target>.jpg".
+Note that <target> is transformed to lower case for the file name.
 
 =head2 GALLERY_TIME
 
@@ -261,30 +292,24 @@ sub update_vars
     #    $page->{GALLERY_DATETIME} = $page->{GALLERY_DATE} . ' ' . $page->{GALLERY_TIME};
   }
 
+
+  # Generate image thumbnails and video
+  #
+  # Note: we cannot create the thumbs in process_page() hook, since we
+  # need the real size of the generated images in page vars.
+
+  DEBUG "Processing gallery image/video: $self->{name}"; INDENT 1;
+
   my $video_match = $page->{GALLERY_VIDEO_MATCH} || $video_match_default;
   my $image_src = $page->{SRC_FILE};
   if($page->{SRC_FILE} =~ m/$video_match/)
   {
     my @videos;
 
-    # # fetch metadata
-    # DEBUG "Fetching video metadata: $page->{SRC_FILE}";
-    # my $cmd = "ffmpeg -i \"$page->{SRC_FILE}\" -loglevel quiet -f ffmetadata -";
-    # my $ret = `$cmd`;
-    # TRACE "$ret";
-    # my %metadata;
-    # foreach (split(/\n/, $ret)) {
-    #   next if /^;/;
-    #   /^(\w+)=(.*)/;
-    #   $metadata{$1} = $2;
-    # }
-    # $page->{GALLERY_VIDEO_METADATA} = \%metadata;
-    # $page->{GALLERY_TIME} = $metadata{creation_time};
-
     # run the GALLERY_VIDEO_CMD_* commands
     foreach my $key (keys %$page) {
       next unless($key =~ /^GALLERY_VIDEO_CMD_([A-Z0-9]+)$/);
-      my ($name, $uri, $target_file) = create_generic($page, $key, $page->{SRC_FILE}, $1);
+      my ($name, $uri, $target_file) = create_generic($page, $key, $1, "", $page->{SRC_FILE});
       my $mime_type = $page->{$key . "_MIME_TYPE"};
       ERROR "Variable ${key}_MIME_TYPE is not provided: $page->{SRC_FILE}" unless($mime_type);
       push(@videos, { mime_type   => $mime_type,
@@ -295,9 +320,10 @@ sub update_vars
 
     if(scalar @videos) {
       # create still image
-      my ($name, $uri, $target_file) = create_generic($page, "GALLERY_VIDEO_STILL_IMAGE_CMD", $videos[0]->{target_file}, "JPG");
+      my ($name, $uri, $target_file) = create_generic($page, "GALLERY_VIDEO_STILL_IMAGE_CMD", "JPG", "", $videos[0]->{target_file});
       $page->{"GALLERY_VIDEO_STILL_IMAGE_NAME"} = $name;
       $page->{"GALLERY_VIDEO_STILL_IMAGE_URI"} = $uri;
+      $page->{"GALLERY_VIDEO_STILL_IMAGE_TARGET_FILE"} = $target_file;
       ($page->{"GALLERY_VIDEO_STILL_IMAGE_WIDTH"}, $page->{"GALLERY_VIDEO_STILL_IMAGE_HEIGHT"}) = imgsize($target_file);
 
       # set still image as source for transformed image
@@ -313,12 +339,22 @@ sub update_vars
 
 
   # create thumbs
-  foreach my $key (keys %$page) {
-    next unless($key =~ /^GALLERY_IMAGE_([A-Z0-9]+)$/);
-    my $type = $1;
+  my @image_targets = split(/\s*,\s*/, $page->{GALLERY_IMAGE_TARGETS});
+  foreach my $image_target (@image_targets)
+  {
+    unless($image_target =~ /^([A-Z][A-Z0-9]*):\s*(\w*)$/) {
+      ERROR "Invalid GALLERY_IMAGE_TARGETS declaration: expected \"<target>:<suffix>\", got \"$image_target\"";
+      next;
+    }
+    my ($target, $suffix) = ($1, $2);
+
+    unless($page->{"GALLERY_IMAGE_DIMENSIONS_$target"}) {
+      ERROR "Missing variable: \"GALLERY_IMAGE_DIMENSIONS_$target\"";
+      next;
+    }
 
     # get/calculate max width/height for GALLERY_IMAGE_*
-    if($page->{$key} =~ m/(\d+)x(\d+)(\s+[\d\.:]+)?/) {
+    if($page->{"GALLERY_IMAGE_DIMENSIONS_$target"} =~ m/(\d+)x(\d+)(\s+[\d\.:]+)?/) {
       my $w = $1;
       my $h = $2;
       my $ratio = $3 || 0;
@@ -329,20 +365,34 @@ sub update_vars
         elsif($w && (not $h)) { $h = int($w * $ratio) }
       }
 
-      ERROR "Failed to calculate max width/height of $key=$page->{$key}" unless($w || $h);
-      TRACE "Setting ${key}_MAX_WIDTH=$w, ${key}_MAX_HEIGHT=$h";
-      $page->{$key . "_MAX_WIDTH"} = $w;
-      $page->{$key . "_MAX_HEIGHT"} = $h;
+      ERROR "Failed to calculate max width/height for GALLERY_IMAGE_DIMENSIONS_$target=$page->{GALLERY_IMAGE_DIMENSIONS_$target}" unless($w || $h);
+      TRACE "Setting GALLERY_IMAGE_${target}_MAX_WIDTH=$w, GALLERY_IMAGE_${target}_MAX_HEIGHT=$h";
+
+      if(((not $w) || ($w > $page->{GALLERY_ORIGINAL_WIDTH})) && ((not $h) || ($h > $page->{GALLERY_ORIGINAL_HEIGHT}))) {
+        WARN "Target image dimensions ($target) are larger than original image, cropping to original";
+        $w = $page->{GALLERY_ORIGINAL_WIDTH};
+        $h = $page->{GALLERY_ORIGINAL_HEIGHT};
+      }
 
       # create thumbs
       if($image_src) {
-        create_image($page, $image_src, $type);
+        my $geometry = ($w || "") . 'x' . ($h || "");
+        my ($name, $uri, $target_file) = create_generic($page, "GALLERY_IMAGE_CMD_" . uc($suffix), $suffix, $target, $image_src, $geometry);
+        $page->{"GALLERY_IMAGE_${target}_NAME"} = $name;
+        $page->{"GALLERY_IMAGE_${target}_URI"}  = $uri;
+        $page->{"GALLERY_IMAGE_${target}_TARGET_FILE"} = $target_file;
+        $page->{"GALLERY_IMAGE_${target}_MAX_WIDTH"} = $w;
+        $page->{"GALLERY_IMAGE_${target}_MAX_HEIGHT"} = $h;
+        ($page->{"GALLERY_IMAGE_${target}_WIDTH"}, $page->{"GALLERY_IMAGE_${target}_HEIGHT"}) = imgsize($target_file) ;
       }
     }
     else {
-      ERROR "Invalid $key: $page->{$key}";
+      ERROR "Invalid GALLERY_IMAGE_DIMENSIONS_$target declaration: " . $page->{"GALLERY_IMAGE_DIMENSIONS_$target"};
     }
   }
+
+  INDENT -1;
+  return $page;
 }
 
 
@@ -358,56 +408,20 @@ sub exec_logged
 }
 
 
-sub create_image
-{
-  my $page = shift;
-  my $infile = shift;
-  my $type = shift;
-
-  # set URI and TARGET_FILE
-  my $name = $page->{NAME} . '_' . lc($type) . '.jpg';
-  my $outfile  = $page->{TARGET_DIR} . $name;
-  $page->{"GALLERY_IMAGE_${type}_NAME"}        = $name;
-  $page->{"GALLERY_IMAGE_${type}_URI"}         = $page->{URI_PREFIX} . $page->{URI_DIR} . $name;
-  $page->{"GALLERY_IMAGE_${type}_TARGET_FILE"} = $outfile;
-
-  die unless($infile && $outfile);
-
-  if(-e $outfile) {
-    DEBUG "Target file exists, skipping image ($type): $outfile";
-  }
-  else {
-    INFO "Generating image ($type): $outfile"; INDENT 1;
-
-    my $w = $page->{"GALLERY_IMAGE_${type}_MAX_WIDTH"};
-    my $h = $page->{"GALLERY_IMAGE_${type}_MAX_HEIGHT"};
-    if(((not $w) || ($w > $page->{GALLERY_ORIGINAL_WIDTH})) && ((not $h) || ($h > $page->{GALLERY_ORIGINAL_HEIGHT}))) {
-      WARN "Target image dimensions ($type) are larger than original image, cropping to original";
-      $w = $page->{GALLERY_ORIGINAL_WIDTH};
-      $h = $page->{GALLERY_ORIGINAL_HEIGHT};
-    }
-
-    my $geometry = ($w || "") . 'x' . ($h || "");
-    my $options  = $page->{"GALLERY_CONVERT_OPTIONS"} || "";
-    # -identify -format "%wx%h": prints the size to stdout
-    exec_logged("convert $options -scale $geometry \"$infile\" \"$outfile\"", $page->{TARGET_DIR});
-    INDENT -1;
-  }
-  ($page->{"GALLERY_IMAGE_${type}_WIDTH"}, $page->{"GALLERY_IMAGE_${type}_HEIGHT"}) = imgsize($outfile) ;
-
-  return $outfile;
-}
-
-
 sub create_generic
 {
   my $page = shift;
   my $key = shift;
-  my $infile = shift;
   my $type = shift;
+  my $target = shift;
+  my $infile = shift;
+  my $geometry = shift;
 
   my $cmd = $page->{$key};
-  my $name = $page->{NAME} . '.' . lc($type);
+  my $name = $page->{NAME};
+  $name .= "_" . lc($target) if($target);
+  $name .= '.' . lc($type);
+
   my $outfile = $page->{TARGET_DIR} . $name;
 
   # set URI and TARGET_FILE
@@ -418,15 +432,18 @@ sub create_generic
   if (-e $outfile) {
     DEBUG "Target file exists, skipping video ($type): $outfile";
   } else {
-    INFO "Executing $key: $outfile"; INDENT 1;
+    INFO ">>> $outfile"; INDENT 1;
+    DEBUG "Executing $key: $outfile";
+
     my $options = '';
     foreach (keys %$page) {
       next unless(/^${key}_OPTION_[A-Z0-9_]+$/);
       $options .= ' ' . $page->{$_};
     }
-    $cmd =~ s/__INFILE__/$infile/;
-    $cmd =~ s/__OUTFILE__/$outfile/;
+    $cmd =~ s/__INFILE__/"$infile"/;
+    $cmd =~ s/__OUTFILE__/"$outfile"/;
     $cmd =~ s/__OPTIONS__/$options/;
+    $cmd =~ s/__GEOMETRY__/$geometry/ if($geometry);
 
     exec_logged($cmd, $page->{TARGET_DIR});
     INDENT -1;
