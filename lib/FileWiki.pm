@@ -463,6 +463,7 @@ sub load_plugins
   return @ret;
 }
 
+
 sub assign_plugins
 {
   my $page = shift;
@@ -491,6 +492,7 @@ sub assign_plugins
   }
 }
 
+
 sub _site_tree
 {
   my ($src_dir, $uri_dir, %tree_vars) = @_;
@@ -506,18 +508,11 @@ sub _site_tree
   $uri_dirname =~ s/^(.*\/)//;   # greedy
   my $uri_basedir = $1 || "";
 
-  %dir_vars = ( INDEX   => $uri_dirname,
-                NAME    => $uri_dirname,
-               );
-
-  eval_vars(\%dir_vars, $tree_vars{EVAL}, early_eval => 1);
-
   # get overlay prefix for INCLUDE's
   my $vars_overlay = $tree_vars{VARS_OVERLAY}->{$src_dir};
 
   # provide DIR in tree_vars
-  %tree_vars = ( %tree_vars,
-                 DIR => \%dir_vars );
+  $tree_vars{DIR} = \%dir_vars;
 
   # read the tree vars (defaults to upper level tree vars)
   %tree_vars = read_vars(file => "$src_dir/$tree_vars_filename",
@@ -525,19 +520,23 @@ sub _site_tree
   %tree_vars = read_vars(file => "$vars_overlay.$tree_vars_filename",
                          vars => \%tree_vars) if($vars_overlay);
 
-  # read the dir vars (no propagation)
-  %dir_vars = ( NAME => "ROOT",   # default
-                %tree_vars,
-                %dir_vars,
-                URI_DIR => $uri_basedir . $dir_vars{NAME},
+  # presets for dir_vars
+  %dir_vars = ( %tree_vars,
+                INDEX   => $uri_dirname,
+                NAME    => $uri_dirname,
                );
 
+  # early evaluate for dir_vars
+  eval_vars(\%dir_vars, $tree_vars{EVAL}, early_eval => 1);
+
+  # read the dir vars (no propagation)
   %dir_vars = read_vars(file => "$src_dir/$dir_vars_filename",
                         vars => \%dir_vars);
   %dir_vars = read_vars(file => "$vars_overlay.$dir_vars_filename",
                         vars => \%dir_vars) if($vars_overlay);
 
-  %dir_vars = ( %dir_vars,
+  %dir_vars = ( URI_DIR => $uri_basedir . $dir_vars{NAME},
+                %dir_vars,
                 LEVEL    => $level - 1,
                 TREE     => \@pagetree,
                 PAGEHASH => \%pagehash,
@@ -637,6 +636,7 @@ sub _site_tree
                  %tree_vars,
                 );
 
+    # early evaluate for page
     eval_vars(\%page, $tree_vars{EVAL}, early_eval => 1);
 
     # page vars file supersede the tree vars
@@ -644,7 +644,6 @@ sub _site_tree
                       vars => \%page);
     %page = read_vars(file => "$tree_vars{VARS_OVERLAY}->{$file}.vars",
                       vars => \%page) if($tree_vars{VARS_OVERLAY}->{$file});
-
 
     # assign plugins to the page
     $page{SRC_FILE} = $file;
@@ -668,7 +667,7 @@ sub _site_tree
     }
     INFO "$file";
 
-    my $uri_unprefixed = set_uri(\%page);
+    my $uri_unprefixed = set_uri(\%page);     # sets $page{URI} from handler plugin
     die "OUTPUT_DIR is not set, refusing to continue" unless($page{OUTPUT_DIR});
     my $target_file = $page{OUTPUT_DIR} . $uri_unprefixed;
     my (undef, $target_dir, undef) = splitpath($target_file);
@@ -678,8 +677,7 @@ sub _site_tree
       $page{TARGET_MTIME_EPOCH} = $time->epoch;
     }
 
-    %page = (INDEX       => $page{NAME},  # default index
-             %page,
+    %page = (%page,
              TARGET_FILE => $target_file,  # full path
              TARGET_DIR  => $target_dir,
              LEVEL       => $level,

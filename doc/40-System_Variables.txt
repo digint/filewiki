@@ -255,7 +255,8 @@ the templates.
 ###NAME
 
 The name of the page (or directory respectively). This is taken from
-the filename.
+the filename. Changing this variable directly affects the `URI`
+variable (or `URI_DIR` for directories).
 
 
 ###ENV
