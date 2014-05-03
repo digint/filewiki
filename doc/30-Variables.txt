@@ -114,19 +114,24 @@ variables through directories.
 
 Early expansion for expressions is accepted in form:
 
-  - `$KEY`: expand to the value of variable `KEY`, or ""
-    if `KEY` is not found.
+  - `$KEY`: expand to the value of variable `KEY`, or "" if `KEY` is
+    not found.
 
-  - `${KEY_EXPR[//MATCH/REPLACE]}`: performs regular expression
-    `s/MATCH/REPLACE/g` on the value of `KEY_EXPR`, where `KEY_EXPR`
-    is an expression in form `KEY0[|KEY1...]`, returning the first
-    valid value from KEYn.
+  - `${KEY_EXPR}`: expression in form `${KEY0[|KEY1...]}`, returning the
+    first valid value from KEYn.
+
+  - `${KEY_EXPR[/MATCH/REPLACE]}`: performs a regular expression
+    `s/MATCH/REPLACE/` on the value of `KEY_EXPR`.
+
+  - `${KEY_EXPR[//MATCH/REPLACE]}`: performs a global regular
+    expression `s/MATCH/REPLACE/g` on the value of `KEY_EXPR`.
 
 Examples:
 
     OUTPUT_DIR   /tmp/filewiki/htdocs
     URI_PREFIX   $OUTPUT_DIR
     stylesheet   $URI_PREFIX/filewiki.css
+    debug_name   XXX${NAME}XXX
 
 
 ###Late Expansion
@@ -138,14 +143,14 @@ setting system variables on late-expansion time might lead to
 undefined behaviour, as the plugins might rely on these variables
 before late-expansion happens.
 
-Late expansion for expressions is accepted in
-form:`${{KEY_EXPR[//MATCH/REPLACE]}}`.
+Late expansion has the same semantics as early expansion, except that
+double brackets are used: `${{...}}`
 
 Example:
 
     commit_msg   This page was committed by: ${{GIT_AUTHOR_NAME}}.
-    date         ${{NAME//^(\d\d\d\d-\d\d-\d\d)-}/$1}
-    title        ${{NAME//^\d\d\d\d-\d\d-\d\d-(.*)}/$1}
+    date         ${{NAME/^(\d\d\d\d-\d\d-\d\d)-/$1}
+    title        ${{NAME/^\d\d\d\d-\d\d-\d\d-(.*)/$1}
 
 For files named like "yyyy-mm-dd-myfile", this sets a variables
 `date` and `title` from the source file name.
@@ -165,8 +170,8 @@ Logical expressions are accepted in form:
 
 Example:
 
-    date    $(( ${{GALLERY_TIME}} || ${{NAME//^(\d\d\d\d-\d\d-\d\d)-/$1}} || ${{MTIME}} ))
-    title   $((IS_DIR: ${{NAME//^\d\d\d\d-\d\d-\d\d-/}} ))
+    date    $(( ${{GALLERY_TIME}} || ${{NAME/^(\d\d\d\d-\d\d-\d\d)-/$1}} || ${{MTIME}} ))
+    title   $((IS_DIR: ${{NAME/^\d\d\d\d-\d\d-\d\d-/}} ))
 
 This sets variable `date` from GALLERY_TIME, falling back to the date
 prefix of NAME, finally falling back to MTIME. Sets variable `title`

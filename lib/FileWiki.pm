@@ -203,8 +203,13 @@ sub expand_expr
     TRACE "Expanding expression: \"$saved_expr\""; INDENT 1;
 
     my $var_expr = $expr;
+    my $global = 0;
     my $regexp_expr = undef;
     if($expr =~ /^(.*?)\/\/(.*)/) {  # 'var_expr//regexp'
+      ($var_expr, $regexp_expr) = ($1, $2);
+      $global = 1;
+    }
+    elsif($expr =~ /^(.*?)\/(.*)/) {  # 'var_expr/regexp'
       ($var_expr, $regexp_expr) = ($1, $2);
     }
 
@@ -219,9 +224,14 @@ sub expand_expr
         TRACE "Applying regular expression: match=\"$match\", replace=$replace";
 
         # use double eval (security risk here!)
-        unless($expanded =~ s/$match/$replace/gee) {
-          DEBUG "Regular expression failed: match=\"$match\", replace=$replace on string \"$expanded\"$debug_location\n";
+
+        my $success;
+        if($global) {
+          $success = ($expanded =~ s/$match/$replace/gee);
+        } else {
+          $success = ($expanded =~ s/$match/$replace/ee);
         }
+        DEBUG "Regular expression failed: match=\"$match\", replace=$replace on string \"$expanded\"$debug_location\n" unless($success);
       }
     }
   }
