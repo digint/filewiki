@@ -28,7 +28,7 @@
   - added EXIF sidecar support (GALLERY_SIDECAR_POSTFIX variable)
   - renamed GALLERY_RESIZE_<TYPE> to GALLERY_IMAGE_<TYPE>
 
-* filewiki-current
+* filewiki-0.40
   - generate XHTML in FileWiki::Plugin::POD
   - Template::Plugin::FileWiki->PageTree() generates <ul class="collapse">
   - Template::Plugin::FileWiki->PageTree() generates "highlight" class in <li> instead of <a>
