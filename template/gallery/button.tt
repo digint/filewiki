@@ -1,17 +1,17 @@
-[% IF mobile_view %]
-
-[% IF enabled %]
-<span class="button_enabled"><a href="[% link %]">[% text %]</a></span>
-[% ELSE %]
-<span class="button_disabled">[% text %]</span>
-[% END %]
-
-[% ELSE %]
+[% IF gallery_button_simple %]
 
 [% IF enabled %]
 <a href="[% link %]">[% text %]</a>
 [% ELSE %]
 [% text %]
+[% END %]
+
+[% ELSE %]
+
+[% IF enabled %]
+<span class="button_enabled"><a href="[% link %]">[% text %]</a></span>
+[% ELSE %]
+<span class="button_disabled">[% text %]</span>
 [% END %]
 
 [% END %]

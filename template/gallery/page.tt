@@ -43,7 +43,7 @@
 
 [%~### top prev/next links (only on web-view) ###~%]
 
-[% UNLESS mobile_view %]
+[% IF gallery_prevnext_top %]
 <div class="prevnext_top">
 [% INCLUDE gallery/button.tt
     link    = PAGE_PREV.URI
@@ -69,52 +69,32 @@
 
 [%~### image / video ###~%]
 
-[% IF mobile_view %]
-[% gallery_original_image_link = PAGE_NEXT.URI %]
-[% ELSE %]
-[% gallery_original_image_link = GALLERY_ORIGINAL_URI || GALLERY_IMAGE_BIG_URI %]
+[% IF gallery_image_link == "next" %]
+[% gallery_image_href = PAGE_NEXT.URI %]
+[% ELSIF gallery_image_link == "original" %]
+[% gallery_image_href = GALLERY_ORIGINAL_URI || GALLERY_IMAGE_BIG_URI %]
 [% END %]
 
 [% IF GALLERY_VIDEO %]
 <div class="gallery_video">
 <video id="video_0" class="video-js vjs-default-skin" controls preload="auto" width="[% GALLERY_VIDEO_STILL_IMAGE_WIDTH %]" height="[% GALLERY_VIDEO_STILL_IMAGE_HEIGHT %]" poster="[% GALLERY_VIDEO_STILL_IMAGE_URI %]" data-setup="{}">
-[% FOREACH v IN GALLERY_VIDEO %]
-<source src="[% v.uri %]" type="[% v.mime_type %]">
+[% FOREACH href IN GALLERY_VIDEO %]
+<source src="[% href.URI %]" type="[% href.MIME_TYPE %]">
 [% END %]
 </video>
 </div>
 [% ELSE %]
 <div class="gallery_image">
-[% IF gallery_original_image_link %]<a href="[% gallery_original_image_link %]">[% END %]
+[% IF gallery_image_href %]<a href="[% gallery_image_href %]">[% END %]
 <img src="[% GALLERY_IMAGE_SCALED_URI %]" alt="[% SRC_FILE_NAME %]" style="max-width:[% GALLERY_IMAGE_SCALED_WIDTH %]px;"/>
-[% IF gallery_original_image_link %]</a>[% END %]
+[% IF gallery_image_href %]</a>[% END %]
 </div>
 [% END %]
 
 
 [%~### bottom prev/next links ###~%]
 
-[% IF mobile_view ~%]  [%~### mobile view (buttons only) ###~%]
-
-<div class="gallery_attributes">
-[% IF summary %]<div class="gallery_summary">[% summary %]</div>[% END %]
-[% IF desc %]<div class="gallery_desc">[% desc %]</div>[% END %]
-</div>
-<div class="prevnext_bottom">
-[% INCLUDE gallery/button.tt
-    link    = PAGE_PREV.URI
-    enabled = PAGE_PREV
-    text    = "&laquo; prev"
-%]
-[% INCLUDE gallery/button_separator.tt %]
-[% INCLUDE gallery/button.tt
-    link    = PAGE_NEXT.URI
-    enabled = PAGE_NEXT
-    text    = "next &raquo;"
-%]
-</div>
-
-[% ELSE %]  [%~### web wiev (minithumbs with link) ###~%]
+[% IF gallery_prevnext_bottom == "minithumb" ~%]  [%~### display minithumbs with link ###~%]
 
 <table class="prevnext_bottom">
 <tbody>
@@ -158,6 +138,26 @@
 </tr>
 </tbody>
 </table>
+
+[% ELSE ~%]  [%~### display buttons only (no minithumbs) ###~%]
+
+<div class="gallery_attributes">
+[% IF summary %]<div class="gallery_summary">[% summary %]</div>[% END %]
+[% IF desc %]<div class="gallery_desc">[% desc %]</div>[% END %]
+</div>
+<div class="prevnext_bottom">
+[% INCLUDE gallery/button.tt
+    link    = PAGE_PREV.URI
+    enabled = PAGE_PREV
+    text    = "&laquo; prev"
+%]
+[% INCLUDE gallery/button_separator.tt %]
+[% INCLUDE gallery/button.tt
+    link    = PAGE_NEXT.URI
+    enabled = PAGE_NEXT
+    text    = "next &raquo;"
+%]
+</div>
 
 [% END %]
 

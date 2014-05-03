@@ -309,18 +309,20 @@ sub update_vars
     # run the GALLERY_VIDEO_CMD_* commands
     foreach my $key (keys %$page) {
       next unless($key =~ /^GALLERY_VIDEO_CMD_([A-Z0-9]+)$/);
-      my ($name, $uri, $target_file) = create_generic($page, $key, $1, "", $page->{SRC_FILE});
+      my $type = $1;
+      my ($name, $uri, $target_file) = create_generic($page, $key, $type, "", $page->{SRC_FILE});
       my $mime_type = $page->{$key . "_MIME_TYPE"};
-      ERROR "Variable ${key}_MIME_TYPE is not provided: $page->{SRC_FILE}" unless($mime_type);
-      push(@videos, { mime_type   => $mime_type,
-                      uri         => $uri,
-                      target_file => $target_file,
+      WARN "Variable ${key}_MIME_TYPE is not provided: $page->{SRC_FILE}" unless($mime_type);
+      push(@videos, { NAME        => $name,
+                      MIME_TYPE   => $mime_type,
+                      URI         => $uri,
+                      TARGET_FILE => $target_file,
                     } );
     }
 
     if(scalar @videos) {
       # create still image
-      my ($name, $uri, $target_file) = create_generic($page, "GALLERY_VIDEO_STILL_IMAGE_CMD", "JPG", "", $videos[0]->{target_file});
+      my ($name, $uri, $target_file) = create_generic($page, "GALLERY_VIDEO_STILL_IMAGE_CMD", "JPG", "", $videos[0]->{TARGET_FILE});
       $page->{"GALLERY_VIDEO_STILL_IMAGE_NAME"} = $name;
       $page->{"GALLERY_VIDEO_STILL_IMAGE_URI"} = $uri;
       $page->{"GALLERY_VIDEO_STILL_IMAGE_TARGET_FILE"} = $target_file;
@@ -343,10 +345,10 @@ sub update_vars
   foreach my $image_target (@image_targets)
   {
     unless($image_target =~ /^([A-Z][A-Z0-9]*):\s*(\w*)$/) {
-      ERROR "Invalid GALLERY_IMAGE_TARGETS declaration: expected \"<target>:<suffix>\", got \"$image_target\"";
+      ERROR "Invalid GALLERY_IMAGE_TARGETS declaration: expected \"<target>:<type>\", got \"$image_target\"";
       next;
     }
-    my ($target, $suffix) = ($1, $2);
+    my ($target, $type) = ($1, $2);
 
     unless($page->{"GALLERY_IMAGE_DIMENSIONS_$target"}) {
       ERROR "Missing variable: \"GALLERY_IMAGE_DIMENSIONS_$target\"";
@@ -377,8 +379,10 @@ sub update_vars
       # create thumbs
       if($image_src) {
         my $geometry = ($w || "") . 'x' . ($h || "");
-        my ($name, $uri, $target_file) = create_generic($page, "GALLERY_IMAGE_CMD_" . uc($suffix), $suffix, $target, $image_src, $geometry);
+        my $key = "GALLERY_IMAGE_CMD_" . uc($type);
+        my ($name, $uri, $target_file) = create_generic($page, $key, $type, $target, $image_src, $geometry);
         $page->{"GALLERY_IMAGE_${target}_NAME"} = $name;
+        $page->{"GALLERY_IMAGE_${target}_MIME_TYPE"} = $page->{$key . "_MIME_TYPE"};
         $page->{"GALLERY_IMAGE_${target}_URI"}  = $uri;
         $page->{"GALLERY_IMAGE_${target}_TARGET_FILE"} = $target_file;
         $page->{"GALLERY_IMAGE_${target}_MAX_WIDTH"} = $w;
@@ -427,10 +431,15 @@ sub create_generic
   # set URI and TARGET_FILE
   my $uri = $page->{URI_PREFIX} . $page->{URI_DIR} . $name;
 
+  unless($cmd) {
+    ERROR "Gallery command failed: missing variable $key";
+    return ($name, $uri, $outfile);
+  }
+
   die unless($infile && $outfile);
 
   if (-e $outfile) {
-    DEBUG "Target file exists, skipping video ($type): $outfile";
+    DEBUG "Target file exists, skipping command ($key): $outfile";
   } else {
     INFO ">>> $outfile"; INDENT 1;
     DEBUG "Executing $key: $outfile";

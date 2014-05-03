@@ -45,6 +45,8 @@
   - Gallery changes:
     - replaced GALLERY_IMAGE_<TYPE> declaration by GALLERY_IMAGE_TARGETS
     - replaced GALLERY_CONVERT_OPTIONS by GALLERY_IMAGE_CMD_JPG
+    - replaced mobile_view variable by gallery_image_link, gallery_prevnext_bottom,
+      gallery_prevnext_top and gallery_button_simple
     - added GALLERY_DISABLE_EXIF_WARNINGS
     - gallery templates: refactoring of gallery mosaic display (use
       display-block instead of tables): introduced new mosaic_* classes.

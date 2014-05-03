@@ -128,18 +128,6 @@ a:visited {
     color: #DDDDDD;
 }
 
-[% IF gallery_index_table_layout %]
-.gallery_index table {
-    border-spacing: 2px;
-    border: 0 none;
-    margin: 9px 0px;
-    padding: 0;
-}
-.gallery_index tr {
-    vertical-align: top;
-}
-[% END %]
-
 .gallery_image img {
     width: 100%;
     height: auto;
