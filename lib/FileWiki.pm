@@ -58,7 +58,7 @@ use warnings;
 use FileWiki::Logger;
 
 use Date::Format qw(time2str);
-use Time::Piece;
+use Time::Local qw(timelocal);
 use File::Path qw(mkpath);
 use File::Spec::Functions qw(splitpath);
 
@@ -682,11 +682,6 @@ sub _site_tree
     my $target_file = $page{OUTPUT_DIR} . $uri_unprefixed;
     my (undef, $target_dir, undef) = splitpath($target_file);
 
-    if($page{TARGET_MTIME}) {
-      my $time = Time::Piece->strptime($page{TARGET_MTIME}, "%Y-%m-%d %H:%M:%S");
-      $page{TARGET_MTIME_EPOCH} = $time->epoch;
-    }
-
     %page = (%page,
              TARGET_FILE => $target_file,  # full path
              TARGET_DIR  => $target_dir,
@@ -994,9 +989,19 @@ sub create
           close(OUTFILE);
 
           # update mtime if TARGET_MTIME is set
-          if ($page->{TARGET_MTIME_EPOCH}) {
-            DEBUG "Setting file ATIME=MTIME='$page->{TARGET_MTIME}' ($page->{TARGET_MTIME_EPOCH})";
-            utime($page->{TARGET_MTIME_EPOCH}, $page->{TARGET_MTIME_EPOCH}, $dfile);
+          if($page->{TARGET_MTIME}) {
+            my $time = $page->{TARGET_MTIME};
+            if(my @t = $time =~ m/(\d\d\d\d)-(\d\d)-(\d\d)\s+(\d\d):(\d\d):(\d\d)/) {
+              $t[1]--;
+              $time = timelocal @t[5,4,3,2,1,0];
+            }
+            if($time =~ /^[0-9]+$/) {
+              DEBUG "Setting file ATIME=MTIME=$time (TARGET_MTIME=\"$page->{TARGET_MTIME}\")";
+              utime($time, $time, $dfile);
+            }
+            else {
+              ERROR "Error parsing TARGET_MTIME=\"$page->{TARGET_MTIME}\"";
+            }
           }
         } else {
           ERROR "Failed to write file \"$dfile\": $!";

@@ -7,7 +7,7 @@ WriteMakefile(
   PREREQ_PM     => { 'Template'              => 0,
                      'Getopt::Std'           => 0,
                      'Date::Format'          => 0,
-                     'Time::Piece'           => 0,
+                     'Time::Local'           => 0,
                      'HTML::Entities'        => 0,
                      'File::Path'            => 0,
                      'File::Spec::Functions' => 0,

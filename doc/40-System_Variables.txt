@@ -128,7 +128,7 @@ If set, convert all URI's to lowercase.
 
 ###TARGET_MTIME
 
-Format: "YYYY-MM-DD hh:mm:ss"
+Format: "YYYY-MM-DD hh:mm:ss" or unix timestamp
 
 If set, affects modification date for the target (output) file of a
 page.
