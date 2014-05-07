@@ -31,7 +31,9 @@
 * filewiki-0.40
   - generate XHTML in FileWiki::Plugin::POD
   - Template::Plugin::FileWiki->PageTree() generates <ul class="collapse">
-  - Template::Plugin::FileWiki->PageTree() generates "highlight" class in <li> instead of <a>
+  - Template::Plugin::FileWiki->PageTree() generates "highlight" class:
+    - in <li> if "highlight_list_item" is set
+    - in <a> if "highlight_link" is set
   - adapted plugin framework to allow vars-provider plugins
   - added FileWiki::Plugin::Git, which provides variables such as "git commit date"
   - enhanced variable declaration:

@@ -2,7 +2,8 @@
 <div id="content_header">
 [% FileWiki.PageTree( ROOT => subdoc_root,
                       text_key => "NAME",
-		      regexp => { match => '_', replace => ' ' }
+                      regexp => { match => '_', replace => ' ' }
+                      highlight_link => 1,
                     )
 %]
 </div>

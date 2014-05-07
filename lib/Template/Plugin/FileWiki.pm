@@ -166,6 +166,21 @@ Defaults to undef.
 The page-var key to be set as "title" attribute in the link.
 Defaults to undef.
 
+=item highlight_link
+
+If set, tag the link of the current page with class "highlight".
+Defaults to false.
+
+=item highlight_list_item
+
+If set, tag the list item of the current page with class "highlight".
+Defaults to false.
+
+=item highlight_parents
+
+If set, also tag all parents of the current page with class "highlight".
+Defaults to false.
+
 =item match
 
 Hash reference to match expressions: the key defines the page-var, the
@@ -231,12 +246,31 @@ sub new {
 }
 
 
+sub highlight
+{
+  my $page = shift;
+  my $args = shift;
+  my $page_current = $args->{page_current};
+
+  # highlight target page
+  my $highlight = ($page_current && ($page_current->{URI} eq $page->{URI}));
+
+  # highlight parent directory
+  $highlight ||= $args->{highlight_parents} && $page->{IS_DIR} && $page_current && exists($page->{PAGEHASH}->{$page_current->{URI}});
+
+  # max depth is reached, and current page is subpage
+  $highlight ||= ((exists($args->{depth}) && ($args->{depth} == $page->{LEVEL})) &&
+                  $page->{IS_DIR} && $page_current && exists($page->{PAGEHASH}->{$page_current->{URI}}));
+
+  return $highlight;
+}
+
+
 sub page_link
 {
   my $page = shift;
   my $args = shift;
   my $uri = $page->{INDEX_PAGE}->{URI} || $page->{URI}; # directories point to their index_page
-
 
   # set text and title
   my $text_key = $args->{text_key};
@@ -266,6 +300,7 @@ sub page_link
   my $html;
   $html .= "<a href=\"$uri\"";
   $html .= " title=\"$title\""     if($title);
+  $html .= " class=\"highlight\""  if($args->{highlight_link} && highlight($page, $args));
   $html .= ">";
   $html .= "$text";
   $html .= "</a>\n";
@@ -281,23 +316,8 @@ sub tree_item
   my $prev_level = $args->{prev_level};
   my $tag_stack = $args->{tag_stack};
   my $level = $page->{LEVEL};
-  my $page_current = $args->{page_current};
-  my $highlight;
-
-  # highlight target page
-  $highlight = ($page_current && ($page_current->{URI} eq $page->{URI}));
-
-  # highlight parent directory
-  $highlight ||= $args->{highlight_parents} && $page->{IS_DIR} && $page_current && exists($page->{PAGEHASH}->{$page_current->{URI}});
-
-  # max depth is reached, and current page is subpage
-  $highlight ||= ((exists($args->{depth}) && ($args->{depth} == $page->{LEVEL})) &&
-                  $page->{IS_DIR} && $page_current && exists($page->{PAGEHASH}->{$page_current->{URI}}));
-
-
 
   my $html = '';
-
   my $item_html = page_link($page, $args);
   return ""  unless($item_html);
 
@@ -319,7 +339,7 @@ sub tree_item
   }
 
   $html .= '<li';
-  $html .=  ' class="highlight"' if($highlight);
+  $html .=  ' class="highlight"' if($args->{highlight_list_item} && highlight($page, $args));
   $html .= '>';
   push @$tag_stack, '</li>';
 
@@ -336,8 +356,15 @@ sub list_item
   my $page = shift;
   my $args = shift;
 
-  my $html = page_link($page, $args);
-  $html = "<li>" . $html . "</li>" if($html);
+  my $link = page_link($page, $args);
+  return "" unless($link);
+
+  my $html = '';
+  $html .= '<li';
+  $html .=  ' class="highlight"' if($args->{highlight_list_item} && highlight($page, $args));
+  $html .= '>';
+  $html .= $link;
+  $html .= '</li>';
   return $html;
 }
 
@@ -351,6 +378,7 @@ sub set_default_list_args
 
   $args->{regexp} = [ $args->{regexp} ] if(exists($args->{regexp}) && (ref $args->{regexp} ne "ARRAY"));
 }
+
 
 sub PageArray
 {
@@ -368,6 +396,7 @@ sub PageArray
   FileWiki::traverse($args);
   return \@ret;
 }
+
 
 sub PageList
 {
