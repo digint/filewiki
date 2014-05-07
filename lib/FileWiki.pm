@@ -355,7 +355,7 @@ sub expand_late_vars
       $warn_system_variable = 1;
     }
 
-    if($warn_system_variable && (uc($key) eq $key)) {
+    if($warn_system_variable && (uc($key) eq $key) && ($key ne "REF") && ($key ne "TARGET_MTIME")) {
       WARN "Late expansion to a system or plugin variable is discouraged: key='$key'";
     }
 
@@ -398,8 +398,8 @@ sub eval_vars
           $vars->{$key} = $_;
           if($saved_val ne $vars->{$key}) {
             TRACE "  $key: \"$saved_val\" -> \"$vars->{$key}\"";
-            if(uc($key) eq $key) {
-              WARN "Setting system or plugin variables using EVAL statements is discouraged: key='$key'" unless($args{early_eval});
+            if((not $args{early_eval}) && (uc($key) eq $key) && ($key ne "REF") && ($key ne "TARGET_MTIME")) {
+              WARN "Setting system or plugin variables using EVAL statements is discouraged: key='$key'";
             }
           }
         }
@@ -706,8 +706,8 @@ sub _site_tree
     $page{VARS} = \%page;
 
     # call all vars provider hooks
-    foreach (@{$page{PROVIDER}}) {
-      $_->update_vars(\%page);
+    foreach my $provider (@{$page{PROVIDER}}) {
+      $provider->update_vars(\%page);
     }
 
     expand_late_vars(\%page);

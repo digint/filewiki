@@ -149,8 +149,8 @@ double brackets are used: `${{...}}`
 Example:
 
     commit_msg   This page was committed by: ${{GIT_AUTHOR_NAME}}.
-    date         ${{NAME/^(\d\d\d\d-\d\d-\d\d)-/$1}
-    title        ${{NAME/^\d\d\d\d-\d\d-\d\d-(.*)/$1}
+    date         ${{NAME/^(\d\d\d\d-\d\d-\d\d)-/$1}}
+    title        ${{NAME/^\d\d\d\d-\d\d-\d\d-(.*)/$1}}
 
 For files named like "yyyy-mm-dd-myfile", this sets a variables
 `date` and `title` from the source file name.

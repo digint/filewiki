@@ -1,6 +1,6 @@
 =head1 NAME
 
-FileWiki::Plugin::Git - git plugin for FileWiki
+FileWiki::Plugin::Git - Git variable provider plugin for FileWiki
 
 =head1 SYNOPSIS
 

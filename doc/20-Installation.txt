@@ -50,14 +50,9 @@ give you an idea on how FileWiki works.
 ###Apache Handler
 
 An example on how to configure FileWiki as a HTTP PerlResponseHandler
-is provided in the `Apache::FileWiki::Handler` perl module
-documentation. Refer to the [Apache HTTP Handlers] documentation for
-detailed information.
+is provided in the [Apache::FileWiki::Handler] perl module
+documentation.
 
 Note that this is rather experimental, and *very insecure*, so make
 sure you don't install this on a publicly available location. You have
 been warned!
-
-
-  [Apache HTTP Handlers]: https://perl.apache.org/docs/2.0/user/handlers/http.html
-
