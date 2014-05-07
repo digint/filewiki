@@ -812,7 +812,6 @@ sub refs
     foreach my $r (split /[,;]/, $page->{REF}) {
       $r =~ s/^\s+//;
       $r =~ s/\s+$//;
-      $r = lc $r;
       WARN "Duplicate reference \"$r\"" if(exists($self->{refs}->{$r}));
       $self->{refs}->{$r} = $page->{URI};
       TRACE "Adding reference \"$r\": $self->{refs}->{$r}";

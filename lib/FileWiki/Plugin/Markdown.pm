@@ -95,7 +95,11 @@ sub transform_markdown
   my $filewiki = shift;
 
   my $r = $filewiki->refs();
-  my %refs = %$r;  # make a copy, markdown modifies these
+
+  # make a copy of the references, with lowercase keys (Text::Markdown accepts only lowercase refs for some reason)
+  # note: Text::Markdown modifies the urls hash!
+  my %refs;
+  @refs{ map { lc($_) } keys %$r } = values %$r;
 
   DEBUG "Converting Markdown";
 
