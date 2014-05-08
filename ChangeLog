@@ -36,6 +36,7 @@
     - in <a> if "highlight_link" is set
   - adapted plugin framework to allow vars-provider plugins
   - added FileWiki::Plugin::Git, which provides variables such as "git commit date"
+  - added FileWiki::Plugin::Perl, which provides PERL_PACKAGE and PERL_VERSION
   - enhanced variable declaration:
     - support for array variable declaration of form: "+mykey=value"
     - support for eval expressions on variables
