@@ -25,8 +25,6 @@
     mosaic_style      = mosaic_fixed_height ? (mosaic_style _ "height:" _ mosaic_fixed_height _ "px;")  : mosaic_style
     mosaic_style_attr = mosaic_style ? ' style="' _ mosaic_style _ '"' : ""
 
-    image_class       = (page.highlight.GALLERY_IMAGE_THUMB_WIDTH < page.highlight.GALLERY_IMAGE_THUMB_HEIGHT) ? 'portrait' : 'landscape'
-
     offset_top = 0
     margin_top = ""   # margin: center image vertically
 %]
