@@ -34,8 +34,8 @@
     [% NEXT IF hfound %]
 
     [%# no highlight found, set to first page having a thumbnail image %]
-    [% hfound = FileWiki.PageArray(ROOT => page,
-                                   match => { GALLERY_IMAGE_THUMB_URI => '1', IS_DIR => '0' },
+    [% hfound = FileWiki.PageArray(ROOT => highlight_page,
+                                   match => { GALLERY_IMAGE_THUMB_URI => '\/.*', IS_DIR => '0' },
                                   ).first
     %]
     [% SET highlight_page = hfound IF hfound %]
