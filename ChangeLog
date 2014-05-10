@@ -56,3 +56,6 @@
     - gallery templates: support for smartphones (two columns, fixed to
       50% width) and tablets (resized images, maximum height of 120px)
     - gallery templates: added mobile_view variable
+
+* filewiki-current
+  - added EXCLUDE system variable

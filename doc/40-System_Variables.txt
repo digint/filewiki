@@ -246,6 +246,23 @@ subdirectories will be read from `myprefix_subdir.tree.vars` and
 the directory will be read from `myprefix_myfile.txt.vars`.
 
 
+###EXCLUDE
+
+Exclude files/directories on matching pattern. Multiple excludes are
+separated by a colon. The match is done against the full path starting
+at `BASEDIR`.
+
+Examples:
+
+    EXCLUDE=/test.txt$
+    EXCLUDE=private:\.bak$
+
+The first example excludes any file or directory named "test.txt". The
+second example excludes any file or directory containing the word
+"private" (e.g. "somedir/private" or "my_privateer.txt"), and any file
+or directory ending with ".bak".
+
+
 Presets
 -------
 

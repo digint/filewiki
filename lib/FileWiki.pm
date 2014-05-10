@@ -62,7 +62,7 @@ use Time::Local qw(timelocal);
 use File::Path qw(mkpath);
 use File::Spec::Functions qw(splitpath);
 
-our $VERSION = "0.40";
+our $VERSION = "0.41-dev";
 
 # Defaults
 our $default_time_format = '%C';
@@ -581,7 +581,19 @@ sub _site_tree
       TRACE "skipping dot-file: $src_dir/$_";
       next;
     }
-    push @files, "$src_dir/$_";
+    my $file = "$src_dir/$_";
+    if($dir_vars{EXCLUDE}) {
+      my $skip = 0;
+      foreach my $excl (split(/:/, $dir_vars{EXCLUDE})) {
+        if($file =~ m/$excl/) {
+          DEBUG "EXLCUDE pattern \"$excl\" matched, excluding file: $file";
+          $skip = 1;
+          last;
+        }
+      }
+      next if($skip);
+    }
+    push @files, $file;
   }
   closedir $dh;
 
