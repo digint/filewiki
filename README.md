@@ -1,26 +1,5 @@
-                               FileWiki
-
-                             Version 0.40
-
-                               May 2014
-
-Copyright (C) 2011-2014 Axel Burri. All Rights Reserved.
-
-
-INSTALLATION
-------------
-
-You can install FileWiki from the command line:
-
-    perl Makefile.PL
-    make install
-
-Please see the separate installation documentation
-(doc/20-Installation.txt) for further information.
-
-
-DESCRIPTION
------------
+FileWiki
+========
 
 FileWiki is a simple but powerful web site generator, written in
 Perl. It provides a framework for creating and maintaining web sites,
@@ -54,31 +33,47 @@ FileWiki comes with a command-line client, as well as a in-browser
 Wiki editor.
 
 
+Official home page: <http://www.digint.ch/filewiki>
+
+Current version: `0.40`
+
+
 DOCUMENTATION
 -------------
 
-The main documentation is located in the "doc" directory.
+You can find the main documentation in the `doc/` directory of the
+FileWiki project. The latest version is also available [online]
+(http://www.digint.ch/filewiki/doc/introduction.html).
 
-The rest of the documentation is distributed in POD format. The POD pages
-are installed when you 'make install' and can be viewed using 'perldoc',
-e.g.
+The perl module documentation is distributed in POD format. The POD
+pages are installed when you 'make install' and can be viewed using
+'perldoc', e.g.
 
     perldoc FileWiki::Plugin::Gallery
 
 
-The documentation is also available in HTML format on the FileWiki
-home page at:
+INSTALLATION
+------------
 
-    http://www.digint.ch/filewiki
+You can install FileWiki from the command line:
+
+    perl Makefile.PL
+    make install
+
+Please see the separate installation documentation in
+`doc/20-Installation.txt` for further information.
 
 
 DEVELOPMENT
 -----------
 
 The source code for FileWiki is managed using Git. Check out the
-source like this:
+source repository like this:
 
-    $ git clone git://dev.tty0.ch/filewiki.git
+    git clone git://dev.tty0.ch/filewiki.git
+
+If you would like to contribute, you might want to visit the [FileWiki
+project page on GitHub] (http://github.com/digint/filewiki).
 
 
 SUPPORT
