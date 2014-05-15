@@ -47,7 +47,7 @@ give you an idea on how FileWiki works.
   [download]: http://www.digint.ch/download/filewiki/releases
 
 
-###Apache Handler
+### Apache Handler
 
 An example on how to configure FileWiki as a HTTP PerlResponseHandler
 is provided in the [Apache::FileWiki::Handler] perl module

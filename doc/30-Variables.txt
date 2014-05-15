@@ -106,7 +106,7 @@ variables are parsed.
 Variable Expansion
 ------------------
 
-###Early Expansion
+### Early Expansion
 
 Variable early expansion happens directly at the time the key/value
 line is read from disk. This is the common case for propagating
@@ -134,7 +134,7 @@ Examples:
     debug_name   XXX${NAME}XXX
 
 
-###Late Expansion
+### Late Expansion
 
 Variable late expansion happens after all variables are read by a page
 or directory node. This is particulary useful if you want to define a
