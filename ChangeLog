@@ -59,3 +59,4 @@
 
 * filewiki-current
   - added EXCLUDE system variable
+  - changed default PLUGIN_MARKDOWN_MATCH=\.(md|txt)$

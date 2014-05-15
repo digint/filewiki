@@ -56,9 +56,9 @@ use FileWiki::Filter;
 
 use Text::Markdown;
 
-our $VERSION = "0.40";
+our $VERSION = "0.41-dev";
 
-my $match_default = '\.(markdown|txt)$';
+my $match_default = '\.(md|txt)$';
 
 sub new
 {
