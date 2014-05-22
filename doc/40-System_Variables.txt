@@ -222,9 +222,10 @@ files which include the currently parsed file again!
 
 ### INCLUDE
 
-Include files/directories. Multiple includes are separated by a
-colon. Optionally, you can specify a prefix from where to read
-additional tree-, page- and file-vars in square brackets.
+Include files/directories. Multiple includes are separated by a colon,
+or by using array variables. Optionally, you can specify a prefix from
+where to read additional tree-, page- and file-vars in square
+brackets.
 
 Example (include files):
 
@@ -245,12 +246,19 @@ subdirectories will be read from `myprefix_subdir.tree.vars` and
 `myprefix_subdir.dir.vars`. The vars from a file `myfile.txt` within
 the directory will be read from `myprefix_myfile.txt.vars`.
 
+Example (use array variable):
+
+    +INCLUDE=/my/include/directory[myprefix]
+    +INCLUDE=/my/other/include_dir
+
+Same as above, using array variable notation.
+
 
 ### EXCLUDE
 
 Exclude files/directories on matching pattern. Multiple excludes are
-separated by a colon. The match is done against the full path starting
-at `BASEDIR`.
+separated by a colon, or by using array variables. The match is done
+against the full path starting at `BASEDIR`.
 
 Examples:
 

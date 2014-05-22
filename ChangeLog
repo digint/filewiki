@@ -60,3 +60,4 @@
 * filewiki-current
   - added EXCLUDE system variable
   - changed default PLUGIN_MARKDOWN_MATCH=\.(md|txt)$
+  - allow array vars for INCLUDE and EXCLUDE variables (e.g. +INCLUDE=foo)

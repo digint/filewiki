@@ -422,6 +422,24 @@ sub eval_vars
 }
 
 
+sub split_var
+{
+  my $pattern = shift;
+  my $var = shift;
+  my @splitted;
+
+  # honor array variables
+  if(ref($var) eq 'ARRAY') {
+    foreach (@{$var}) {
+      push @splitted, split(/$pattern/, $_);
+    }
+  } else {
+    @splitted = split(/$pattern/, $var);
+  }
+  return @splitted;
+}
+
+
 sub process_page
 {
   my $self = shift;
@@ -595,7 +613,7 @@ sub _site_tree
     my $file = "$src_dir/$_";
     if($dir_vars{EXCLUDE}) {
       my $skip = 0;
-      foreach my $excl (split(/:/, $dir_vars{EXCLUDE})) {
+      foreach my $excl (split_var(':', $dir_vars{EXCLUDE})) {
         if($file =~ m/$excl/) {
           DEBUG "EXLCUDE pattern \"$excl\" matched, excluding file: $file";
           $skip = 1;
@@ -610,9 +628,8 @@ sub _site_tree
 
   # include files/dirs specified in INCLUDE
   if($dir_vars{INCLUDE}) {
-    DEBUG "Found dir_vars{INCLUDE}, including files: $dir_vars{INCLUDE}";
-    my @includes = split(/:/, $dir_vars{INCLUDE});
-    foreach my $include (@includes) {
+    foreach my $include (split_var(':', $dir_vars{INCLUDE})) {
+      DEBUG "Including file from dir_vars{INCLUDE}: $include";
       my $overlay = $1 if($include =~ s/\[(\w+)\]//);
       $include =~ s/\/*$//;
 
