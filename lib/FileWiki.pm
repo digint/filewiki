@@ -770,12 +770,14 @@ sub _site_tree
   my $sort_key = $dir_vars{SORT_KEY} || 'INDEX';
   my $sort_strategy = $dir_vars{SORT_STRATEGY} || 'sortkey-only';
   my $sort_order = $dir_vars{SORT_ORDER} || 'asc';
-  @pagetree = sort { ($sort_strategy eq 'dir-first' ? ($b->{IS_DIR} <=> $a->{IS_DIR}) : 0) ||
-                     ($sort_strategy eq 'dir-last'  ? ($a->{IS_DIR} <=> $b->{IS_DIR}) : 0) ||
-                     ($sort_order eq 'asc'  ?
-                      (($a->{$sort_key} || $a->{INDEX}) cmp ($b->{$sort_key} || $b->{INDEX})) :
-                      (($b->{$sort_key} || $b->{INDEX}) cmp ($a->{$sort_key} || $a->{INDEX})))
-                   } @pagetree;
+  unless($sort_strategy eq 'none') {
+    @pagetree = sort { ($sort_strategy eq 'dir-first' ? ($b->{IS_DIR} <=> $a->{IS_DIR}) : 0) ||
+                       ($sort_strategy eq 'dir-last'  ? ($a->{IS_DIR} <=> $b->{IS_DIR}) : 0) ||
+                       ($sort_order eq 'asc'  ?
+                        (($a->{$sort_key} || $a->{INDEX}) cmp ($b->{$sort_key} || $b->{INDEX})) :
+                        (($b->{$sort_key} || $b->{INDEX}) cmp ($a->{$sort_key} || $a->{INDEX})))
+                     } @pagetree;
+  }
 
   # set PAGE_PREV / PAGE_NEXT
   my $prev = undef;

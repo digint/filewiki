@@ -202,6 +202,7 @@ are:
 - `sortkey-only`: sort by SORT_KEY (default).
 - `dir-first`: sort by SORT_KEY, but put directories in front.
 - `dir-last`: sort by SORT_KEY, but push directories to back.
+- `none`: do not sort (useful when using INCLUDE).
 
 
 ### SORT_ORDER
