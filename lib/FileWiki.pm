@@ -318,8 +318,19 @@ sub read_vars
       next;
     }
 
+    # handle variable arrays
     if($modifier eq '+') {
-      $vars{$key} = [] unless(ref($vars{$key}) eq 'ARRAY');
+      if(ref($vars{$key}) eq 'ARRAY') {
+        # variable is already an array, make a copy (for correct propagation)
+        $vars{$key} = [ @{$vars{$key}} ];
+      }
+      elsif(exists($vars{$key}) && ($vars{$key} ne "")) {
+        # variable is scalar, initialize array with its value
+        $vars{$key} = [ $vars{$key} ];
+      }
+      else {
+        $vars{$key} = [];
+      }
       push(@{$vars{$key}}, $val);
       TRACE "+$key=$val";
     }
