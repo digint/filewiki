@@ -1,13 +1,37 @@
-[% IF GALLERY_EXIF.GPSLatitude && GALLERY_EXIF.GPSLongitude %]
+[% DEFAULT
+    geo_longitude  = GALLERY_EXIF.GPSLongitude.value
+    geo_latitude   = GALLERY_EXIF.GPSLatitude.value
+    swisstopo_zoom = 8
+%]
+
+
+[% IF geo_latitude && geo_longitude %]
 <span class="gallery_action">
 
-[%~# z is the zoom level (1-20)
-   # t is the map type ("m" map, "k" satellite, "h" hybrid, "p" terrain, "e" GoogleEarth)
-   # q is the search query, if it is prefixed by loc: then google assumes it is a lat lon separated by a +
+[%~### Google Map link:  ###
+   # - z: the zoom level (1-20)
+   # - t: map type ("m" map, "k" satellite, "h" hybrid, "p" terrain, "e" GoogleEarth)
+   # - q: search query. if it is prefixed by "loc:" then google assumes it is a lat lon separated by a +
 ~%]
 
-<a href="http://maps.google.com?q=loc:[% GALLERY_EXIF.GPSLatitude.value %]+[% GALLERY_EXIF.GPSLongitude.value %]&amp;t=h" target="geolocation">
+<a href="http://maps.google.com?q=loc:[% geo_latitude %]+[% geo_longitude %]&amp;t=h" target="geolocation">
 <img alt="map" src="[% map_icon %]" />
 </a>
 </span>
+
+
+[%~### SwissTopo Map link ###~%]
+
+[% IF (geo_longitude >= 5) && (geo_latitude >= 45.5) && (geo_longitude <= 11) && (geo_latitude <= 48) %]
+
+[% USE SwissTopo %]
+
+<span class="gallery_action">
+<a href="[% SwissTopo.URL(lat => geo_latitude, long => geo_longitude, crosshair => "cross", zoom => swisstopo_zoom) %]" target="swisstopo">
+<img alt="map" src="[% swisstopo_icon %]" />
+</a>
+</span>
+
+[% END %]
+
 [% END %]

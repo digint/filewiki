@@ -13,7 +13,7 @@ our $VERSION = "0.40";
 
 =head1 NAME
 
-Template::FileWiki - FileWiki plugin for Template Toolkit
+Template::Plugin::FileWiki - FileWiki plugin for Template Toolkit
 
 =head1 SYNOPSIS
 
