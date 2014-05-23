@@ -114,9 +114,12 @@ a:visited {
     font-weight: bold;
     font-size: 2.0em;
 }
+.gallery_header_title {
+    margin-right: 0.5em;
+}
 .gallery_header_date {
-    margin-left: 0.7em;
     font-size: 1.5em;
+    white-space: nowrap;
 }
 
 .gallery_index p {
@@ -155,12 +158,15 @@ a:visited {
     font-size: 0.9em;
 }
 
-.header_links {
+.header_links_spacer {
     margin-left: 6em;
+}
+.header_links {
+    white-space: nowrap;
 }
 
 .gallery_action {
-    margin: 0 8px;
+    margin-right: 16px;
     cursor: pointer;
 }
 
@@ -368,7 +374,6 @@ a:visited {
 {
     .header_links {
 	display: block;
-	margin-left: 0;
 	margin-top: 1em;
     }
 
