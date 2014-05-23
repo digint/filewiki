@@ -32,7 +32,7 @@
 [% INCLUDE gallery/trail.tt top=DIR %]
 <p>
 [% INCLUDE gallery/titledesc.tt +%]
-<span class="header_links_spacer"></span>
+<span class="header_links_spacer">&nbsp;</span>
 <span class="header_links">
 [% INCLUDE gallery/action_info.tt  id="shaded_info" %]
 [% INCLUDE gallery/action_popout.tt  link=GALLERY_ORIGINAL_URI || GALLERY_IMAGE_BIG_URI %]

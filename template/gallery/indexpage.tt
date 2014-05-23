@@ -37,7 +37,7 @@ SKIP_PREVNEXT=1
 [% INCLUDE gallery/titledesc.tt
    vars = DIR
  +%]
-<span class="header_links_spacer"></span>
+<span class="header_links_spacer">&nbsp;</span>
 <span class="header_links">
 [% PROCESS gallery/action_info.tt  id="shaded_info" %]
 [% IF gallery_slideshow && slideshow_enable %]
