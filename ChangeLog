@@ -63,3 +63,4 @@
   - allow array vars for INCLUDE and EXCLUDE variables (e.g. +INCLUDE=foo)
   - added SORT_STRATEGY=none (no sorting, useful when using INCLUDE)
   - added Template::Plugin::SwissTopo (swiss map plugin for Template Toolkit)
+  - added support for blueimp gallery slideshow scripts (alternative to galleria)

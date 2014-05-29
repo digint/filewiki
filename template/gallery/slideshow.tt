@@ -1,20 +1,13 @@
 [filewiki_vars]
 TEMPLATE=0
 SKIP_PREVNEXT=1
-stylesheet=$css_dir/slideshow.css:$stylesheet_galleria
+title=Slide Show
 meta_HandheldFriendly=True
 meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=1"
 [/filewiki_vars]
 
-[%~################~%]
-
 [%#
-  # NOTE: This is an example using the free galleria javascript app.
-  # You can download the sources at: <http://galleria.io/>
-  #
-  # NOTE: 
-  # This file is included by every directory defined in
-  # "gallery.tree.vars".
+  # NOTE: This file is included by every directory defined in "gallery.tree.vars".
   #
 %]
 
@@ -22,8 +15,21 @@ meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-sca
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
+
+[% IF gallery_slideshow == "galleria" %]
+
+[%~########################################
+   # Galleria
+   # --------
+   #
+   # This is an example using the free galleria javascript app.
+   # You can download the sources at: <http://galleria.io/>
+   #
+%]
+
 [% INCLUDE filewiki/head.tt 
      javascript = "$script_jquery:$script_galleria"
+     stylesheet = "$css_dir/slideshow.css:$stylesheet_galleria"
 %]
 
 <body>
@@ -58,5 +64,104 @@ meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-sca
 </a>
 [% END %]
 </div>
+
 </body>
+
+
+
+[% ELSIF gallery_slideshow == "blueimp" %]
+
+[%~########################################
+   # blueimp Gallery
+   # ---------------
+   #
+   # This is an example using the free blueimp gallery javascript app.
+   # You can download the sources at: <https://github.com/blueimp/Gallery>
+   #
+%]
+
+
+[% INCLUDE filewiki/head.tt 
+     stylesheet = "$css_dir/slideshow.css:$stylesheet_blueimp"
+%]
+
+<body>
+
+[%~# To initialize the Gallery with visible controls, add the CSS class blueimp-gallery-controls to the Gallery widget +%]
+<div id="blueimp-container" class="blueimp-gallery">
+    <div class="slides"></div>
+    <h3 class="title"></h3>
+    <a class="prev">‹</a>
+    <a class="next">›</a>
+    <a class="close">×</a>
+    <a class="play-pause"></a>
+    <ol class="indicator"></ol>
+</div>
+
+[%~# Note: blueimp does not work if we load the scripts in <head> +%]
+<script src="[% script_blueimp %]"></script>
+<script>
+blueimp.Gallery([
+[% FOREACH href IN DIR.TREE %]
+[% NEXT IF href.SKIP_PREVNEXT %]
+[% NEXT IF href.IS_DIR %]
+
+[% IF href.GALLERY_VIDEO +%]
+{
+  title: '[% href.title %]',
+  type:  'video/*',
+  poster: '[% href.GALLERY_VIDEO_STILL_IMAGE_URI %]',
+  sources: [
+[% FOREACH vid IN href.GALLERY_VIDEO +%]
+    { type: '[% vid.MIME_TYPE %]', href: '[% vid.URI %]' },
+[% END +%]
+  ],
+},
+[% ELSE +%]
+{
+  title: '[% href.title %]',
+  href:  '[% href.GALLERY_IMAGE_BIG_NAME || href.GALLERY_IMAGE_SCALED_NAME %]',
+  type:  '[% href.GALLERY_IMAGE_BIG_MIME_TYPE || href.GALLERY_IMAGE_SCALED_MIME_TYPE %]',
+  thumbnail: '[% href.GALLERY_IMAGE_MINITHUMB_NAME %]',
+},
+[% END %]
+
+[% END +%]
+],
+{
+  container: '#blueimp-container',
+  stretchImages: true,
+  closeOnSlideClick: false,
+  onclosed: function () {
+    window.location.href = '[% DIR.INDEX_PAGE.URI %]';
+  },
+});
+</script>
+</body>
+
+[% ELSE %]
+
+[%~########################################
+   # unknown gallery_slideshow
+   #
+%]
+
+<body>
+
+[% FOREACH href IN DIR.TREE %]
+[% NEXT IF href.SKIP_PREVNEXT %]
+[% NEXT IF href.IS_DIR %]
+<a href="[% href.GALLERY_IMAGE_BIG_NAME || href.GALLERY_IMAGE_SCALED_NAME %]" title="[% href.title || href.SRC_FILE_NAME %]">
+<img src="[% href.GALLERY_IMAGE_MINITHUMB_NAME %]" alt="[% href.title || href.SRC_FILE_NAME %]"/>
+</a>
+[% END %]
+
+<p>
+Unsupported gallery_slideshow: "[% gallery_slideshow %]".
+</p>
+
+</body>
+
+[% END %]
+
 </html>
