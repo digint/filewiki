@@ -36,6 +36,7 @@
 <span class="header_links">
 [% INCLUDE gallery/action_info.tt  id="shaded_info" %]
 [% INCLUDE gallery/action_popout.tt  link=GALLERY_ORIGINAL_URI || GALLERY_IMAGE_BIG_URI %]
+[% PROCESS gallery/action_slideshow.tt link="slideshow.html?start=$NAME"  IF gallery_slideshow == "blueimp" %]
 [% INCLUDE gallery/action_map.tt %]
 </span>
 </p>
