@@ -101,14 +101,15 @@ meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-sca
 [%~# Note: blueimp does not work if we load the scripts in <head> +%]
 <script src="[% script_blueimp %]"></script>
 <script>
-blueimp.Gallery([
+var media_list = [
 [% FOREACH href IN DIR.TREE %]
 [% NEXT IF href.SKIP_PREVNEXT %]
 [% NEXT IF href.IS_DIR %]
 
-[% IF href.GALLERY_VIDEO +%]
 {
+  NAME: '[% href.NAME %]',
   title: '[% href.title %]',
+[% IF href.GALLERY_VIDEO +%]
   type:  'video/*',
   poster: '[% href.GALLERY_VIDEO_STILL_IMAGE_URI %]',
   sources: [
@@ -116,24 +117,39 @@ blueimp.Gallery([
     { type: '[% vid.MIME_TYPE %]', href: '[% vid.URI %]' },
 [% END +%]
   ],
-},
 [% ELSE +%]
-{
-  title: '[% href.title %]',
   href:  '[% href.GALLERY_IMAGE_BIG_NAME || href.GALLERY_IMAGE_SCALED_NAME %]',
   type:  '[% href.GALLERY_IMAGE_BIG_MIME_TYPE || href.GALLERY_IMAGE_SCALED_MIME_TYPE %]',
   thumbnail: '[% href.GALLERY_IMAGE_MINITHUMB_NAME %]',
-},
-[% END %]
-
 [% END +%]
-],
+},
+[% END +%]
+];
+
+[%# parse "start" argument, e.g. "slideshow.html?start=myImageName" %]
+var media_index = 0;
+var match_name = window.location.search.match(/[\?&]start\=(.*)/);
+if(match_name !== null) {
+  match_name = match_name[1].replace(/[\?&].*$/, "");
+  for(var i = 0; i < media_list.length; i++) {
+    if(media_list[i]["NAME"] == match_name) {
+      media_index = i;
+      break;
+    }
+  }
+}
+
+blueimp.Gallery(media_list,
 {
+  index: media_index,
   container: '#blueimp-container',
   stretchImages: true,
   closeOnSlideClick: false,
   onclosed: function () {
-    window.location.href = '[% DIR.INDEX_PAGE.URI %]';
+    if(window.history.length > 1)
+      window.history.back();
+    else
+      window.location.href = '[% DIR.INDEX_PAGE.URI %]';
   },
 });
 </script>
