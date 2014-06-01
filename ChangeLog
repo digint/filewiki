@@ -64,3 +64,5 @@
   - added SORT_STRATEGY=none (no sorting, useful when using INCLUDE)
   - added Template::Plugin::SwissTopo (swiss map plugin for Template Toolkit)
   - added support for blueimp gallery slideshow scripts (alternative to galleria)
+  - added option "slideshow" for gallery_image_link variable
+  - added variable gallery_popout, which displays a popout action link if set

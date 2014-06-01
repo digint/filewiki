@@ -16,7 +16,7 @@
 [% additional_stylesheets = ":${scripts_dir}/video-js/video-js.min.css" %]
 [% END %]
 
-[% PROCESS filewiki/head.tt 
+[%+ PROCESS filewiki/head.tt 
      javascript = "${scripts_dir}/showhide.js" _ additional_scripts
      stylesheet = "${stylesheet}" _ additional_stylesheets
      title = title || SRC_FILE_NAME
@@ -35,8 +35,13 @@
 <span class="header_links_spacer">&nbsp;</span>
 <span class="header_links">
 [% INCLUDE gallery/action_info.tt  id="shaded_info" %]
-[% INCLUDE gallery/action_popout.tt  link=GALLERY_ORIGINAL_URI || GALLERY_IMAGE_BIG_URI %]
-[% PROCESS gallery/action_slideshow.tt link="slideshow.html?start=$NAME"  IF gallery_slideshow == "blueimp" %]
+[% IF gallery_popout %]
+  [% INCLUDE gallery/action_popout.tt  link=GALLERY_ORIGINAL_URI || GALLERY_IMAGE_BIG_URI %]
+[% END %]
+[%# no need for slideshow button, the link is already on the image %]
+[%# IF gallery_slideshow == "blueimp" %]
+  [%# PROCESS gallery/action_slideshow.tt link="slideshow.html?display=$NAME" %]
+[%# END %]
 [% INCLUDE gallery/action_map.tt %]
 </span>
 </p>
@@ -75,6 +80,8 @@
 [% gallery_image_href = PAGE_NEXT.URI %]
 [% ELSIF gallery_image_link == "original" %]
 [% gallery_image_href = GALLERY_ORIGINAL_URI || GALLERY_IMAGE_BIG_URI %]
+[% ELSIF gallery_image_link == "slideshow" %]
+[% gallery_image_href = "slideshow.html?display=$NAME" %]
 [% END %]
 
 [% IF GALLERY_VIDEO %]

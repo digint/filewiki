@@ -1,49 +1,49 @@
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-[% IF author %]
+[%+ IF author %]
 <meta name="author" content="[% author %]"/>
 [% END %]
 [% IF description %]
 <meta name="description" content="[% description %]"/>
-[% END %]
+[%+ END %]
 [% IF keywords %]
 <meta name="keywords" content="[% keywords %]"/>
-[% END %]
+[%+ END %]
 
 [% FOREACH key IN VARS.keys %]
 [% IF key.match('^meta_') %]
-<meta name="[% key.replace('^meta_', '') %]" content="[% VARS.$key %]"/>
-[% END %]
+<meta name="[% key.replace('^meta_', '').replace('_','-') %]" content="[% VARS.$key %]"/>
+[%+ END %]
 [% END %]
 
 <title>[% head_title_prefix %][% title || NAME %]</title>
-[% IF shortcut_icon %]
+[%+ IF shortcut_icon %]
 <link rel="shortcut icon" type="image/x-icon" href="[% shortcut_icon %]"/>
-[% END %]
+[%+ END %]
 [% IF apple_touch_icon %]
 <link rel="apple-touch-icon" href="[% apple_touch_icon %]"/>
-[% END %]
+[%+ END %]
 [% IF apple_touch_icon_72x72 %]
 <link rel="apple-touch-icon" sizes="72x72" href="[% apple_touch_icon_72x72 %]"/>
-[% END %]
+[%+ END %]
 [% IF apple_touch_icon_114x114 %]
 <link rel="apple-touch-icon" sizes="114x114" href="[% apple_touch_icon_114x114 %]"/>
-[% END %]
+[%+ END %]
 
 [% FOREACH style_file IN stylesheet.split(':') %]
 <link rel="stylesheet" href="[% style_file %]" type="text/css"/>
-[% END %]
+[%+ END %]
 
 [% IF filewiki_controls %]
 <link rel="stylesheet" href="[% stylesheet_filewiki %]" type="text/css"/>
-[% END %]
+[%+ END %]
 [% IF stylesheet_print %]
 <link rel="stylesheet" href="[% stylesheet_print %]" type="text/css" media="print"/>
-[% END %]
+[%+ END %]
 [% IF stylesheet_handheld %]
 <link rel="stylesheet" href="[% stylesheet_handheld %]" type="text/css" media="handheld"/>
-[% END %]
+[%+ END %]
 [% FOREACH js_file IN javascript.split(':') %]
 <script type="text/javascript" src="[% js_file %]"></script>
-[% END %]
+[%+ END %]
 </head>
