@@ -134,12 +134,14 @@ var media_list = [
 
 [%# parse "display" argument, e.g. "slideshow.html?display=IMG001" %]
 var media_index = 0;
+var close_action;
 var match_name = window.location.search.match(/[\?&]display\=(.*)/);
 if(match_name !== null) {
   match_name = match_name[1].replace(/[\?&].*$/, "");
   for(var i = 0; i < media_list.length; i++) {
     if(media_list[i]["NAME"] == match_name) {
       media_index = i;
+      close_action = "displayed";
       break;
     }
   }
@@ -153,18 +155,16 @@ blueimp.Gallery(media_list,
   stretchImages: true,
   closeOnSlideClick: false,
   onclosed: function () {
-    var slide_uri = media_list[this.index]["URI"];
-    if(slide_uri !== null)
-    {
-      window.location.href = slide_uri;
-    }
+    var forward_uri = null;
+    if(close_action === "displayed")
+      forward_uri = media_list[this.index]["URI"];
+
+    if(forward_uri !== null)
+      window.location.href = forward_uri;
+    else if(window.history.length > 1)
+      window.history.back();
     else
-    {
-      if(window.history.length > 1)
-        window.history.back();
-      else
-        window.location.href = '[% DIR.INDEX_PAGE.URI %]';
-    }
+      window.location.href = '[% DIR.INDEX_PAGE.URI %]';
   }
 });
 </script>
