@@ -132,10 +132,11 @@ var media_list = [
 [% END +%]
 ];
 
-[%# parse "display" argument, e.g. "slideshow.html?display=IMG001" %]
+[%# parse arguments: "display" and "start_slideshow" (e.g. "slideshow.html?display=IMG001") %]
 var media_index = 0;
 var close_action;
 var match_name = window.location.search.match(/[\?&]display\=(.*)/);
+var start_slideshow = (window.location.search.match(/[\?&]start_slideshow/) === null) ? 0 : 1;
 if(match_name !== null) {
   match_name = match_name[1].replace(/[\?&].*$/, "");
   for(var i = 0; i < media_list.length; i++) {
@@ -147,6 +148,7 @@ if(match_name !== null) {
   }
 }
 
+/* credits for blueimp gallery go to: <https://github.com/blueimp/Gallery> */
 blueimp.Gallery(media_list,
 {
   index: media_index,
@@ -154,6 +156,7 @@ blueimp.Gallery(media_list,
   titleElement: 'span',
   stretchImages: true,
   closeOnSlideClick: false,
+  startSlideshow: start_slideshow,
   onclosed: function () {
     var forward_uri = null;
     if(close_action === "displayed")
