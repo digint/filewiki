@@ -303,6 +303,40 @@ a:visited {
     padding-top: 2ex;
 }
 
+
+[% IF gallery_slideshow == "blueimp" %]
+
+.blueimp-gallery .gallery_header {
+    display: none;
+}
+.blueimp-gallery-controls .gallery_header {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.blueimp-gallery .trail {
+    padding: 0.5em;
+    background-color: #333333;
+    background: rgba(0, 0, 0, 0.5);
+}
+.blueimp-gallery .gallery_header_title {
+    margin-left: [% page_margin_left %]px;
+    margin-right: [% page_margin_right %]px;
+    opacity: 0.8;
+    text-shadow: 0 0 2px #000000;
+}
+.blueimp-gallery .trail:hover {
+    background: rgba(51, 51, 51, 1);
+}
+.blueimp-gallery .gallery_header_title:hover {
+    color: #fff;
+    opacity: 1;
+}
+
+[% END %]
+
+
 [% IF gallery_dir_index_fixed %]
 
 /* note: class "gallery_dir_index" is set by indexmatrix.tt if all mosaics are directories */

@@ -82,7 +82,7 @@ meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-sca
 
 
 [% INCLUDE filewiki/head.tt 
-     stylesheet = "$css_dir/gallery.css:$stylesheet_blueimp"
+     stylesheet = "$stylesheet_blueimp:$css_dir/gallery.css"
 %]
 
 <body>
@@ -90,7 +90,12 @@ meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-sca
 [%~# To initialize the Gallery with visible controls, add the CSS class blueimp-gallery-controls to the Gallery widget +%]
 <div id="blueimp-container" class="blueimp-gallery">
     <div class="slides"></div>
-    <h3 class="title"></h3>
+    <div class="gallery_header">
+[% IF gallery_slideshow_trail %]
+[% INCLUDE gallery/trail.tt top=DIR %]
+[% END %]
+      <p><span class="gallery_header_title"></span></p>
+    </div>
     <a class="prev">‹</a>
     <a class="next">›</a>
     <a class="close">×</a>
@@ -144,6 +149,7 @@ blueimp.Gallery(media_list,
 {
   index: media_index,
   container: '#blueimp-container',
+  titleElement: 'span',
   stretchImages: true,
   closeOnSlideClick: false,
   onclosed: function () {
