@@ -314,20 +314,25 @@ a:visited {
     position: absolute;
     top: 0;
     left: 0;
+    margin: 0;
 }
 .blueimp-gallery .trail {
     padding: 0.5em;
     background-color: #333333;
     background: rgba(0, 0, 0, 0.5);
 }
+
+.blueimp-gallery a:link,
+.blueimp-gallery a:visited {
+    color: #84BAD4;
+    font-weight: bold;
+}
+
 .blueimp-gallery .gallery_header_title {
     margin-left: [% page_margin_left %]px;
     margin-right: [% page_margin_right %]px;
     opacity: 0.8;
     text-shadow: 0 0 2px #000000;
-}
-.blueimp-gallery .trail:hover {
-    background: rgba(51, 51, 51, 1);
 }
 .blueimp-gallery .gallery_header_title:hover {
     color: #fff;
