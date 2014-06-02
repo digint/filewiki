@@ -1,27 +1,13 @@
 [%~### Page for a single image display, with prev/next buttons ###~%]
 
-[%#
-  # NOTE: We use the free video-js javascript app here, which is not
-  # provided with the filewiki package.
-  # Download the sources at: <http://videojs.com/>
-  # and unpack the zipfile to "examples/gallery.org/scripts".
-~%]
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
-
-[% IF GALLERY_VIDEO %]
-[% additional_scripts     = ":${scripts_dir}/video-js/video.min.js"     %]
-[% additional_stylesheets = ":${scripts_dir}/video-js/video-js.min.css" %]
-[% END %]
-
-[%+ PROCESS filewiki/head.tt 
-     javascript = "${scripts_dir}/showhide.js" _ additional_scripts
-     stylesheet = "${stylesheet}" _ additional_stylesheets
+[%~ PROCESS filewiki/head.tt 
+     javascript = "${scripts_dir}/showhide.js"
+     stylesheet = "${stylesheet}"
      title = title || SRC_FILE_NAME
-%]
-
+~%]
 
 <body>
 
@@ -36,7 +22,7 @@
 <span class="header_links">
 [% INCLUDE gallery/action_info.tt  id="shaded_info" %]
 [% IF gallery_popout %]
-  [% INCLUDE gallery/action_popout.tt  link=GALLERY_ORIGINAL_URI || GALLERY_IMAGE_BIG_URI %]
+  [% INCLUDE gallery/action_popout.tt  link=(GALLERY_VIDEO ? GALLERY_VIDEO.0.URI : (GALLERY_ORIGINAL_URI || GALLERY_IMAGE_BIG_URI)) %]
 [% END %]
 [%# no need for slideshow button, the link is already on the image %]
 [%# IF gallery_slideshow == "blueimp" %]
@@ -86,9 +72,9 @@
 
 [% IF GALLERY_VIDEO %]
 <div class="gallery_video">
-<video id="video_0" class="video-js vjs-default-skin" controls preload="auto" width="[% GALLERY_VIDEO_STILL_IMAGE_WIDTH %]" height="[% GALLERY_VIDEO_STILL_IMAGE_HEIGHT %]" poster="[% GALLERY_VIDEO_STILL_IMAGE_URI %]" data-setup="{}">
+<video controls="controls" preload="metadata" poster="[% GALLERY_VIDEO_STILL_IMAGE_URI %]" style="max-width:[% GALLERY_VIDEO_STILL_IMAGE_WIDTH %]px;">
 [% FOREACH href IN GALLERY_VIDEO %]
-<source src="[% href.URI %]" type="[% href.MIME_TYPE %]">
+<source src="[% href.URI %]" type="[% href.MIME_TYPE %]"/>
 [% END %]
 </video>
 </div>

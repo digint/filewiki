@@ -2,8 +2,8 @@
 TEMPLATE=0
 SKIP_PREVNEXT=1
 title=Slide Show
-meta_HandheldFriendly=True
-meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=1"
+#meta_HandheldFriendly=True
+#meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=1"
 [/filewiki_vars]
 
 [%~
