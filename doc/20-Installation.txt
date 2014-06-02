@@ -47,6 +47,62 @@ give you an idea on how FileWiki works.
   [download]: http://www.digint.ch/download/filewiki/releases
 
 
+### Gallery
+
+In order to create a photo gallery, you first have to set the
+`gallery_base` variable to a folder structure containing your photos:
+
+    $EDITOR examples/gallery.org/tree.vars
+
+    # change this path:
+    gallery_base=/path/to/photos
+
+Optionally modify the other variables in `tree.vars` and
+`gallery.tree.vars` in order to change the resulting web site
+appearance.
+
+In order for the slideshow to work, you need to provide the [blueimp
+gallery] scripts in `examples/gallery.org/scripts/blueimp-gallery/`:
+
+    cd examples/gallery.org/scripts
+    wget http://github.com/blueimp/Gallery/archive/2.15.0.tar.gz
+    tar -x -f 2.15.0.tar.gz
+    mv Gallery-2.15.0 blueimp-gallery
+
+By default, FileWiki Gallery depends on external tools to convert your
+image and video resources:
+
+ - `convert` tool from the [ImageMagick] suite
+ - `ffmpeg` tool from [FFmpeg]
+
+Now if everything is set up, you can now build your personal gallery:
+
+    filewiki -v examples/gallery.org
+
+Point your browser to `file:///tmp/filewiki/htdocs/index.html` to see
+the resulting website. If you're happy with the results, comment out
+the `URI_PREFIX` variable and run filewiki again.
+
+    $EDITOR examples/gallery.org/tree.vars
+
+    # comment out URI_PREFIX (or set to some prefix on your site, e.g. "/my-gallery/"):
+    #URI_PREFIX=$OUTPUT_DIR
+
+If you want FileWiki to automatically install your site to a remote
+server, edit the `CMD_INSTALL` variable and run:
+
+    filewiki -c install examples/gallery.org
+
+Note that FileWiki Gallery does not rebuild images and videos if their
+targets in `OUTPUT_DIR` are already present. You'll need to manually
+delete the files in `OUTPUT_DIR` before running `filewiki` if you
+e.g. change the image dimensions.
+
+  [blueimp gallery]: http://github.com/blueimp/Gallery
+  [ImageMagick]: http://www.imagemagick.org
+  [FFmpeg]: http://ffmpeg.org
+
+
 ### Apache Handler
 
 An example on how to configure FileWiki as a HTTP PerlResponseHandler
