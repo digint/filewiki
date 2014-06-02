@@ -2,9 +2,18 @@
 TEMPLATE=0
 SKIP_PREVNEXT=1
 title=Slide Show
-#meta_HandheldFriendly=True
-#meta_viewport="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=1, user-scalable=1"
 [/filewiki_vars]
+
+[% DEFAULT
+  stylesheet_blueimp    = "$scripts_dir/blueimp-gallery/css/blueimp-gallery.min.css"
+  script_blueimp        = "$scripts_dir/blueimp-gallery/js/blueimp-gallery.min.js"
+
+  script_jquery         = "$scripts_dir/jquery-latest.min.js"
+  script_galleria       = "$scripts_dir/galleria/galleria.min.js"
+  script_galleria_theme = "$scripts_dir/galleria/themes/classic/galleria.classic.min.js"
+  stylesheet_galleria   = "$scripts_dir/galleria/themes/classic/galleria.classic.css"
+%]
+
 
 [%~
   #
@@ -27,7 +36,7 @@ title=Slide Show
    #
 %]
 
-[% INCLUDE filewiki/head.tt 
+[% INCLUDE filewiki/head.tt
      javascript = "$script_jquery:$script_galleria"
      stylesheet = "$css_dir/slideshow.css:$stylesheet_galleria"
 %]
@@ -81,13 +90,13 @@ title=Slide Show
 %]
 
 
-[% INCLUDE filewiki/head.tt 
+[% INCLUDE filewiki/head.tt
      stylesheet = "$stylesheet_blueimp:$css_dir/gallery.css"
 %]
 
 <body>
 
-[%~# To initialize the Gallery with visible controls, add the CSS class blueimp-gallery-controls to the Gallery widget +%]
+[%~# NOTE: To initialize the gallery with visible controls, just add the "blueimp-gallery-controls" class to the "blueimp-container" +%]
 <div id="blueimp-container" class="blueimp-gallery">
     <div class="slides"></div>
     <div class="gallery_header">
@@ -110,7 +119,6 @@ var media_list = [
 [% FOREACH href IN DIR.TREE %]
 [% NEXT IF href.SKIP_PREVNEXT %]
 [% NEXT IF href.IS_DIR %]
-
 {
   NAME: '[% href.NAME %]',
   URI: '[% href.URI %]',
