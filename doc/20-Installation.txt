@@ -52,7 +52,7 @@ give you an idea on how FileWiki works.
 In order to create a photo gallery, you first have to set the
 `gallery_base` variable to a folder structure containing your photos:
 
-    $EDITOR examples/gallery.org/tree.vars
+    file: examples/gallery.org/tree.vars
 
     # change this path:
     gallery_base=/path/to/photos
@@ -83,7 +83,7 @@ Point your browser to `file:///tmp/filewiki/htdocs/index.html` to see
 the resulting website. If you're happy with the results, comment out
 the `URI_PREFIX` variable and run filewiki again.
 
-    $EDITOR examples/gallery.org/tree.vars
+    file: examples/gallery.org/tree.vars
 
     # comment out URI_PREFIX (or set to some prefix on your site, e.g. "/my-gallery/"):
     #URI_PREFIX=$OUTPUT_DIR
