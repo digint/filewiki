@@ -196,7 +196,7 @@ use Image::ExifTool;
 use Image::Size qw(imgsize);
 use File::Path qw(mkpath);
 
-our $VERSION = "0.40";
+our $VERSION = "0.41";
 
 my $match_default = '\.(bmp|gif|jpeg|jpeg2000|mng|png|psd|raw|svg|tif|tiff|gif|jpeg|jpg|png|pdf|mp4|avi|BMP|GIF|JPEG|JPEG2000|MNG|PNG|PSD|RAW|SVG|TIF|TIFF|GIF|JPEG|JPG|PNG|PDF|MP4|AVI)$';
 my $video_match_default = '\.(mp4|avi|MP4|AVI)$';
@@ -327,6 +327,10 @@ sub update_vars
       $page->{"GALLERY_VIDEO_STILL_IMAGE_URI"} = $uri;
       $page->{"GALLERY_VIDEO_STILL_IMAGE_TARGET_FILE"} = $target_file;
       ($page->{"GALLERY_VIDEO_STILL_IMAGE_WIDTH"}, $page->{"GALLERY_VIDEO_STILL_IMAGE_HEIGHT"}) = imgsize($target_file);
+
+      # set default original image dimensions to still image dimensions
+      $page->{GALLERY_ORIGINAL_WIDTH} ||= $page->{"GALLERY_VIDEO_STILL_IMAGE_WIDTH"};
+      $page->{GALLERY_ORIGINAL_HEIGHT} ||= $page->{"GALLERY_VIDEO_STILL_IMAGE_HEIGHT"};
 
       # set still image as source for transformed image
       $image_src = $target_file;
