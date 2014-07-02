@@ -19,6 +19,7 @@ below).
   - Trailing whitespaces are cut off
   - Double quotes are removed at beginning and end of value
   - Keys starting with '+' (plus) are appended to an array
+  - Values starting with '\\\' are multi-line, with '\\\' on last line
 
 Example:
 

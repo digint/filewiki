@@ -66,3 +66,4 @@
   - added support for blueimp gallery slideshow scripts (alternative to galleria)
   - added option "slideshow" for gallery_image_link variable
   - added variable gallery_popout, which displays a popout action link if set
+  - added support for multiline variables (starting/ending with '\\\')

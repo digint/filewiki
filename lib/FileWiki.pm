@@ -289,6 +289,23 @@ sub read_vars
       next;
     }
 
+    # process multiline variable
+    if($val =~ /^\s*\\\\\\\s*$/) {
+      $val = "";
+      my $multiline_start = $.;
+      my $multiline_fail = 1;
+      while (<$fh>) {
+        if(/^\\\\\\\s*$/) {
+          $multiline_fail = 0;
+          last;
+        }
+        $val .= $_;
+      }
+      if($multiline_fail) {
+        WARN 'Unterminated multiline variable (missing "\\\")' . ": $file line $multiline_start";
+      }
+    }
+
     # store raw value before expanding
     $vars{VARS_PRE_EXPAND} = { } unless(exists($vars{VARS_PRE_EXPAND}));
     $vars{VARS_PRE_EXPAND}->{$key} = $val unless($modifier eq '+');
