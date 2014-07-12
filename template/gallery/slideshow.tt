@@ -122,7 +122,9 @@ var media_list = [
 {
   NAME: '[% href.NAME %]',
   URI: '[% href.URI %]',
+[% IF href.title +%]
   title: '[% href.title %]',
+[% END %]
 [% IF href.GALLERY_VIDEO +%]
   type:  'video/*',
   poster: '[% href.GALLERY_VIDEO_STILL_IMAGE_URI %]',
