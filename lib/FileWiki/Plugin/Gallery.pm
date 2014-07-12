@@ -375,7 +375,7 @@ sub update_vars
       TRACE "Setting GALLERY_IMAGE_${target}_MAX_WIDTH=$w, GALLERY_IMAGE_${target}_MAX_HEIGHT=$h";
 
       if(((not $w) || ($w > $page->{GALLERY_ORIGINAL_WIDTH})) && ((not $h) || ($h > $page->{GALLERY_ORIGINAL_HEIGHT}))) {
-        WARN "Target image dimensions ($target) are larger than original image, cropping to original";
+        INFO "Target image dimensions ($target) are larger than original image, cropping to original";
         $w = $page->{GALLERY_ORIGINAL_WIDTH};
         $h = $page->{GALLERY_ORIGINAL_HEIGHT};
       }
