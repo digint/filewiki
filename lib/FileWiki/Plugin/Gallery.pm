@@ -273,11 +273,14 @@ sub update_vars
   }
 
   $page->{GALLERY_EXIF} = \%exif_hash;
-  $page->{GALLERY_ORIGINAL_WIDTH} = $exif_hash{ImageWidth}->{value};
-  $page->{GALLERY_ORIGINAL_HEIGHT} = $exif_hash{ImageHeight}->{value};
-
-  unless($page->{GALLERY_ORIGINAL_WIDTH} && $page->{GALLERY_ORIGINAL_HEIGHT}) {
-    ($page->{"GALLERY_ORIGINAL_WIDTH"}, $page->{"GALLERY_ORIGINAL_HEIGHT"}) = imgsize($page->{SRC_FILE});
+  if(exists($exif_hash{Orientation}) && ($exif_hash{Orientation}->{value} >= 5) && ($exif_hash{Orientation}->{value} <= 8)) {
+    # flipped orientation, swap w/h
+    $page->{GALLERY_ORIGINAL_WIDTH} = $exif_hash{ImageHeight}->{value};
+    $page->{GALLERY_ORIGINAL_HEIGHT} = $exif_hash{ImageWidth}->{value};
+  }
+  else {
+    $page->{GALLERY_ORIGINAL_WIDTH} = $exif_hash{ImageWidth}->{value};
+    $page->{GALLERY_ORIGINAL_HEIGHT} = $exif_hash{ImageHeight}->{value};
   }
 
   # set date / time
