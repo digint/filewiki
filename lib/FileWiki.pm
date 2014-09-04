@@ -62,7 +62,7 @@ use Time::Local qw(timelocal);
 use File::Path qw(mkpath);
 use File::Spec::Functions qw(splitpath);
 
-our $VERSION = "0.41-dev";
+our $VERSION = "0.50-dev";
 
 # Defaults
 our $default_time_format = '%C';
@@ -470,6 +470,12 @@ sub process_page
     # override SRC_TEXT if data was passed
     $page->{SRC_TEXT} = $data if($data);
 
+    # create page resources
+    # call all resource creator hooks
+    foreach my $provider (@{$page->{RESOURCE_CREATOR}}) {
+      $provider->process_resources($page);
+    }
+
     # call the page process handler
     $data = $page->{HANDLER}->process_page($page, $self);
 
@@ -524,13 +530,22 @@ sub assign_plugins
 {
   my $page = shift;
 
-  $page->{PROVIDER} = [];
+  $page->{VARS_PROVIDER} = [];
+  $page->{RESOURCE_CREATOR} = [];
   foreach my $plugin (load_plugins($page)) {
     my $object = $plugin->new($page);
     if($object) {
       if($object->{vars_provider}) {
         DEBUG "Using vars provider plugin: $object->{name}";
-        push(@{$page->{PROVIDER}}, $object);
+        push(@{$page->{VARS_PROVIDER}}, $object);
+      }
+      if($object->{resource_creator}) {
+        DEBUG "Using resource creator plugin: $object->{name}";
+        push(@{$page->{RESOURCE_CREATOR}}, $object);
+      }
+      if($object->{resource_creator}) {
+        DEBUG "Using resource creator plugin: $object->{name}";
+        push(@{$page->{RESOURCE_CREATOR}}, $object);
       }
       if($object->{page_handler}) {
         if($page->{HANDLER}) {
@@ -758,7 +773,7 @@ sub _site_tree
     $page{VARS} = \%page;
 
     # call all vars provider hooks
-    foreach my $provider (@{$page{PROVIDER}}) {
+    foreach my $provider (@{$page{VARS_PROVIDER}}) {
       $provider->update_vars(\%page);
     }
 
