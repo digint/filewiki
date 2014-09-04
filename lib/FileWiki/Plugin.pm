@@ -34,7 +34,7 @@ use warnings;
 use FileWiki::Logger;
 
 
-our $VERSION = "0.40";
+our $VERSION = "0.50";
 
 sub process_page
 {
@@ -76,6 +76,22 @@ sub update_vars
   my $page = shift;
 
   ERROR "Plugin $self->{name} identifies itself as vars_provider, but does not implement the update_vars() method!";
+}
+
+# called by resource_creator plugins
+sub add_resource
+{
+  my $self = shift;
+  my $page = shift;
+  my $key = shift;
+  my $value = shift;
+  die unless((ref($value) eq 'HASH') && $value->{TARGET_FILE});
+
+  $page->{RESOURCE} //= {};
+  WARN "Duplicate resource \"$key\"" if(exists($page->{RESOURCE}->{$key}));
+  DEBUG "Adding page resource: $key";
+
+  $page->{RESOURCE}->{$key} = $value;
 }
 
 1;
