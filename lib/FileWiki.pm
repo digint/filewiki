@@ -485,24 +485,32 @@ sub process_page
   return $data;
 }
 
-
-sub set_uri
+sub sanitize_vars
 {
   my $page = shift;
-
-  # sanitize
   $page->{URI_DIR} =~ s/\/+$//;
   $page->{URI_DIR} .= '/';
   $page->{URI_PREFIX} =~ s/\/+$//;
   $page->{URI_PREFIX} =~ s/^([^\/])/\/$1/;
+  return $page;
+}
 
-  my $uri = $page->{URI_DIR};
-  $uri .= $page->{HANDLER}->get_uri_filename($page) if($page->{HANDLER});
+sub get_uri_unprefixed
+{
+  my $page = shift;
+  my $name = shift;
+  my $uri = $page->{URI_DIR} . $name;
   $uri = lc($uri) if($page->{URI_TRANSFORM_LC});
-
-  $page->{URI} = $page->{URI_PREFIX} . $uri;
   return $uri;
 }
+
+sub get_uri
+{
+  my $page = shift;
+  my $name = shift;
+  return $page->{URI_PREFIX} . get_uri_unprefixed($page, $name);
+}
+
 
 sub load_plugins
 {
@@ -615,9 +623,8 @@ sub _site_tree
                 SRC_FILE => $src_dir . '/',
                 IS_DIR   => 1,
                );
-
-  # set the handler and vars needed for a directory index page
-  my $dir_uri_unprefixed = set_uri(\%dir_vars);
+  sanitize_vars(\%dir_vars);
+  $dir_vars{URI} = get_uri(\%dir_vars, '');
 
   expand_late_vars(\%dir_vars);
   eval_vars(\%dir_vars, $tree_vars{EVAL});
@@ -749,12 +756,15 @@ sub _site_tree
     }
     INFO "$file";
 
-    my $uri_unprefixed = set_uri(\%page);     # sets $page{URI} from handler plugin
+    sanitize_vars(\%page);
     die "OUTPUT_DIR is not set, refusing to continue" unless($page{OUTPUT_DIR});
-    my $target_file = $page{OUTPUT_DIR} . $uri_unprefixed;
+
+    my $uri_filename = $page{HANDLER}->get_uri_filename(\%page);
+    my $target_file = $page{OUTPUT_DIR} . get_uri_unprefixed(\%page, $uri_filename);
     my (undef, $target_dir, undef) = splitpath($target_file);
 
     %page = (%page,
+             URI         => get_uri(\%page, $uri_filename),
              TARGET_FILE => $target_file,  # full path
              TARGET_DIR  => $target_dir,
              LEVEL       => $level,
