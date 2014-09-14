@@ -252,7 +252,8 @@ sub read_vars
   my %vars;
   %vars = %{$args{vars}} if($args{vars});
 
-  $vars{VARS_FILES} = ($vars{VARS_FILES} ? $vars{VARS_FILES} . "\n" : "") .  $file unless($args{nested});
+  # add file to VARS_FILES array (make a copy for correct propagation)
+  $vars{VARS_FILES} = exists($vars{VARS_FILES}) ? [ @{$vars{VARS_FILES}}, $file ] : [ $file ] unless($args{nested});
 
   return %vars unless(-r "$file");
 
