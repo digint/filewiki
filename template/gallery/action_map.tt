@@ -1,6 +1,6 @@
 [% DEFAULT
-    geo_longitude  = GALLERY_EXIF.GPSLongitude.value
-    geo_latitude   = GALLERY_EXIF.GPSLatitude.value
+    geo_longitude  = EXIF_INFO.GPSLongitude.value
+    geo_latitude   = EXIF_INFO.GPSLatitude.value
     swisstopo_zoom = 8
 %]
 
