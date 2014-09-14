@@ -61,6 +61,7 @@ use Date::Format qw(time2str);
 use Time::Local qw(timelocal);
 use File::Path qw(mkpath);
 use File::Spec::Functions qw(splitpath);
+use Data::Dumper;
 
 our $VERSION = "0.50-dev";
 
@@ -989,12 +990,18 @@ sub dump_vars
   my $page = shift;
   my $dump = '';
   my @strip = qw( TEMPLATE_INPUT  SRC_TEXT );
+  my @hash_dump = qw( RESOURCE );
   foreach my $key (sort keys %$page) {
     if(grep(/^$key$/, @strip)) {
-      $dump .= "$key=***stripped***\n";
+      $dump .= "$key=*** STRIP *** (" . length($page->{$key}) . " bytes)\n";
     }
     elsif(ref($page->{$key}) eq 'ARRAY') {
-      $dump .= "$key=[ " . join(", ", map qq("$_"), @{$page->{$key}}) . " ]\n";
+      $dump .= "$key=[ " . join(", ", map qq('$_'), @{$page->{$key}}) . " ]\n";
+    }
+    elsif((ref($page->{$key}) eq 'HASH') && grep(/^$key$/, @hash_dump)) {
+      my $d = Data::Dumper->new([$page->{$key}]);
+      $d->Terse(1)->Indent(1)->Sortkeys(1)->Maxdepth(2);
+      $dump .= "$key=" . $d->Dump();
     }
     else {
       $dump .= "$key=" . (defined($page->{$key}) && $page->{$key}) . "\n";
