@@ -81,7 +81,8 @@ sub new
   $vars{BASEDIR} =~ s/\/$//; # strip trailing slash
 
   my $self = { version => $VERSION,
-               vars => { URI_PREFIX => "",
+               vars => { FILEWIKI_VERSION => $VERSION,
+                         URI_PREFIX => "",
                          BUILD_TIME => time,
                          %vars,
                          ENV => \%ENV,
@@ -552,10 +553,6 @@ sub assign_plugins
         DEBUG "Using resource creator plugin: $object->{name}";
         push(@{$page->{RESOURCE_CREATOR}}, $object);
       }
-      if($object->{resource_creator}) {
-        DEBUG "Using resource creator plugin: $object->{name}";
-        push(@{$page->{RESOURCE_CREATOR}}, $object);
-      }
       if($object->{page_handler}) {
         if($page->{HANDLER}) {
           WARN "Multiple page handler plugins defined for '$page->{SRC_FILE}': using $page->{HANDLER}->{name}, ignoring $object->{name}";
@@ -563,6 +560,7 @@ sub assign_plugins
         else {
           DEBUG "Using handler plugin: $object->{name}";
           $page->{HANDLER} = $object;
+          $page->{HANDLER_NAME} = $object->{name};
         }
       }
       if($object->{read_nested_vars}) {
