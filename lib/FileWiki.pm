@@ -1034,6 +1034,27 @@ sub page_vars
   return $root->{PAGEHASH}->{$uri};
 }
 
+sub update_mtime
+{
+  my $file = shift;
+  my $mtime = shift;
+
+  # update mtime
+  if($mtime) {
+    my $mtime_orig = $mtime;
+    if(my @t = $mtime =~ m/(\d\d\d\d)-(\d\d)-(\d\d)\s+(\d\d):(\d\d):(\d\d)/) {
+      $t[1]--;
+      $mtime = timelocal @t[5,4,3,2,1,0];
+    }
+    if($mtime =~ /^[0-9]+$/) {
+      DEBUG "Setting file ATIME=MTIME=$mtime (TARGET_MTIME=\"$mtime_orig\")";
+      utime($mtime, $mtime, $file);
+    }
+    else {
+      ERROR "Error parsing TARGET_MTIME=\"$mtime_orig\"";
+    }
+  }
+}
 
 sub create
 {
@@ -1043,7 +1064,7 @@ sub create
   my $root = $self->site_tree();
   my @dir_created;
 
-  INFO "Creating output files:"; INDENT 1;
+  INFO "Creating pages:"; INDENT 1;
 
   my $ret = traverse(
     { ROOT => $root,
@@ -1072,21 +1093,7 @@ sub create
           print OUTFILE $html;
           close(OUTFILE);
 
-          # update mtime if TARGET_MTIME is set
-          if($page->{TARGET_MTIME}) {
-            my $time = $page->{TARGET_MTIME};
-            if(my @t = $time =~ m/(\d\d\d\d)-(\d\d)-(\d\d)\s+(\d\d):(\d\d):(\d\d)/) {
-              $t[1]--;
-              $time = timelocal @t[5,4,3,2,1,0];
-            }
-            if($time =~ /^[0-9]+$/) {
-              DEBUG "Setting file ATIME=MTIME=$time (TARGET_MTIME=\"$page->{TARGET_MTIME}\")";
-              utime($time, $time, $dfile);
-            }
-            else {
-              ERROR "Error parsing TARGET_MTIME=\"$page->{TARGET_MTIME}\"";
-            }
-          }
+          update_mtime($dfile, $page->{TARGET_MTIME});
         } else {
           ERROR "Failed to write file \"$dfile\": $!";
         }
