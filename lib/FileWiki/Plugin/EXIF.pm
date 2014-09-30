@@ -94,15 +94,14 @@ use Image::ExifTool;
 
 our $VERSION = "0.50";
 
-my $match_default = '\.(bmp|gif|jpeg|jpeg2000|mng|png|psd|raw|svg|tif|tiff|gif|jpeg|jpg|png|pdf|mp4|avi|BMP|GIF|JPEG|JPEG2000|MNG|PNG|PSD|RAW|SVG|TIF|TIFF|GIF|JPEG|JPG|PNG|PDF|MP4|AVI)$';
+our $MATCH_DEFAULT = '\.(bmp|gif|jpeg|jpeg2000|mng|png|psd|raw|svg|tif|tiff|gif|jpeg|jpg|png|pdf|mp4|avi|BMP|GIF|JPEG|JPEG2000|MNG|PNG|PSD|RAW|SVG|TIF|TIFF|GIF|JPEG|JPG|PNG|PDF|MP4|AVI)$';
+
 
 sub new
 {
   my $class = shift;
   my $page = shift;
-  my $match = $page->{PLUGIN_EXIF_MATCH} || $match_default;
-
-  return undef unless($page->{SRC_FILE} =~ m/$match/);
+  my $args = shift;
 
   my $self = {
     name => $class,

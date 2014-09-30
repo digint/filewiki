@@ -55,18 +55,16 @@ use FileWiki::Filter;
 
 use Text::Textile;
 
-our $VERSION = "0.40";
+our $VERSION = "0.50";
 
-my $match_default = '\.(textile)$';
+our $MATCH_DEFAULT = '\.(textile)$';
+
 
 sub new
 {
   my $class = shift;
   my $page = shift;
-  my $match = $page->{uc("PLUGIN_TEXTILE_MATCH")} || $match_default;
-
-  return undef if($page->{IS_DIR});
-  return undef unless($page->{SRC_FILE} =~ m/$match/);
+  my $args = shift;
 
   my $self = {
     name => $class,

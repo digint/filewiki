@@ -59,17 +59,16 @@ use base qw( FileWiki::Plugin );
 
 use FileWiki::Logger;
 
-our $VERSION = "0.40";
+our $VERSION = "0.50";
 
-my $match_default = '\.pm$';
+our $MATCH_DEFAULT = '\.pm$';
+
 
 sub new
 {
   my $class = shift;
   my $page = shift;
-  my $match = $page->{PLUGIN_PERL_MATCH} || $match_default;
-
-  return undef unless($page->{SRC_FILE} =~ m/$match/);
+  my $args = shift;
 
   my $self = {
     name => $class,

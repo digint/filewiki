@@ -47,18 +47,16 @@ use base qw( FileWiki::Plugin );
 use FileWiki::Logger;
 use FileWiki::Filter;
 
-our $VERSION = "0.40";
+our $VERSION = "0.50";
 
-my $match_default = '\.js$';
+our $MATCH_DEFAULT = '\.js$';
+
 
 sub new
 {
   my $class = shift;
   my $page = shift;
-  my $match = $page->{uc("PLUGIN_JavaScript_MATCH")} || $match_default;
-
-  return undef if($page->{IS_DIR});
-  return undef unless($page->{SRC_FILE} =~ m/$match/);
+  my $args = shift;
 
   my $self = {
     name => $class,
@@ -68,8 +66,8 @@ sub new
     filter => [
       \&FileWiki::Filter::read_source,
       \&FileWiki::Filter::sanitize_newlines,
-#      \&FileWiki::Filter::strip_nested_vars,
-#      \&FileWiki::Filter::process_template,
+      # \&FileWiki::Filter::strip_nested_vars,
+      # \&FileWiki::Filter::process_template,
       \&minify_javascript,
      ],
   };

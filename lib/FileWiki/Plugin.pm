@@ -36,6 +36,58 @@ use FileWiki::Logger;
 
 our $VERSION = "0.50";
 
+# returns true if the plugin is to be enabled for a given page
+sub enabled
+{
+  my $class = shift;
+  my $page = shift;
+  my $plugin_name = shift;
+  my $group = shift;
+  my $plugin_match_key = "PLUGIN_" . uc($plugin_name) . "_MATCH";
+  my $group_match_key = "PLUGIN_GROUP_" . uc($group) . "_MATCH";
+
+  if($group) {
+    # check PLUGIN_<GROUP>_MATCH
+    if(not $page->{$group_match_key}) {
+      WARN "Plugin group \"$group\" is enabled, but variable $group_match_key is not set.";
+      return 0;
+    }
+    elsif($page->{SRC_FILE} =~ m/$page->{$group_match_key}/) {
+      TRACE "Got group match on $group_match_key";
+      return 1;
+    }
+    else {
+      TRACE "No group match on $group_match_key, disabling plugin";
+      return 0;
+    }
+  }
+  elsif($page->{$plugin_match_key}) {
+    # check PLUGIN_<PLUGIN>_MATCH
+    if($page->{SRC_FILE} =~ m/$page->{$plugin_match_key}/) {
+      TRACE "Got match on $plugin_match_key";
+      return 1;
+    }
+    else {
+      TRACE "No match on $plugin_match_key, disabling plugin";
+      return 0;
+    }
+  }
+  else {
+    # check MATCH_DEFAULT module variable
+    no strict 'refs';
+    my $match = ${$class . '::MATCH_DEFAULT'};
+    unless($match) {
+      WARN "Plugin \"$plugin_name\" is enabled, but variable $plugin_match_key is not set.";
+      return 0;
+    }
+    unless($page->{SRC_FILE} =~ m/$match/) {
+      TRACE "No match on \"\$${class}::MATCH_DEFAULT\", disabling plugin";
+      return 0;
+    }
+    return 1;
+  }
+}
+
 sub process_page
 {
   my $self = shift;

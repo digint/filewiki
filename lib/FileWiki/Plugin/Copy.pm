@@ -47,18 +47,16 @@ use FileWiki::Filter;
 
 use File::Spec::Functions qw(splitpath);
 
+our $VERSION = "0.50";
 
-our $VERSION = "0.40";
+our $MATCH_DEFAULT = undef; # no default (makes setting of PLUGIN_COPY_MATCH mandatory)
+
 
 sub new
 {
   my $class = shift;
   my $page = shift;
-  my $match = $page->{uc("PLUGIN_COPY_MATCH")};
-
-  WARN "Copy plugin is enabled, but variable PLUGIN_COPY_MATCH is not set." unless($match);
-  return undef if($page->{IS_DIR});
-  return undef unless($page->{SRC_FILE} =~ m/$match/);
+  my $args = shift;
 
   my $self = {
     name => $class,

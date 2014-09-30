@@ -16,11 +16,33 @@ use File::Path qw(mkpath);
 
 use base qw( FileWiki::Plugin );
 
-
 our $VERSION = "0.50";
 
-my $match_default  = '\.(bmp|gif|jpeg|jpeg2000|mng|png|psd|raw|svg|tif|tiff|gif|jpeg|jpg|png|pdf|BMP|GIF|JPEG|JPEG2000|MNG|PNG|PSD|RAW|SVG|TIF|TIFF|GIF|JPEG|JPG|PNG|PDF)$';
+our $MATCH_DEFAULT  = '\.(bmp|gif|jpeg|jpeg2000|mng|png|psd|raw|svg|tif|tiff|gif|jpeg|jpg|png|pdf|BMP|GIF|JPEG|JPEG2000|MNG|PNG|PSD|RAW|SVG|TIF|TIFF|GIF|JPEG|JPG|PNG|PDF)$';
+
 my $format_default = 'jpg';
+
+
+sub new
+{
+  my $class = shift;
+  my $page = shift;
+  my $args = shift;
+
+  my @targets = split(/,\s*/, $args);
+
+  my $self = {
+    name             => $class,
+    page_handler     => 0,
+    vars_provider    => 0,
+    resource_creator => 1,
+
+    resource_targets => \@targets,
+  };
+
+  bless $self, ref($class) || $class;
+  return $self;
+}
 
 sub im_assert
 {
@@ -62,13 +84,13 @@ sub create_image_resource
 {
   my $page = shift;
   my $key = shift;
-  my $mime_type = shift;
   my $shared_image = shift;
 
   # determine target file name
   $key = uc($key);
   my $format = $page->{"IMAGEMAGICK_FORMAT_$key"} || $page->{IMAGEMAGICK_FORMAT} || $format_default;
   $format = uc($format);
+  my $mime_type = $page->{"IMAGEMAGICK_MIME_TYPE_$key"} || $page->{IMAGEMAGICK_MIME_TYPE};
   my $name = $page->{NAME} . "_" . lc($key) . '.' . lc($format);
   my $target_dir = $page->{TARGET_DIR};
   my $target_file = $target_dir . $name;
@@ -152,50 +174,15 @@ sub process_resources
   my $page = shift;
   my $shared_image;
 
-  my @resources = split(/\s*,\s*/, $page->{IMAGEMAGICK_RESOURCES});
-  foreach my $resource (@resources) {
-    DEBUG "Processing ImageMagick resource: $resource"; INDENT 1;
+  foreach my $key (@{$self->{resource_targets}}) {
+    DEBUG "Processing ImageMagick resource: $key"; INDENT 1;
 
-    my $key;
-    my $mime_type;
-    if($resource =~ /^([A-Z][A-Z0-9_]*):\s*([-\w\+]+\/[-\w\+]+)$/) {
-      ($key, $mime_type) = ($1, $2);
-    }
-    elsif($resource =~ /^[A-Z][A-Z0-9_]*$/) {
-      ($key, $mime_type) = ($1, undef);
-    }
-    else {
-      ERROR "Invalid IMAGEMAGICK_RESOURCES declaration: expected \"<resource>[:<mime_type>]\", got \"$resource\"";
-      next;
-    }
-
-    (my $ret, $shared_image) = create_image_resource($page, $key, $mime_type, $shared_image);
+    (my $ret, $shared_image) = create_image_resource($page, $key, $shared_image);
     WARN "ImageMagick target failed, skipping resource" unless($ret);
     $self->add_resource($page, $key, $ret) if($ret);
     INDENT -1;
   };
 }
 
-
-
-sub new
-{
-  my $class = shift;
-  my $page = shift;
-  my $match = $page->{PLUGIN_IMAGEMAGICK_MATCH} || $match_default;
-
-  return undef if($page->{IS_DIR});
-  return undef unless($page->{SRC_FILE} =~ m/$match/);
-
-  my $self = {
-    name             => $class,
-    page_handler     => 0,
-    vars_provider    => 0,
-    resource_creator => 1,
-  };
-
-  bless $self, ref($class) || $class;
-  return $self;
-}
 
 1;

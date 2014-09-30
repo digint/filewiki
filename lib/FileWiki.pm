@@ -475,8 +475,8 @@ sub process_page
 
     # create page resources
     # call all resource creator hooks
-    foreach my $provider (@{$page->{RESOURCE_CREATOR}}) {
-      $provider->process_resources($page);
+    foreach my $resource_creator (@{$page->{RESOURCE_CREATOR}}) {
+      $resource_creator->process_resources($page);
     }
 
     # call the page process handler
@@ -514,57 +514,57 @@ sub get_uri
   return $page->{URI_PREFIX} . get_uri_unprefixed($page, $name);
 }
 
-
-sub load_plugins
+sub load_plugin
 {
   my $page = shift;
+  my $plugin_name = shift;
+  my $group = shift || "";
+  my $args = shift || "";
+  my $package = "FileWiki::Plugin::$plugin_name";
 
-  my @plugins = split(/[,;]\s*/, $page->{PLUGINS});
-  my @ret;
-
-  foreach (@plugins) {
-    my $plugin = "FileWiki::Plugin::$_";
-
-    TRACE "Loading plugin '$plugin'";
-    unless(eval "require $plugin;") {
-      ERROR "Failed to load FileWiki plugin \"$plugin\": $page->{SRC_FILE}";
-      DEBUG "$@";
-      next;
-    }
-    push @ret, $plugin;
+  TRACE "Loading plugin \"$package\": group=\"$group\", args=\"$args\"";
+  unless(eval "require $package;") {
+    ERROR "Failed to load FileWiki plugin \"$plugin_name\"";
+    die;
+    return undef;
   }
-  return @ret;
-}
 
+  return undef unless($package->enabled($page, $plugin_name, $group));
+  return $package->new($page, $args);
+}
 
 sub assign_plugins
 {
   my $page = shift;
-
   $page->{VARS_PROVIDER} = [];
   $page->{RESOURCE_CREATOR} = [];
-  foreach my $plugin (load_plugins($page)) {
-    my $object = $plugin->new($page);
-    if($object) {
-      if($object->{vars_provider}) {
-        DEBUG "Using vars provider plugin: $object->{name}";
-        push(@{$page->{VARS_PROVIDER}}, $object);
+
+  my $s = $page->{PLUGINS};
+  $s = join(',', @{$page->{PLUGINS}}) if(ref($page->{PLUGINS}) eq 'ARRAY');
+  my $s = $s . ',';
+
+  while($s =~ m/([A-Za-z]+)(?:<($var_decl)>)?(?:\((.*?)\))?\s*[,;]/g) {
+    my $plugin = load_plugin($page, $1, $2, $3);
+    if($plugin) {
+      if($plugin->{vars_provider}) {
+        DEBUG "Using vars provider plugin: $plugin->{name}";
+        push(@{$page->{VARS_PROVIDER}}, $plugin);
       }
-      if($object->{resource_creator}) {
-        DEBUG "Using resource creator plugin: $object->{name}";
-        push(@{$page->{RESOURCE_CREATOR}}, $object);
+      if($plugin->{resource_creator}) {
+        DEBUG "Using resource creator plugin: $plugin->{name}";
+        push(@{$page->{RESOURCE_CREATOR}}, $plugin);
       }
-      if($object->{page_handler}) {
+      if($plugin->{page_handler}) {
         if($page->{HANDLER}) {
-          WARN "Multiple page handler plugins defined for '$page->{SRC_FILE}': using $page->{HANDLER}->{name}, ignoring $object->{name}";
+          WARN "Multiple page handler plugins defined for '$page->{SRC_FILE}': using $page->{HANDLER}->{name}, ignoring $plugin->{name}";
         }
         else {
-          DEBUG "Using handler plugin: $object->{name}";
-          $page->{HANDLER} = $object;
-          $page->{HANDLER_NAME} = $object->{name};
+          DEBUG "Using handler plugin: $plugin->{name}";
+          $page->{HANDLER} = $plugin;
+          $page->{HANDLER_NAME} = $plugin->{name};
         }
       }
-      if($object->{read_nested_vars}) {
+      if($plugin->{read_nested_vars}) {
         $page->{VARS_NESTED} = 1;  # triggers reading below
       }
     }

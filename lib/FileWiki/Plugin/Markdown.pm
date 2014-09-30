@@ -56,18 +56,16 @@ use FileWiki::Filter;
 
 use Text::Markdown;
 
-our $VERSION = "0.41-dev";
+our $VERSION = "0.50";
 
-my $match_default = '\.(md|txt)$';
+our $MATCH_DEFAULT = '\.(md|txt)$';
+
 
 sub new
 {
   my $class = shift;
   my $page = shift;
-  my $match = $page->{uc("PLUGIN_MARKDOWN_MATCH")} || $match_default;
-
-  return undef if($page->{IS_DIR});
-  return undef unless($page->{SRC_FILE} =~ m/$match/);
+  my $args = shift;
 
   my $self = {
     name => $class,

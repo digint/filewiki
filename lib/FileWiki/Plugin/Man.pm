@@ -48,18 +48,15 @@ use base qw( FileWiki::Plugin );
 use FileWiki::Logger;
 use FileWiki::Filter;
 
-our $VERSION = "0.40";
+our $VERSION = "0.50";
 
-my $match_default = '\.[1-8]$';
+our $MATCH_DEFAULT = '\.[1-8]$';
 
 sub new
 {
   my $class = shift;
   my $page = shift;
-  my $match = $page->{uc("PLUGIN_MAN_MATCH")} || $match_default;
-
-  return undef if($page->{IS_DIR});
-  return undef unless($page->{SRC_FILE} =~ m/$match/);
+  my $args = shift;
 
   my $self = {
     name => $class,
