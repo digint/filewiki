@@ -68,7 +68,7 @@ title=Slide Show
 [% NEXT IF href.IS_DIR %]
 <a href="[% href.RESOURCE.SCALED.NAME %]">
 <img src="[% href.RESOURCE.MINITHUMB.NAME %]" data-title="[% href.title || href.SRC_FILE_NAME %]" data-description="[% href.desc %]"
-[% IF href.RESOURCE.BIG.NAME || href.GALLERY_ORIGINAL_NAME +%] data-big="[% href.RESOURCE.BIG.NAME || href.GALLERY_ORIGINAL_NAME %]"[% END %]
+[% IF href.RESOURCE.BIG.NAME || href.RESOURCE.ORIGINAL.NAME +%] data-big="[% href.RESOURCE.BIG.NAME || href.RESOURCE.ORIGINAL.NAME %]"[% END %]
 />
 </a>
 [% END %]
@@ -125,11 +125,12 @@ var media_list = [
 [% IF href.title +%]
   title: '[% href.title.replace('\'', '\\\'') %]',
 [% END %]
-[% IF href.GALLERY_VIDEO +%]
+[% IF href.RESOURCE.POSTER.URI +%]
   type:  'video/*',
-  poster: '[% href.GALLERY_VIDEO_STILL_IMAGE_URI %]',
+  poster: '[% href.RESOURCE.POSTER.URI %]',
   sources: [
-[% FOREACH vid IN href.GALLERY_VIDEO +%]
+[% FOREACH href IN RESOURCE.values %]
+[% NEXT UNLESS href.MIME_TYPE.match('^video') %]
     { type: '[% vid.MIME_TYPE %]', href: '[% vid.URI %]' },
 [% END +%]
   ],

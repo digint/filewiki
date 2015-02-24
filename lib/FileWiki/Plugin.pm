@@ -143,6 +143,7 @@ sub add_resource
   WARN "Duplicate resource \"$key\"" if(exists($page->{RESOURCE}->{$key}));
   DEBUG "Adding page resource: $key";
 
+  $value->{PLUGIN_NAME} = $self->{name};
   $page->{RESOURCE}->{$key} = $value;
 }
 

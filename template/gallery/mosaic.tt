@@ -42,7 +42,7 @@
 <div class="gallery_mosaic" [% mosaic_style_attr %] [% margin_top %]>
 [% IF page.highlight.RESOURCE.THUMB.URI %]
 <img src="[% page.highlight.RESOURCE.THUMB.URI %]" alt="[% page.index.NAME %]" width="[% page.highlight.RESOURCE.THUMB.WIDTH %]" height="[% page.highlight.RESOURCE.THUMB.HEIGHT %]"/>
-[% IF page.index.GALLERY_VIDEO %]
+[% IF page.index.RESOURCE.POSTER.URI %]
 <img class="gallery_mosaic_type" style="top: [% offset_top + 16 %]px;" src="[% video_icon %]"/>
 [% END %]
 [% END %]

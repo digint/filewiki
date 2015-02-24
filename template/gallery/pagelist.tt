@@ -33,11 +33,18 @@
     [% SET highlight_page = hfound IF hfound %]
     [% NEXT IF hfound %]
 
-    [%# no highlight found, set to first page handled by FileWiki::Plugin::Gallery %]
-    [% hfound = FileWiki.PageArray(ROOT => highlight_page,
-                                   match => { HANDLER_NAME => 'FileWiki::Plugin::Gallery', IS_DIR => '0' },
-                                  ).first
+    [%# no highlight found, set to first page having a THUMB resource %]
+    [% pp = FileWiki.PageArray(ROOT => highlight_page,
+                               match => { RESOURCE => '.*', IS_DIR => '0' },
+                              )
     %]
+    [% FOREACH p IN pp %]
+      [% IF p.RESOURCE.exists('THUMB') %]
+        [% hfound = p %]
+        [% LAST %]
+      [% END %]
+    [% END %]
+
     [% SET highlight_page = hfound IF hfound %]
     [% LAST IF hfound %]
 

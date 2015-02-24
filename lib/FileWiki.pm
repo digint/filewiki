@@ -473,12 +473,6 @@ sub process_page
     # override SRC_TEXT if data was passed
     $page->{SRC_TEXT} = $data if($data);
 
-    # create page resources
-    # call all resource creator hooks
-    foreach my $resource_creator (@{$page->{RESOURCE_CREATOR}}) {
-      $resource_creator->process_resources($page);
-    }
-
     # call the page process handler
     $data = $page->{HANDLER}->process_page($page, $self);
 
@@ -541,7 +535,7 @@ sub assign_plugins
 
   my $s = $page->{PLUGINS};
   $s = join(',', @{$page->{PLUGINS}}) if(ref($page->{PLUGINS}) eq 'ARRAY');
-  my $s = $s . ',';
+  $s .= ',';
 
   while($s =~ m/([A-Za-z]+)(?:<($var_decl)>)?(?:\((.*?)\))?\s*[,;]/g) {
     my $plugin = load_plugin($page, $1, $2, $3);
@@ -789,6 +783,11 @@ sub _site_tree
 
     expand_late_vars(\%page);
     eval_vars(\%page, $page{EVAL});
+
+    # call all resource creator hooks
+    foreach my $resource_creator (@{$page{RESOURCE_CREATOR}}) {
+      $resource_creator->process_resources(\%page);
+    }
 
     push @pagetree, \%page;
 
