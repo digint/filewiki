@@ -163,6 +163,7 @@ sub update_vars
 
   # set date / time
   $page->{EXIF_TIME} = $exif_hash{DateTimeOriginal}->{print} if(exists $exif_hash{DateTimeOriginal});
+  $page->{EXIF_TIME} ||= $exif_hash{CreateDate}->{print} if(exists $exif_hash{CreateDate});
 
   unless($page->{EXIF_TIME}) {
     WARN "Invalid EXIF_TIME (missing EXIF data): $page->{SRC_FILE}" unless($page->{EXIF_DISABLE_WARNINGS});
