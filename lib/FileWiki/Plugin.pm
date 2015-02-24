@@ -44,22 +44,25 @@ sub enabled
   my $plugin_name = shift;
   my $group = shift;
   my $plugin_match_key = "PLUGIN_" . uc($plugin_name) . "_MATCH";
-  my $group_match_key = "PLUGIN_GROUP_" . uc($group) . "_MATCH";
 
   if($group) {
-    # check PLUGIN_<GROUP>_MATCH
-    if(not $page->{$group_match_key}) {
-      WARN "Plugin group \"$group\" is enabled, but variable $group_match_key is not set.";
-      return 0;
+    my $enable = 0;
+    foreach my $g (split(/\s*,\s*/, $group)) {
+      # check PLUGIN_<GROUP>_MATCH
+      my $group_match_key = "PLUGIN_GROUP_" . uc($g) . "_MATCH";
+      if(not $page->{$group_match_key}) {
+        WARN "Plugin group \"$g\" is enabled, but variable $group_match_key is not set.";
+      }
+      elsif($page->{SRC_FILE} =~ m/$page->{$group_match_key}/) {
+        TRACE "Got group match on $group_match_key";
+        return 1;
+      }
+      else {
+        TRACE "No group match on $group_match_key";
+      }
     }
-    elsif($page->{SRC_FILE} =~ m/$page->{$group_match_key}/) {
-      TRACE "Got group match on $group_match_key";
-      return 1;
-    }
-    else {
-      TRACE "No group match on $group_match_key, disabling plugin";
-      return 0;
-    }
+    TRACE "No group match for $group, disabling plugin";
+    return 0;
   }
   elsif($page->{$plugin_match_key}) {
     # check PLUGIN_<PLUGIN>_MATCH
@@ -86,6 +89,7 @@ sub enabled
     }
     return 1;
   }
+  return 0;
 }
 
 sub process_page

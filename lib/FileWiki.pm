@@ -537,8 +537,8 @@ sub assign_plugins
   $s = join(',', @{$page->{PLUGINS}}) if(ref($page->{PLUGINS}) eq 'ARRAY');
   $s .= ',';
 
-  while($s =~ m/([A-Za-z]+)(?:<($var_decl)>)?(?:\((.*?)\))?\s*[,;]/g) {
-    my $plugin = load_plugin($page, $1, $2, $3);
+  while($s =~ m/([A-Za-z]+)(?:<($var_decl(\s*,\s*$var_decl)*)>)?(?:\((.*?)\))?\s*[,;]/g) {
+    my $plugin = load_plugin($page, $1, $2, $4);
     if($plugin) {
       if($plugin->{vars_provider}) {
         DEBUG "Using vars provider plugin: $plugin->{name}";
