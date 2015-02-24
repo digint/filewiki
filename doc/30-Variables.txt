@@ -171,10 +171,10 @@ Logical expressions are accepted in form:
 
 Example:
 
-    date    $(( ${{GALLERY_TIME}} || ${{NAME/^(\d\d\d\d-\d\d-\d\d)-/$1}} || ${{MTIME}} ))
+    date    $(( ${{EXIF_TIME}} || ${{NAME/^(\d\d\d\d-\d\d-\d\d)-/$1}} || ${{MTIME}} ))
     title   $((IS_DIR: ${{NAME/^\d\d\d\d-\d\d-\d\d-/}} ))
 
-This sets variable `date` from GALLERY_TIME, falling back to the date
+This sets variable `date` from EXIF_TIME, falling back to the date
 prefix of NAME, finally falling back to MTIME. Sets variable `title`
 to the title portion of NAME, but only if `IS_DIR` variable is set
 (i.e. only for a directory node).
