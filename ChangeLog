@@ -60,6 +60,7 @@
 * filewiki-current
   - added FileWiki::Plugin::Man, which processes man pages
   - added EXCLUDE system variable
+  - added RESOURCES_FORCE_REBUILD system variable
   - changed default PLUGIN_MARKDOWN_MATCH=\.(md|txt)$
   - allow array vars for INCLUDE, EXCLUDE and PLUGIN variables (e.g. +INCLUDE=foo)
   - added SORT_STRATEGY=none (no sorting, useful when using INCLUDE)

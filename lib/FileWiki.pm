@@ -1034,6 +1034,21 @@ sub page_vars
   return $root->{PAGEHASH}->{$uri};
 }
 
+sub unix_time
+{
+  my $time = shift;
+  if(my @t = $time =~ m/(\d\d\d\d)-(\d\d)-(\d\d)\s+(\d\d):(\d\d):(\d\d)/) {
+    $t[1]--;
+    $time = timelocal @t[5,4,3,2,1,0];
+  }
+  if($time =~ /^[0-9]+$/) {
+    return $time;
+  }
+  else {
+    return undef;
+  }
+}
+
 sub update_mtime
 {
   my $file = shift;
@@ -1041,17 +1056,13 @@ sub update_mtime
 
   # update mtime
   if($mtime) {
-    my $mtime_orig = $mtime;
-    if(my @t = $mtime =~ m/(\d\d\d\d)-(\d\d)-(\d\d)\s+(\d\d):(\d\d):(\d\d)/) {
-      $t[1]--;
-      $mtime = timelocal @t[5,4,3,2,1,0];
-    }
-    if($mtime =~ /^[0-9]+$/) {
-      DEBUG "Setting file ATIME=MTIME=$mtime (TARGET_MTIME=\"$mtime_orig\")";
-      utime($mtime, $mtime, $file);
+    my $mtime_unix = unix_time($mtime);
+    if(defined($mtime_unix)) {
+      DEBUG "Setting file ATIME=MTIME=$mtime_unix (TARGET_MTIME=\"$mtime\")";
+      utime($mtime_unix, $mtime_unix, $file);
     }
     else {
-      ERROR "Error parsing TARGET_MTIME=\"$mtime_orig\"";
+      WARN "Error parsing TARGET_MTIME=\"$mtime\", not setting mtime on file: $file";
     }
   }
 }

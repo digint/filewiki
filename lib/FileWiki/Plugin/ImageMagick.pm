@@ -289,11 +289,9 @@ sub create_image_resource
 
   die unless($key && $format && $target_dir && $src_file);
 
-  # don't create already existing images
-  # FIXME: consider checking file date against src_file and VARS_FILES
+  # check if we need to build the resources
   my ($width, $height);
-  if (-e $target_file) {
-    DEBUG "Resource target file exists: $target_file";
+  unless($self->resource_needs_rebuild($page, $target_file)) {
     ($width, $height) = imgsize($target_file);
   }
 

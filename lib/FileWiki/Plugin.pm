@@ -31,6 +31,7 @@ package FileWiki::Plugin;
 use strict;
 use warnings;
 
+use FileWiki;
 use FileWiki::Logger;
 
 
@@ -149,6 +150,50 @@ sub add_resource
 
   $value->{PLUGIN_NAME} = $self->{name};
   $page->{RESOURCE}->{$key} = $value;
+}
+
+# called by resource_creator plugins
+sub resource_needs_rebuild
+{
+  my $self = shift;
+  my $page = shift;
+  my $target_file = shift;
+  die unless($target_file);
+  if($page->{RESOURCES_FORCE_REBUILD}) {
+    DEBUG "Force rebuild of resource (RESOURCES_FORCE_REBUILD is set): $target_file";
+    return 1;
+  }
+
+  my $target_mtime = (stat $target_file)[9];
+  unless(defined($target_mtime)) {
+    DEBUG "Resource target does not exist, needs rebuild: $target_file";
+    return 1;
+  }
+
+  if($page->{TARGET_MTIME}) {
+    my $check_mtime = FileWiki::unix_time($page->{TARGET_MTIME});
+    unless(defined($check_mtime)) {
+      WARN "Error parsing TARGET_MTIME=\"$page->{TARGET_MTIME}\", forcing resource rebuild: $target_file";
+      return 1;
+    }
+    if($check_mtime <= $target_mtime) {
+      DEBUG "Resource target exists and is not older than TARGET_MTIME, skipping rebuild: $target_file";
+      return 0;
+    }
+    else {
+      DEBUG "Resource target exists and is older than TARGET_MTIME, needs rebuild: $target_file";
+      return 1;
+    }
+  }
+  if($page->{SRC_FILE_MTIME} <= $target_mtime) {
+    DEBUG "Resource target exists and is not older than source, skipping rebuild: $target_file";
+    return 0;
+  }
+  else {
+    DEBUG "Resource target exists and is older than source, needs rebuild: $target_file";
+    return 1;
+  }
+  die;
 }
 
 1;

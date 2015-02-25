@@ -177,10 +177,8 @@ sub process_resources
 
     die unless($src_file && $name && $target_dir && $target_file);
 
-    if (-e $target_file) {
-      DEBUG "Resource target file exists: $target_file";
-      INFO "--- $target_file";
-    } else {
+    if($self->resource_needs_rebuild($page, $target_file))
+    {
       DEBUG "Source file: $src_file";
 
       # assemble command
@@ -207,6 +205,10 @@ sub process_resources
         ERROR "Command execution failed ($?): $cmd"; INDENT -1;
         next;
       }
+    }
+    else
+    {
+      INFO "--- $target_file";
     }
 
     $self->add_resource($page, $key, {
