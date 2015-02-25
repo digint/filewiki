@@ -1069,13 +1069,13 @@ sub update_mtime
 
 sub create
 {
-  my $start_time = time;
   my $self = shift;
   my @uri_filter = @_;
   my $root = $self->site_tree();
   my @dir_created;
   my %stats;
 
+  my $start_time = time;
   INFO "Creating resources:"; INDENT 1;
   my $ret = traverse(
     { ROOT => $root,
@@ -1102,8 +1102,10 @@ sub create
       },
     } );
   my @resource_files = split("\n", $ret);
+  INFO "Time elapsed: " . (time - $start_time) . "s";
   INDENT -1;
 
+  $start_time = time;
   INFO "Creating pages:"; INDENT 1;
   $ret = traverse(
     { ROOT => $root,
@@ -1146,12 +1148,11 @@ sub create
       },
     } );
   my @page_files = split("\n", $ret);
+  INFO "Time elapsed: " . (time - $start_time) . "s";
   INDENT -1;
 
   $Data::Dumper::Indent = 1;
   DEBUG "Plugin Statistics:\n" . Dumper(\%stats);
-
-  INFO "Time elapsed: " . (time - $start_time) . "s";
 
   return { page_files     => \@page_files,
            resource_files => \@resource_files,
