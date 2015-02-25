@@ -784,11 +784,6 @@ sub _site_tree
     expand_late_vars(\%page);
     eval_vars(\%page, $page{EVAL});
 
-    # call all resource creator hooks
-    foreach my $resource_creator (@{$page{RESOURCE_CREATOR}}) {
-      $resource_creator->process_resources(\%page);
-    }
-
     push @pagetree, \%page;
 
     # add page to pagehash
@@ -1068,10 +1063,38 @@ sub create
   my @uri_filter = @_;
   my $root = $self->site_tree();
   my @dir_created;
+  my %stats;
+
+  INFO "Creating resources:"; INDENT 1;
+  my $ret = traverse(
+    { ROOT => $root,
+      CALLBACK =>
+      sub {
+        my $page = shift;
+        my $filelist = '';
+
+        # call all resource creator hooks
+        foreach my $resource_creator (@{$page->{RESOURCE_CREATOR}}) {
+          my @files = $resource_creator->process_resources($page);
+
+          # correct resource target file mtime if needed
+          update_mtime($_, $page->{TARGET_MTIME}) foreach(@files);
+
+          # collect statistics
+          $stats{$resource_creator->{name}}->{resource_creator} //= [];
+          push @{$stats{$resource_creator->{name}}->{resource_creator}}, @files;
+
+          $filelist .= join("\n", @files) . "\n";
+        }
+
+        return $filelist;
+      },
+    } );
+  my @resource_files = split("\n", $ret);
+  INDENT -1;
 
   INFO "Creating pages:"; INDENT 1;
-
-  my $ret = traverse(
+  $ret = traverse(
     { ROOT => $root,
       CALLBACK =>
       sub {
@@ -1102,14 +1125,27 @@ sub create
         } else {
           ERROR "Failed to write file \"$dfile\": $!";
         }
+
+        # collect statistics
+        my $handler_name = $page->{HANDLER_NAME} || 'UNKNOWN';
+        $stats{$handler_name}->{page_handler} //= [];;
+        push @{$stats{$handler_name}->{page_handler}}, $dfile;
+
         return $dfile . "\n";
       },
     } );
+  my @page_files = split("\n", $ret);
+  INDENT -1;
+
+  $Data::Dumper::Indent = 1;
+  DEBUG "Plugin Statistics:\n" . Dumper(\%stats);
 
   INFO "Time elapsed: " . (time - $start_time) . "s";
 
-  INDENT -1;
-  return $ret;
+  return { page_files     => \@page_files,
+           resource_files => \@resource_files,
+           stats          => \%stats,
+         };
 }
 
 

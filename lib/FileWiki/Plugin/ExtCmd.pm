@@ -158,6 +158,7 @@ sub process_resources
   my $self = shift;
   my $page = shift;
   my $src_file = $page->{SRC_FILE};
+  my @filelist;
 
   foreach my $key (@{$self->{resource_targets}})
   {
@@ -206,7 +207,6 @@ sub process_resources
         ERROR "Command execution failed ($?): $cmd"; INDENT -1;
         next;
       }
-      FileWiki::update_mtime($target_file, $page->{TARGET_MTIME});
     }
 
     $self->add_resource($page, $key, {
@@ -215,9 +215,11 @@ sub process_resources
       MIME_TYPE   => $mime_type,
       TARGET_FILE => $target_file,
     });
+    push @filelist , $target_file;
 
     INDENT -1;
   }
+  return @filelist;
 }
 
 

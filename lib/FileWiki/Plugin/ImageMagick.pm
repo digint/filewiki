@@ -364,15 +364,22 @@ sub process_resources
   my $self = shift;
   my $page = shift;
   my $shared_image;
+  my @filelist;
 
   foreach my $key (@{$self->{resource_targets}}) {
     DEBUG "Processing ImageMagick resource: $key"; INDENT 1;
 
-    (my $ret, $shared_image) = $self->create_image_resource($page, $key, $shared_image);
-    WARN "ImageMagick target failed, skipping resource" unless($ret);
-    $self->add_resource($page, $key, $ret) if($ret);
+    (my $resource_href, $shared_image) = $self->create_image_resource($page, $key, $shared_image);
+    if($resource_href) {
+      $self->add_resource($page, $key, $resource_href);
+      push @filelist, $resource_href->{TARGET_FILE};
+    }
+    else {
+      WARN "ImageMagick target failed, skipping resource";
+    }
     INDENT -1;
-  };
+  }
+  return @filelist;
 }
 
 
