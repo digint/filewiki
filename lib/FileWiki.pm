@@ -386,10 +386,17 @@ sub expand_late_vars
       $warn_system_variable = 1;
     }
 
-    if($warn_system_variable && (uc($key) eq $key) && ($key ne "REF") && ($key ne "TARGET_MTIME")) {
-      WARN "Late expansion to a system or plugin variable is discouraged: key='$key'";
+    if($warn_system_variable && (uc($key) eq $key)) {
+      # FIXME: find a better way to filter system variables. late
+      # expansion on page_handler and resource_creator plugin vars is
+      # perfectly ok.
+      unless(($key eq "REF") ||
+             ($key eq "TARGET_MTIME") ||
+             ($vars->{DISABLE_LATE_EXPANSION_WARNING} && ($vars->{DISABLE_LATE_EXPANSION_WARNING} =~ /$key/)))
+      {
+        WARN "Late expansion to a system or plugin variable is discouraged: key='$key'";
+      }
     }
-
   }
   INDENT -1;
   return $vars;
