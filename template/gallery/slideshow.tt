@@ -129,8 +129,8 @@ var media_list = [
   type:  'video/*',
   poster: '[% href.RESOURCE.POSTER.URI %]',
   sources: [
-[% FOREACH href IN RESOURCE.values %]
-[% NEXT UNLESS href.MIME_TYPE.match('^video') %]
+[% FOREACH vid IN href.RESOURCE.values %]
+[% NEXT UNLESS vid.MIME_TYPE.match('^video\/') +%]
     { type: '[% vid.MIME_TYPE %]', href: '[% vid.URI %]' },
 [% END +%]
   ],
