@@ -8,7 +8,7 @@ use base qw( Template::Plugin );
 use HTML::Entities;
 use FileWiki::Logger;
 
-our $VERSION = "0.40";
+our $VERSION = "0.50";
 
 =head1 NAME
 
@@ -254,7 +254,7 @@ sub URL
   $url .= "&bgLayer=" . $bg_layer;
 #  $url .= "&topic=ech";
 
-  return $url;
+  return encode_entities($url);
 }
 
 1;
