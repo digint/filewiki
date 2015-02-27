@@ -48,7 +48,7 @@ use FileWiki;
 use FileWiki::Logger;
 use Getopt::Std;
 
-our $VERSION = "0.40";
+our $VERSION = "0.50";
 
 my $version_info = "filewiki command line client, version $VERSION (FileWiki module version: $FileWiki::VERSION)";
 my $filewiki_home = '<http://www.digint.ch/filewiki>';
@@ -119,9 +119,12 @@ if($opts{s}) {
   print "\n";
 }
 else {
-  my $file_list = $filewiki->create();
-  my @files = split("\n", $file_list);
-  print "Created " . scalar(@files) . " pages.\n";
+  my $ret = $filewiki->create();
+  my $npages = @{$ret->{page_files}};
+  my $nresources = @{$ret->{resource_files}};
+  print "Created $npages pages";
+  print " and $nresources resource files" if($nresources);
+  print ".\n";
 
   if($opts{c}) {
     my ($err, $msg, $output) = $filewiki->command($opts{c});

@@ -1,22 +1,17 @@
 =head1 NAME
 
-FileWiki::Plugin::TemplateToolkit - TemplateToolkit plugin for FileWiki
+FileWiki::Plugin::GenericPageHandler - Generic page handler plugin for FileWiki
 
 =head1 SYNOPSIS
 
-    PLUGINS=TemplateToolkit
-    PLUGIN_TEMPLATETOOLKIT_MATCH=\.tt$
+    PLUGINS=GenericPageHandler
+    PLUGIN_GENERICPAGEHANDLER_MATCH=\.in$
 
 =head1 DESCRIPTION
 
-- Honors nested vars.
-
-- Strips the nested vars from the source.
-
-- Transforms the source using TemplateToolkit.
-
-- Applies the template specified by the TEMPLATE variable to the
-  transformed text.
+Applies the template specified by the TEMPLATE variable to empty
+text. This is particulary useful if all you need in your template is
+variables (e.g. from vars_provider plugins).
 
 =head1 AUTHOR
 
@@ -42,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 =cut
 
 
-package FileWiki::Plugin::TemplateToolkit;
+package FileWiki::Plugin::GenericPageHandler;
 
 use strict;
 use warnings;
@@ -54,8 +49,6 @@ use FileWiki::Filter;
 
 our $VERSION = "0.50";
 
-our $MATCH_DEFAULT = '\.tt$';
-
 
 sub new
 {
@@ -64,15 +57,10 @@ sub new
   my $args = shift;
 
   my $self = {
-    name => $class,
+    name             => $class,
     page_handler     => 1,
-    read_nested_vars => 1,
     target_file_ext  => 'html',
     filter => [
-      \&FileWiki::Filter::read_source,
-      \&FileWiki::Filter::sanitize_newlines,
-      \&FileWiki::Filter::strip_nested_vars,
-      \&FileWiki::Filter::process_template,
       \&FileWiki::Filter::apply_template,
      ],
   };

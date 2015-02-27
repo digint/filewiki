@@ -66,9 +66,9 @@ title=Slide Show
 [% FOREACH href IN DIR.TREE %]
 [% NEXT IF href.SKIP_PREVNEXT %]
 [% NEXT IF href.IS_DIR %]
-<a href="[% href.GALLERY_IMAGE_SCALED_NAME %]">
-<img src="[% href.GALLERY_IMAGE_MINITHUMB_NAME %]" data-title="[% href.title || href.SRC_FILE_NAME %]" data-description="[% href.desc %]"
-[% IF href.GALLERY_IMAGE_BIG_NAME || href.GALLERY_ORIGINAL_NAME +%] data-big="[% href.GALLERY_IMAGE_BIG_NAME || href.GALLERY_ORIGINAL_NAME %]"[% END %]
+<a href="[% href.RESOURCE.SCALED.NAME %]">
+<img src="[% href.RESOURCE.MINITHUMB.NAME %]" data-title="[% href.title || href.SRC_FILE_NAME %]" data-description="[% href.desc %]"
+[% IF href.RESOURCE.BIG.NAME || href.RESOURCE.ORIGINAL.NAME +%] data-big="[% href.RESOURCE.BIG.NAME || href.RESOURCE.ORIGINAL.NAME %]"[% END %]
 />
 </a>
 [% END %]
@@ -125,18 +125,19 @@ var media_list = [
 [% IF href.title +%]
   title: '[% href.title.replace('\'', '\\\'') %]',
 [% END %]
-[% IF href.GALLERY_VIDEO +%]
+[% IF href.RESOURCE.POSTER.URI +%]
   type:  'video/*',
-  poster: '[% href.GALLERY_VIDEO_STILL_IMAGE_URI %]',
+  poster: '[% href.RESOURCE.POSTER.URI %]',
   sources: [
-[% FOREACH vid IN href.GALLERY_VIDEO +%]
+[% FOREACH vid IN href.RESOURCE.values %]
+[% NEXT UNLESS vid.MIME_TYPE.match('^video\/') +%]
     { type: '[% vid.MIME_TYPE %]', href: '[% vid.URI %]' },
 [% END +%]
   ],
 [% ELSE +%]
-  href:  '[% href.GALLERY_IMAGE_BIG_NAME || href.GALLERY_IMAGE_SCALED_NAME %]',
-  type:  '[% href.GALLERY_IMAGE_BIG_MIME_TYPE || href.GALLERY_IMAGE_SCALED_MIME_TYPE %]',
-  thumbnail: '[% href.GALLERY_IMAGE_MINITHUMB_NAME %]',
+  href:  '[% href.RESOURCE.BIG.NAME || href.RESOURCE.SCALED.NAME %]',
+  type:  '[% href.RESOURCE.BIG.MIME_TYPE || href.RESOURCE.SCALED.MIME_TYPE %]',
+  thumbnail: '[% href.RESOURCE.MINITHUMB.NAME %]',
 [% END +%]
 },
 [% END +%]
@@ -201,9 +202,9 @@ blueimp.Gallery(media_list,
 [% FOREACH href IN DIR.TREE %]
 [% NEXT IF href.SKIP_PREVNEXT %]
 [% NEXT IF href.IS_DIR %]
-[% NEXT UNLESS href.GALLERY_IMAGE_MINITHUMB_NAME %]
-<a href="[% href.GALLERY_IMAGE_BIG_NAME || href.GALLERY_IMAGE_SCALED_NAME %]" title="[% href.title.replace('"', '\\"') || href.SRC_FILE_NAME %]">
-<img src="[% href.GALLERY_IMAGE_MINITHUMB_NAME %]" alt="[% href.title || href.SRC_FILE_NAME %]"/>
+[% NEXT UNLESS href.RESOURCE.MINITHUMB.NAME %]
+<a href="[% href.RESOURCE.BIG.NAME || href.RESOURCE.SCALED.NAME %]" title="[% href.title.replace('"', '\\"') || href.SRC_FILE_NAME %]">
+<img src="[% href.RESOURCE.MINITHUMB.NAME %]" alt="[% href.title || href.SRC_FILE_NAME %]"/>
 </a>
 [% END %]
 

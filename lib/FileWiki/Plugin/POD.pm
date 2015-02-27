@@ -54,18 +54,16 @@ use FileWiki::Logger;
 use FileWiki::Filter;
 use Pod::Simple::XHTML;
 
-our $VERSION = "0.40";
+our $VERSION = "0.50";
 
-my $match_default = '\.(pod|pm|pl)$';
+my $MATCH_DEFAULT = '\.(pod|pm|pl)$';
+
 
 sub new
 {
   my $class = shift;
   my $page = shift;
-  my $match = $page->{uc("PLUGIN_POD_MATCH")} || $match_default;
-
-  return undef if($page->{IS_DIR});
-  return undef unless($page->{SRC_FILE} =~ m/$match/);
+  my $args = shift;
 
   my $self = {
     name => $class,

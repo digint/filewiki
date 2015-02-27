@@ -60,11 +60,14 @@
 * filewiki-current
   - added FileWiki::Plugin::Man, which processes man pages
   - added EXCLUDE system variable
+  - added RESOURCES_FORCE_REBUILD system variable
   - changed default PLUGIN_MARKDOWN_MATCH=\.(md|txt)$
-  - allow array vars for INCLUDE and EXCLUDE variables (e.g. +INCLUDE=foo)
+  - allow array vars for INCLUDE, EXCLUDE and PLUGIN variables (e.g. +INCLUDE=foo)
   - added SORT_STRATEGY=none (no sorting, useful when using INCLUDE)
   - added Template::Plugin::SwissTopo (swiss map plugin for Template Toolkit)
   - added support for blueimp gallery slideshow scripts (alternative to galleria)
   - added option "slideshow" for gallery_image_link variable
   - added variable gallery_popout, which displays a popout action link if set
   - added support for multiline variables (starting/ending with '\\\')
+  - added resource-creator plugin framework
+  - added plugin groups and constructor arguments

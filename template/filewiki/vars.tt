@@ -1,5 +1,5 @@
 [% BLOCK edit_vars %]
-[% FOREACH vars_file IN list.split("\n") %]
+[% FOREACH vars_file IN list %]
 
 <h2>[% vars_file.replace(BASEDIR _ '/?', '') %]</h2>
 

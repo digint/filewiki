@@ -99,9 +99,11 @@ use base qw( FileWiki::Plugin );
 use FileWiki::Logger;
 use Date::Format qw(time2str);
 
-our $VERSION = "0.40";
 
-my $match_default = '.*';
+our $VERSION = "0.50";
+
+our $MATCH_DEFAULT = '.*';
+
 my $git_bin_default = 'git';
 
 my @git_log_format = (
@@ -116,13 +118,12 @@ my @git_log_format = (
   { format => '%ct', key => 'GIT_COMMITTER_DATE_UNIX', key_date => 'GIT_COMMITTER_DATE'  },
  );
 
+
 sub new
 {
   my $class = shift;
   my $page = shift;
-  my $match = $page->{PLUGIN_GIT_MATCH} || $match_default;
-
-  return undef unless($page->{SRC_FILE} =~ m/$match/);
+  my $args = shift;
 
   my $self = {
     name => $class,

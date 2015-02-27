@@ -5,7 +5,7 @@
 [% IF tag_list %]
 [% SET keys = [] %]
 [% FOREACH key IN tag_list.split(',') %]
-[% NEXT UNLESS GALLERY_EXIF.$key %]
+[% NEXT UNLESS EXIF_INFO.$key %]
 [% keys.push(key) %]
 [% END %]
 
@@ -13,9 +13,9 @@
 [% IF keys.size %]
 [% FOREACH key IN keys %]
 <tr><td>
-[% GALLERY_EXIF.$key.desc %]:
+[% EXIF_INFO.$key.desc %]:
 </td><td>
-[% GALLERY_EXIF.$key.print %]
+[% EXIF_INFO.$key.print %]
 </td></tr>
 [% END %]
 [% ELSE %]

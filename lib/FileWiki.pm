@@ -61,8 +61,9 @@ use Date::Format qw(time2str);
 use Time::Local qw(timelocal);
 use File::Path qw(mkpath);
 use File::Spec::Functions qw(splitpath);
+use Data::Dumper;
 
-our $VERSION = "0.41-dev";
+our $VERSION = "0.50-dev";
 
 # Defaults
 our $default_time_format = '%C';
@@ -80,7 +81,8 @@ sub new
   $vars{BASEDIR} =~ s/\/$//; # strip trailing slash
 
   my $self = { version => $VERSION,
-               vars => { URI_PREFIX => "",
+               vars => { FILEWIKI_VERSION => $VERSION,
+                         URI_PREFIX => "",
                          BUILD_TIME => time,
                          %vars,
                          ENV => \%ENV,
@@ -250,7 +252,8 @@ sub read_vars
   my %vars;
   %vars = %{$args{vars}} if($args{vars});
 
-  $vars{VARS_FILES} = ($vars{VARS_FILES} ? $vars{VARS_FILES} . "\n" : "") .  $file unless($args{nested});
+  # add file to VARS_FILES array (make a copy for correct propagation)
+  $vars{VARS_FILES} = exists($vars{VARS_FILES}) ? [ @{$vars{VARS_FILES}}, $file ] : [ $file ] unless($args{nested});
 
   return %vars unless(-r "$file");
 
@@ -383,10 +386,17 @@ sub expand_late_vars
       $warn_system_variable = 1;
     }
 
-    if($warn_system_variable && (uc($key) eq $key) && ($key ne "REF") && ($key ne "TARGET_MTIME")) {
-      WARN "Late expansion to a system or plugin variable is discouraged: key='$key'";
+    if($warn_system_variable && (uc($key) eq $key)) {
+      # FIXME: find a better way to filter system variables. late
+      # expansion on page_handler and resource_creator plugin vars is
+      # perfectly ok.
+      unless(($key eq "REF") ||
+             ($key eq "TARGET_MTIME") ||
+             ($vars->{DISABLE_LATE_EXPANSION_WARNING} && ($vars->{DISABLE_LATE_EXPANSION_WARNING} =~ /$key/)))
+      {
+        WARN "Late expansion to a system or plugin variable is discouraged: key='$key'";
+      }
     }
-
   }
   INDENT -1;
   return $vars;
@@ -479,69 +489,83 @@ sub process_page
   return $data;
 }
 
-
-sub set_uri
+sub sanitize_vars
 {
   my $page = shift;
-
-  # sanitize
   $page->{URI_DIR} =~ s/\/+$//;
   $page->{URI_DIR} .= '/';
   $page->{URI_PREFIX} =~ s/\/+$//;
   $page->{URI_PREFIX} =~ s/^([^\/])/\/$1/;
+  return $page;
+}
 
-  my $uri = $page->{URI_DIR};
-  $uri .= $page->{HANDLER}->get_uri_filename($page) if($page->{HANDLER});
+sub get_uri_unprefixed
+{
+  my $page = shift;
+  my $name = shift;
+  my $uri = $page->{URI_DIR} . $name;
   $uri = lc($uri) if($page->{URI_TRANSFORM_LC});
-
-  $page->{URI} = $page->{URI_PREFIX} . $uri;
   return $uri;
 }
 
-sub load_plugins
+sub get_uri
 {
   my $page = shift;
-
-  my @plugins = split(/[,;]\s*/, $page->{PLUGINS});
-  my @ret;
-
-  foreach (@plugins) {
-    my $plugin = "FileWiki::Plugin::$_";
-
-    TRACE "Loading plugin '$plugin'";
-    unless(eval "require $plugin;") {
-      ERROR "Failed to load FileWiki plugin \"$plugin\": $page->{SRC_FILE}";
-      DEBUG "$@";
-      next;
-    }
-    push @ret, $plugin;
-  }
-  return @ret;
+  my $name = shift;
+  return $page->{URI_PREFIX} . get_uri_unprefixed($page, $name);
 }
 
+sub load_plugin
+{
+  my $page = shift;
+  my $plugin_name = shift;
+  my $group = shift || "";
+  my $args = shift || "";
+  my $package = "FileWiki::Plugin::$plugin_name";
+
+  TRACE "Loading plugin \"$package\": group=\"$group\", args=\"$args\"";
+  unless(eval "require $package;") {
+    ERROR "Failed to load FileWiki plugin \"$plugin_name\"";
+    die;
+    return undef;
+  }
+
+  return undef unless($package->enabled($page, $plugin_name, $group));
+  return $package->new($page, $args);
+}
 
 sub assign_plugins
 {
   my $page = shift;
+  $page->{VARS_PROVIDER} = [];
+  $page->{RESOURCE_CREATOR} = [];
 
-  $page->{PROVIDER} = [];
-  foreach my $plugin (load_plugins($page)) {
-    my $object = $plugin->new($page);
-    if($object) {
-      if($object->{vars_provider}) {
-        DEBUG "Using vars provider plugin: $object->{name}";
-        push(@{$page->{PROVIDER}}, $object);
+  my $s = $page->{PLUGINS};
+  $s = join(',', @{$page->{PLUGINS}}) if(ref($page->{PLUGINS}) eq 'ARRAY');
+  $s .= ',';
+
+  while($s =~ m/([A-Za-z]+)(?:<($var_decl(\s*,\s*$var_decl)*)>)?(?:\((.*?)\))?\s*[,;]/g) {
+    my $plugin = load_plugin($page, $1, $2, $4);
+    if($plugin) {
+      if($plugin->{vars_provider}) {
+        DEBUG "Using vars provider plugin: $plugin->{name}";
+        push(@{$page->{VARS_PROVIDER}}, $plugin);
       }
-      if($object->{page_handler}) {
+      if($plugin->{resource_creator}) {
+        DEBUG "Using resource creator plugin: $plugin->{name}";
+        push(@{$page->{RESOURCE_CREATOR}}, $plugin);
+      }
+      if($plugin->{page_handler}) {
         if($page->{HANDLER}) {
-          WARN "Multiple page handler plugins defined for '$page->{SRC_FILE}': using $page->{HANDLER}->{name}, ignoring $object->{name}";
+          WARN "Multiple page handler plugins defined for '$page->{SRC_FILE}': using $page->{HANDLER}->{name}, ignoring $plugin->{name}";
         }
         else {
-          DEBUG "Using handler plugin: $object->{name}";
-          $page->{HANDLER} = $object;
+          DEBUG "Using handler plugin: $plugin->{name}";
+          $page->{HANDLER} = $plugin;
+          $page->{HANDLER_NAME} = $plugin->{name};
         }
       }
-      if($object->{read_nested_vars}) {
+      if($plugin->{read_nested_vars}) {
         $page->{VARS_NESTED} = 1;  # triggers reading below
       }
     }
@@ -600,9 +624,8 @@ sub _site_tree
                 SRC_FILE => $src_dir . '/',
                 IS_DIR   => 1,
                );
-
-  # set the handler and vars needed for a directory index page
-  my $dir_uri_unprefixed = set_uri(\%dir_vars);
+  sanitize_vars(\%dir_vars);
+  $dir_vars{URI} = get_uri(\%dir_vars, '');
 
   expand_late_vars(\%dir_vars);
   eval_vars(\%dir_vars, $tree_vars{EVAL});
@@ -734,12 +757,15 @@ sub _site_tree
     }
     INFO "$file";
 
-    my $uri_unprefixed = set_uri(\%page);     # sets $page{URI} from handler plugin
+    sanitize_vars(\%page);
     die "OUTPUT_DIR is not set, refusing to continue" unless($page{OUTPUT_DIR});
-    my $target_file = $page{OUTPUT_DIR} . $uri_unprefixed;
+
+    my $uri_filename = $page{HANDLER}->get_uri_filename(\%page);
+    my $target_file = $page{OUTPUT_DIR} . get_uri_unprefixed(\%page, $uri_filename);
     my (undef, $target_dir, undef) = splitpath($target_file);
 
     %page = (%page,
+             URI         => get_uri(\%page, $uri_filename),
              TARGET_FILE => $target_file,  # full path
              TARGET_DIR  => $target_dir,
              LEVEL       => $level,
@@ -758,7 +784,7 @@ sub _site_tree
     $page{VARS} = \%page;
 
     # call all vars provider hooks
-    foreach my $provider (@{$page{PROVIDER}}) {
+    foreach my $provider (@{$page{VARS_PROVIDER}}) {
       $provider->update_vars(\%page);
     }
 
@@ -964,12 +990,18 @@ sub dump_vars
   my $page = shift;
   my $dump = '';
   my @strip = qw( TEMPLATE_INPUT  SRC_TEXT );
+  my @hash_dump = qw( RESOURCE );
   foreach my $key (sort keys %$page) {
     if(grep(/^$key$/, @strip)) {
-      $dump .= "$key=***stripped***\n";
+      $dump .= "$key=*** STRIP *** (" . length($page->{$key}) . " bytes)\n";
     }
     elsif(ref($page->{$key}) eq 'ARRAY') {
-      $dump .= "$key=[ " . join(", ", map qq("$_"), @{$page->{$key}}) . " ]\n";
+      $dump .= "$key=[ " . join(", ", map qq('$_'), @{$page->{$key}}) . " ]\n";
+    }
+    elsif((ref($page->{$key}) eq 'HASH') && grep(/^$key$/, @hash_dump)) {
+      my $d = Data::Dumper->new([$page->{$key}]);
+      $d->Terse(1)->Indent(1)->Sortkeys(1)->Maxdepth(2);
+      $dump .= "$key=" . $d->Dump();
     }
     else {
       $dump .= "$key=" . (defined($page->{$key}) && $page->{$key}) . "\n";
@@ -1009,18 +1041,80 @@ sub page_vars
   return $root->{PAGEHASH}->{$uri};
 }
 
+sub unix_time
+{
+  my $time = shift;
+  if(my @t = $time =~ m/(\d\d\d\d)-(\d\d)-(\d\d)\s+(\d\d):(\d\d):(\d\d)/) {
+    $t[1]--;
+    $time = timelocal @t[5,4,3,2,1,0];
+  }
+  if($time =~ /^[0-9]+$/) {
+    return $time;
+  }
+  else {
+    return undef;
+  }
+}
+
+sub update_mtime
+{
+  my $file = shift;
+  my $mtime = shift;
+
+  # update mtime
+  if($mtime) {
+    my $mtime_unix = unix_time($mtime);
+    if(defined($mtime_unix)) {
+      DEBUG "Setting file ATIME=MTIME=$mtime_unix (TARGET_MTIME=\"$mtime\")";
+      utime($mtime_unix, $mtime_unix, $file);
+    }
+    else {
+      WARN "Error parsing TARGET_MTIME=\"$mtime\", not setting mtime on file: $file";
+    }
+  }
+}
 
 sub create
 {
-  my $start_time = time;
   my $self = shift;
   my @uri_filter = @_;
   my $root = $self->site_tree();
   my @dir_created;
+  my %stats;
 
-  INFO "Creating output files:"; INDENT 1;
-
+  my $start_time = time;
+  INFO "Creating resources:"; INDENT 1;
   my $ret = traverse(
+    { ROOT => $root,
+      CALLBACK =>
+      sub {
+        my $page = shift;
+        my $filelist = '';
+
+        # call all resource creator hooks
+        foreach my $resource_creator (@{$page->{RESOURCE_CREATOR}}) {
+          my @files = $resource_creator->process_resources($page);
+
+          # correct resource target file mtime if needed
+          update_mtime($_, $page->{TARGET_MTIME}) foreach(@files);
+
+          # collect statistics
+          $stats{$resource_creator->{name}}->{resource_creator} //= [];
+          push @{$stats{$resource_creator->{name}}->{resource_creator}}, @files;
+
+          $filelist .= join("\n", @files) . "\n";
+        }
+
+        return $filelist;
+      },
+    } );
+  my @resource_files = split("\n", $ret);
+  INFO "Time elapsed: " . (time - $start_time) . "s";
+  INDENT -1;
+
+  $start_time = time;
+  INFO "Creating pages:"; INDENT 1;
+  $ret = traverse(
     { ROOT => $root,
       CALLBACK =>
       sub {
@@ -1047,32 +1141,30 @@ sub create
           print OUTFILE $html;
           close(OUTFILE);
 
-          # update mtime if TARGET_MTIME is set
-          if($page->{TARGET_MTIME}) {
-            my $time = $page->{TARGET_MTIME};
-            if(my @t = $time =~ m/(\d\d\d\d)-(\d\d)-(\d\d)\s+(\d\d):(\d\d):(\d\d)/) {
-              $t[1]--;
-              $time = timelocal @t[5,4,3,2,1,0];
-            }
-            if($time =~ /^[0-9]+$/) {
-              DEBUG "Setting file ATIME=MTIME=$time (TARGET_MTIME=\"$page->{TARGET_MTIME}\")";
-              utime($time, $time, $dfile);
-            }
-            else {
-              ERROR "Error parsing TARGET_MTIME=\"$page->{TARGET_MTIME}\"";
-            }
-          }
+          update_mtime($dfile, $page->{TARGET_MTIME});
         } else {
           ERROR "Failed to write file \"$dfile\": $!";
         }
+
+        # collect statistics
+        my $handler_name = $page->{HANDLER_NAME} || 'UNKNOWN';
+        $stats{$handler_name}->{page_handler} //= [];;
+        push @{$stats{$handler_name}->{page_handler}}, $dfile;
+
         return $dfile . "\n";
       },
     } );
-
+  my @page_files = split("\n", $ret);
   INFO "Time elapsed: " . (time - $start_time) . "s";
-
   INDENT -1;
-  return $ret;
+
+  $Data::Dumper::Indent = 1;
+  DEBUG "Plugin Statistics:\n" . Dumper(\%stats);
+
+  return { page_files     => \@page_files,
+           resource_files => \@resource_files,
+           stats          => \%stats,
+         };
 }
 
 

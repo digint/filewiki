@@ -29,9 +29,9 @@
     margin_top = ""   # margin: center image vertically
 %]
 
-[% IF page.highlight.GALLERY_IMAGE_THUMB_HEIGHT && (page.highlight.GALLERY_IMAGE_THUMB_HEIGHT < pagelist_max_height) %]
+[% IF page.highlight.RESOURCE.THUMB.HEIGHT && (page.highlight.RESOURCE.THUMB.HEIGHT < pagelist_max_height) %]
 [% 
-    offset_top = ((pagelist_max_height - page.highlight.GALLERY_IMAGE_THUMB_HEIGHT) div 2)
+    offset_top = ((pagelist_max_height - page.highlight.RESOURCE.THUMB.HEIGHT) div 2)
     margin_top = " style=\"margin-top:${offset_top}px;\""
 %]
 [% END %]
@@ -40,9 +40,9 @@
 <div class="[% mosaic_outer_class %]" [% overlay_shade_events %]>
 <a href="[% link_uri %]">
 <div class="gallery_mosaic" [% mosaic_style_attr %] [% margin_top %]>
-[% IF page.highlight.GALLERY_IMAGE_THUMB_URI %]
-<img src="[% page.highlight.GALLERY_IMAGE_THUMB_URI %]" alt="[% page.index.NAME %]" width="[% page.highlight.GALLERY_IMAGE_THUMB_WIDTH %]" height="[% page.highlight.GALLERY_IMAGE_THUMB_HEIGHT %]"/>
-[% IF page.index.GALLERY_VIDEO %]
+[% IF page.highlight.RESOURCE.THUMB.URI %]
+<img src="[% page.highlight.RESOURCE.THUMB.URI %]" alt="[% page.index.NAME %]" width="[% page.highlight.RESOURCE.THUMB.WIDTH %]" height="[% page.highlight.RESOURCE.THUMB.HEIGHT %]"/>
+[% IF page.index.RESOURCE.POSTER.URI %]
 <img class="gallery_mosaic_type" style="top: [% offset_top + 16 %]px;" src="[% video_icon %]"/>
 [% END %]
 [% END %]

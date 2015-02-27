@@ -33,11 +33,18 @@
     [% SET highlight_page = hfound IF hfound %]
     [% NEXT IF hfound %]
 
-    [%# no highlight found, set to first page having a thumbnail image %]
-    [% hfound = FileWiki.PageArray(ROOT => highlight_page,
-                                   match => { GALLERY_IMAGE_THUMB_URI => '\/.*', IS_DIR => '0' },
-                                  ).first
+    [%# no highlight found, set to first page having a THUMB resource %]
+    [% pp = FileWiki.PageArray(ROOT => highlight_page,
+                               match => { RESOURCE => '.*', IS_DIR => '0' },
+                              )
     %]
+    [% FOREACH p IN pp %]
+      [% IF p.RESOURCE.exists('THUMB') %]
+        [% hfound = p %]
+        [% LAST %]
+      [% END %]
+    [% END %]
+
     [% SET highlight_page = hfound IF hfound %]
     [% LAST IF hfound %]
 
@@ -48,11 +55,11 @@
 
   [% pagelist.push({index => page, highlight => highlight_page}) %]
 
-  [% IF highlight_page.GALLERY_IMAGE_THUMB_HEIGHT && (highlight_page.GALLERY_IMAGE_THUMB_HEIGHT > pagelist_max_height) %]
-    [% SET pagelist_max_height = highlight_page.GALLERY_IMAGE_THUMB_HEIGHT %]
+  [% IF highlight_page.RESOURCE.THUMB.HEIGHT && (highlight_page.RESOURCE.THUMB.HEIGHT > pagelist_max_height) %]
+    [% SET pagelist_max_height = highlight_page.RESOURCE.THUMB.HEIGHT %]
   [% END %]
-  [% IF highlight_page.GALLERY_IMAGE_THUMB_WIDTH && (highlight_page.GALLERY_IMAGE_THUMB_WIDTH > pagelist_max_width) %]
-    [% SET pagelist_max_width = highlight_page.GALLERY_IMAGE_THUMB_WIDTH %]
+  [% IF highlight_page.RESOURCE.THUMB.WIDTH && (highlight_page.RESOURCE.THUMB.WIDTH > pagelist_max_width) %]
+    [% SET pagelist_max_width = highlight_page.RESOURCE.THUMB.WIDTH %]
   [% END %]
 
   [% SET pagelist_all_dir = 0 UNLESS page.IS_DIR %]

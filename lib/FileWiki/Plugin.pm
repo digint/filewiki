@@ -31,10 +31,67 @@ package FileWiki::Plugin;
 use strict;
 use warnings;
 
+use FileWiki;
 use FileWiki::Logger;
 
 
-our $VERSION = "0.40";
+our $VERSION = "0.50";
+
+# returns true if the plugin is to be enabled for a given page
+sub enabled
+{
+  my $class = shift;
+  my $page = shift;
+  my $plugin_name = shift;
+  my $group = shift;
+  my $plugin_match_key = "PLUGIN_" . uc($plugin_name) . "_MATCH";
+
+  if($group) {
+    my $enable = 0;
+    foreach my $g (split(/\s*,\s*/, $group)) {
+      # check PLUGIN_<GROUP>_MATCH
+      my $group_match_key = "PLUGIN_GROUP_" . uc($g) . "_MATCH";
+      if(not $page->{$group_match_key}) {
+        WARN "Plugin group \"$g\" is enabled, but variable $group_match_key is not set.";
+      }
+      elsif($page->{SRC_FILE} =~ m/$page->{$group_match_key}/) {
+        TRACE "Got group match on $group_match_key";
+        return 1;
+      }
+      else {
+        TRACE "No group match on $group_match_key";
+      }
+    }
+    TRACE "No group match for $group, disabling plugin";
+    return 0;
+  }
+  elsif($page->{$plugin_match_key}) {
+    # check PLUGIN_<PLUGIN>_MATCH
+    if($page->{SRC_FILE} =~ m/$page->{$plugin_match_key}/) {
+      TRACE "Got match on $plugin_match_key";
+      return 1;
+    }
+    else {
+      TRACE "No match on $plugin_match_key, disabling plugin";
+      return 0;
+    }
+  }
+  else {
+    # check MATCH_DEFAULT module variable
+    no strict 'refs';
+    my $match = ${$class . '::MATCH_DEFAULT'};
+    unless($match) {
+      WARN "Plugin \"$plugin_name\" is enabled, but variable $plugin_match_key is not set.";
+      return 0;
+    }
+    unless($page->{SRC_FILE} =~ m/$match/) {
+      TRACE "No match on \"\$${class}::MATCH_DEFAULT\", disabling plugin";
+      return 0;
+    }
+    return 1;
+  }
+  return 0;
+}
 
 sub process_page
 {
@@ -76,6 +133,67 @@ sub update_vars
   my $page = shift;
 
   ERROR "Plugin $self->{name} identifies itself as vars_provider, but does not implement the update_vars() method!";
+}
+
+# called by resource_creator plugins
+sub add_resource
+{
+  my $self = shift;
+  my $page = shift;
+  my $key = shift;
+  my $value = shift;
+  die unless((ref($value) eq 'HASH') && $value->{TARGET_FILE});
+
+  $page->{RESOURCE} //= {};
+  WARN "Duplicate resource \"$key\"" if(exists($page->{RESOURCE}->{$key}));
+  DEBUG "Adding page resource: $key";
+
+  $value->{PLUGIN_NAME} = $self->{name};
+  $page->{RESOURCE}->{$key} = $value;
+}
+
+# called by resource_creator plugins
+sub resource_needs_rebuild
+{
+  my $self = shift;
+  my $page = shift;
+  my $target_file = shift;
+  die unless($target_file);
+  if($page->{RESOURCES_FORCE_REBUILD}) {
+    DEBUG "Force rebuild of resource (RESOURCES_FORCE_REBUILD is set): $target_file";
+    return 1;
+  }
+
+  my $target_mtime = (stat $target_file)[9];
+  unless(defined($target_mtime)) {
+    DEBUG "Resource target does not exist, needs rebuild: $target_file";
+    return 1;
+  }
+
+  if($page->{TARGET_MTIME}) {
+    my $check_mtime = FileWiki::unix_time($page->{TARGET_MTIME});
+    unless(defined($check_mtime)) {
+      WARN "Error parsing TARGET_MTIME=\"$page->{TARGET_MTIME}\", forcing resource rebuild: $target_file";
+      return 1;
+    }
+    if($check_mtime <= $target_mtime) {
+      DEBUG "Resource target exists and is not older than TARGET_MTIME, skipping rebuild: $target_file";
+      return 0;
+    }
+    else {
+      DEBUG "Resource target exists and is older than TARGET_MTIME, needs rebuild: $target_file";
+      return 1;
+    }
+  }
+  if($page->{SRC_FILE_MTIME} <= $target_mtime) {
+    DEBUG "Resource target exists and is not older than source, skipping rebuild: $target_file";
+    return 0;
+  }
+  else {
+    DEBUG "Resource target exists and is older than source, needs rebuild: $target_file";
+    return 1;
+  }
+  die;
 }
 
 1;
