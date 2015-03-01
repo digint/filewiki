@@ -1,8 +1,10 @@
+[%# enforce newline +%]
 <head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta charset="utf-8"/>
+<meta generator="FileWiki [%= FILEWIKI_VERSION %]">
 [%+ IF author %]
 <meta name="author" content="[% author %]"/>
-[% END %]
+[%+ END %]
 [% IF description %]
 <meta name="description" content="[% description %]"/>
 [%+ END %]
