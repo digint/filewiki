@@ -72,8 +72,18 @@ source repository like this:
 
     git clone git://dev.tty0.ch/filewiki.git
 
-If you would like to contribute, you might want to visit the [FileWiki
-project page on GitHub] (http://github.com/digint/filewiki).
+If you would like to contribute or found bugs:
+
+- visit the [FileWiki project page on GitHub] and use the [issues
+  tracker] there
+- talk to us on Freenode in #filewiki
+- contact the author via email (the email address can be found in the
+  sources)
+
+Any feedback is appreciated!
+
+  [FileWiki project page on GitHub]: http://github.com/digint/filewiki
+  [issues tracker]: http://github.com/digint/filewiki/issues
 
 
 SUPPORT
