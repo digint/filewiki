@@ -61,7 +61,7 @@ sub VERSION_MESSAGE
 
 sub HELP_MESSAGE
 {
-  print STDERR "usage: $0 [options] [basedir] [key=value...]\n";
+  print STDERR "usage: filewiki [options] [basedir] [key=value...]\n";
   print STDERR "\n";
   print STDERR "options:\n";
   print STDERR "   -h, --help  display this help message\n";
