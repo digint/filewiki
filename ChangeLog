@@ -57,7 +57,7 @@
       50% width) and tablets (resized images, maximum height of 120px)
     - gallery templates: added mobile_view variable
 
-* filewiki-current
+* filewiki-0.50
   - added FileWiki::Plugin::Man, which processes man pages
   - added EXCLUDE system variable
   - added RESOURCES_FORCE_REBUILD system variable
