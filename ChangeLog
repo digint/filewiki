@@ -71,3 +71,12 @@
   - added support for multiline variables (starting/ending with '\\\')
   - added resource-creator plugin framework
   - added plugin groups and constructor arguments
+  - added FileWiki::Plugin::ImageMagick, which uses the PerlMagick API
+    for creating image resources
+  - added FileWiki::Plugin::ExtCmd, which calls a user-defined command
+    for creating page resources
+  - added FileWiki::Plugin::EXIF, providing EXIF information in vars
+  - removed FileWiki::Plugin::Gallery, which is no longer required as
+    the same functionality is provided by the more generic
+    ImageMagick, ExtCmd, and EXIF plugins, in combination with plugin
+    grouping
