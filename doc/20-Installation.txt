@@ -16,7 +16,8 @@ Depending on what plugins you enable, you will need:
 - Text::Markdown (needed for the example sites)
 - Text::Textile
 - Pod::Simple::HTML
-- Image::ExifTool
+- Image::ExifTool (needed for gallery sites)
+- Image::Magick (needed for gallery sites)
 - ...
 
 
@@ -50,7 +51,7 @@ give you an idea on how FileWiki works.
 ### Gallery
 
 In order to create a photo gallery, you first have to set the
-`gallery_base` variable to a folder structure containing your photos:
+`gallery_base` variable to a folder containing your photos:
 
     file: examples/gallery.org/tree.vars
 
@@ -65,14 +66,15 @@ In order for the slideshow to work, you need to provide the [blueimp
 gallery] scripts in `examples/gallery.org/scripts/blueimp-gallery/`:
 
     cd examples/gallery.org/scripts
-    wget http://github.com/blueimp/Gallery/archive/2.15.0.tar.gz
-    tar -x -f 2.15.0.tar.gz
-    mv Gallery-2.15.0 blueimp-gallery
+    wget http://github.com/blueimp/Gallery/archive/2.15.2.tar.gz
+    tar -x -f 2.15.2.tar.gz
+    mv Gallery-2.15.2 blueimp-gallery
 
-By default, FileWiki Gallery depends on external tools to convert your
+By default, FileWiki gallery depends on external tools to convert your
 image and video resources:
 
- - `convert` tool from the [ImageMagick] suite
+ - PerlMagick API from the [ImageMagick] suite (package called
+   `ImageMagick-perl` on some distros)
  - `ffmpeg` tool from [FFmpeg]
 
 Now if everything is set up, you can now build your personal gallery:
@@ -80,8 +82,15 @@ Now if everything is set up, you can now build your personal gallery:
     filewiki -v examples/gallery.org
 
 Point your browser to `file:///tmp/filewiki/htdocs/index.html` to see
-the resulting website. If you're happy with the results, comment out
-the `URI_PREFIX` variable and run filewiki again.
+the resulting website. Enrich the pages by providing information on
+photos (in `myphoto.jpg.vars`) and directories (in `dir.vars`):
+
+    title    Spaghetti
+    summary  The best spaghetti I ever had in my life!
+    desc     This is a long description about my trip to Italy ...
+
+If you're happy with the results, comment out the `URI_PREFIX`
+variable and run filewiki again.
 
     file: examples/gallery.org/tree.vars
 
@@ -93,10 +102,11 @@ server, edit the `CMD_INSTALL` variable and run:
 
     filewiki -c install examples/gallery.org
 
-Note that FileWiki Gallery does not rebuild images and videos if their
-targets in `OUTPUT_DIR` are already present. You'll need to manually
-delete the files in `OUTPUT_DIR` before running `filewiki` if you
-e.g. change the image dimensions.
+Note that FileWiki resource plugins do not rebuild resources (images
+and videos in this case) if their targets in `OUTPUT_DIR` are already
+present. You need to set the `RESOURCES_FORCE_REBUILD` variable or
+manually delete the files in `OUTPUT_DIR` if you want the targets to
+be rebuilt (e.g. after changing the image dimensions).
 
   [blueimp gallery]: http://github.com/blueimp/Gallery
   [ImageMagick]: http://www.imagemagick.org
