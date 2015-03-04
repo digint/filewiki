@@ -49,7 +49,7 @@ The perl module documentation is distributed in POD format. The POD
 pages are installed when you 'make install' and can be viewed using
 'perldoc', e.g.
 
-    perldoc FileWiki::Plugin::Gallery
+    perldoc FileWiki::Plugin::Git
 
 
 INSTALLATION

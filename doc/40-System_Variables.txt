@@ -35,11 +35,20 @@ Example:
 
 ### PLUGINS
 
-Mandatory. Defines a list of plugins to be enabled. If no plugin is
-enabled, the source file will not be processed.
+Mandatory. Defines a list of plugins to be enabled. There are three
+types of plugins:
 
-Currently provided plugins are: Copy, HTML, TemplateToolkit, Markdown,
-Textile, POD and Gallery.
+- Page handler: Create a web page (e.g. Markdown, Copy,
+  GenericPageHandler), or more generically spoken: Generates a target
+  by transforming a source file. Only one page handler is allowed per
+  source file. If no page handler plugin is enabled, the source file
+  will not be processed.
+
+- Vars provider: Provide extra variables (e.g. Git, EXIF). Multiple
+  vars provider are allowed.
+
+- Resource creator: Creates additional resources for a page
+  (e.g. ImageMagick, ExtCmd). Multiple resiource creators are allowed.
 
 Refer to FileWiki::Plugin::* modules documentation for further
 information about each plugin.
@@ -64,6 +73,22 @@ Example:
 
 This enables the "Markdown" plugin for all files ending with ".txt",
 and the "Copy" plugin for all files ending in ".ico" or ".png".
+
+
+### PLUGIN_GROUP_&lt;group&gt;_MATCH
+
+Defines a match on file names for a plugin group. The plugins in the
+given group will be enabled if the file matches the expression.
+
+Example:
+
+    PLUGINS=EXIF<IMAGE>, ImageMagick<IMAGE>(THUMB), GenericPageHandler<IMAGE>
+    PLUGIN_GROUP_IMAGE_MATCH=\.(jpg|png)$
+
+This assigns the EXIF (vars provider), ImageMagick (resource creator)
+and GenericPageHandler (page handler) plugins to the IMAGE group. All
+files ending in ".jpg" or ".png" will be processed by the plugins in
+the IMAGE group.
 
 
 ### TEMPLATE

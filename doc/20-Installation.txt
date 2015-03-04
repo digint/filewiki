@@ -116,7 +116,7 @@ be rebuilt (e.g. after changing the image dimensions).
 ### Apache Handler
 
 An example on how to configure FileWiki as a HTTP PerlResponseHandler
-is provided in the [Apache::FileWiki::Handler] perl module
+is provided in the Apache::FileWiki::Handler perl module
 documentation.
 
 Note that this is rather experimental, and *very insecure*, so make
