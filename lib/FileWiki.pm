@@ -809,7 +809,7 @@ sub _site_tree
     INDENT -1;
   }
 
-  # sort pages (defeault: string sort by INDEX)
+  # sort pages (default: string sort by INDEX)
   my $sort_key = $dir_vars{SORT_KEY} || 'INDEX';
   my $sort_strategy = $dir_vars{SORT_STRATEGY} || 'sortkey-only';
   my $sort_order = $dir_vars{SORT_ORDER} || 'asc';
