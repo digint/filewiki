@@ -14,7 +14,7 @@
    # - q: search query. if it is prefixed by "loc:" then google assumes it is a lat lon separated by a +
 ~%]
 
-<a href="http://maps.google.com?q=loc:[% geo_latitude %]+[% geo_longitude %]&amp;t=h" target="geolocation">
+<a href="http://maps.google.com?q=loc:[% geo_latitude %]+[% geo_longitude %]&amp;t=h" target="_blank">
 <img alt="map" src="[% map_icon %]" />
 </a>
 </span>
@@ -27,7 +27,7 @@
 [% USE SwissTopo %]
 
 <span class="gallery_action">
-<a href="[% SwissTopo.URL(lat => geo_latitude, long => geo_longitude, crosshair => "cross", zoom => swisstopo_zoom) %]" target="swisstopo">
+<a href="[% SwissTopo.URL(lat => geo_latitude, long => geo_longitude, crosshair => "cross", zoom => swisstopo_zoom) %]" target="_blank">
 <img alt="map" src="[% swisstopo_icon %]" />
 </a>
 </span>

@@ -1,5 +1,5 @@
 [% IF link %]
 <span class="gallery_action">
-<a href="[% link %]" target="popout_image"><img alt="popout" src="[% popout_icon %]"/></a>
+<a href="[% link %]" target="_blank"><img alt="popout" src="[% popout_icon %]"/></a>
 </span>
 [% END %]
