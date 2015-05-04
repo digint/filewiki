@@ -12,7 +12,7 @@
 <meta name="keywords" content="[% keywords %]"/>
 [%+ END %]
 
-[% FOREACH key IN VARS.keys %]
+[% FOREACH key IN VARS.keys.sort %]
 [% IF key.match('^meta_') %]
 <meta name="[% key.replace('^meta_', '').replace('_','-') %]" content="[% VARS.$key %]"/>
 [%+ END %]
