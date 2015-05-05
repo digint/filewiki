@@ -106,6 +106,12 @@ If set, adjusts the image so that its orientation is suitable for
 viewing. If no <resource_key> is provided, the auto orient feature
 will be enabled per default for all resources.
 
+=head2 IMAGEMAGICK_ROTATE, IMAGEMAGICK_ROTATE_<resource_key>
+
+Rotate the image (degrees, clockwise). If no <resource_key> is
+provided, the rotate feature will be enabled per default for all
+resources.
+
 =head2 IMAGEMAGICK_STRIP, IMAGEMAGICK_STRIP_<resource_key>
 
 If set, strips image of all profiles and comments (EXIF data,
@@ -188,7 +194,7 @@ use Image::Size qw(imgsize);
 use Image::Magick;
 use File::Path qw(mkpath);
 
-our $VERSION = "0.50";
+our $VERSION = "0.51";
 
 our $MATCH_DEFAULT = '\.(bmp|gif|jpeg|jpeg2000|mng|png|psd|raw|svg|tif|tiff|gif|jpeg|jpg|png|pdf|BMP|GIF|JPEG|JPEG2000|MNG|PNG|PSD|RAW|SVG|TIF|TIFF|GIF|JPEG|JPG|PNG|PDF)$';
 
@@ -312,6 +318,7 @@ sub create_image_resource
 
     # run common commands
     im_assert($image->AutoOrient()) if(defined($page->{"IMAGEMAGICK_AUTO_ORIENT_$key"}) ? $page->{"IMAGEMAGICK_AUTO_ORIENT_$key"} : $page->{"IMAGEMAGICK_AUTO_ORIENT"});
+    im_assert($image->Rotate(defined($page->{"IMAGEMAGICK_ROTATE_$key"}) ? $page->{"IMAGEMAGICK_ROTATE_$key"} : $page->{"IMAGEMAGICK_ROTATE"})) if(defined($page->{"IMAGEMAGICK_ROTATE_$key"}) || defined($page->{"IMAGEMAGICK_ROTATE"}));
     im_assert($image->Strip()) if(defined($page->{"IMAGEMAGICK_STRIP_$key"}) ? $page->{"IMAGEMAGICK_STRIP_$key"} : $page->{"IMAGEMAGICK_STRIP"});
 
     # use this to stretch the image
