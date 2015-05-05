@@ -12,7 +12,7 @@
 <div class="trail">
 [% FOREACH dir IN trail %]
 <a href="[% dir.INDEX_PAGE.URI %]">[% dir.title || dir.NAME %][% IF dir.date %]&nbsp;([% dir.date %])[% END %]</a>
-[%~ %]&nbsp;&raquo;&nbsp;[% ~%]
+[%~ +%] &raquo;&nbsp;[% ~%]
 [%~ END %]
 [% IF last %]
 [% last.title || last.NAME %]
