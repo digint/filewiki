@@ -114,6 +114,10 @@ sub convert_source
   # remove links to other man pages
   $html =~ s/<A HREF="\.\.\/man.*?\>(.*?)<\/A>/$1/gms;
 
+  # fix double quotes. in groff, use "\[lq]" instead of "\(lq"
+  $html =~ s/\[lq\]/&ldquo;/gms;
+  $html =~ s/\[rq\]/&rdquo;/gms;
+
   # remove index anchors
   $html =~ s/<A NAME="[a-zA-Z]+">&nbsp;<\/A>\n//gms;
   return $html;
