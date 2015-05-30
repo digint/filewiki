@@ -46,8 +46,6 @@ Example:
 
   [% SwissTopo.URL( $lat, $long, "cross" ) %]
 
-=back
-
 =head1 AUTHOR
 
 Axel Burri <axel@tty0.ch>
