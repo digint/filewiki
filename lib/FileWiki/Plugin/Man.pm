@@ -48,7 +48,7 @@ use base qw( FileWiki::Plugin );
 use FileWiki::Logger;
 use FileWiki::Filter;
 
-our $VERSION = "0.50";
+our $VERSION = "0.51";
 
 our $MATCH_DEFAULT = '\.[1-8]$';
 
@@ -97,29 +97,59 @@ sub convert_source
   my $in = shift;
   my $page = shift;
   my $sfile = $page->{SRC_FILE};
+  my $convert_tool = $page->{MAN_CONVERT} // "groff";
 
-  # man2html always returns with exitcode 0
-  my $html = `/usr/bin/man2html -p -r $sfile`;
-  chomp($html);
+  my $html;
+  if($convert_tool eq "man2html")
+  {
+    # man2html always returns with exitcode 0
+    $html = `/usr/bin/man2html -p -r $sfile`;
+    chomp($html);
 
-  # very hacky, but man2html is not flexible at all...
-  # this will probably break in future versions of man2html...
-  $html =~ s/^.*?Return to Main Contents<\/A><HR>\n\n//ms;
-  $html =~ s/<P>\n\n<HR>\n<A NAME="index">.*$//ms;
+    # very hacky, but man2html is not flexible at all...
+    # this will probably break in future versions of man2html...
+    $html =~ s/^.*?Return to Main Contents<\/A><HR>\n\n//ms;
+    $html =~ s/<P>\n\n<HR>\n<A NAME="index">.*$//ms;
 
-  # change H2 into H1
-  $html =~ s/<H2/<H1/gms;
-  $html =~ s/<\/H2>/<\/H1>/gms;
+    # remove links to other man pages
+    $html =~ s/<A HREF="\.\.\/man.*?\>(.*?)<\/A>/$1/gms;
 
-  # remove links to other man pages
-  $html =~ s/<A HREF="\.\.\/man.*?\>(.*?)<\/A>/$1/gms;
+    # fix double quotes. in groff, use "\[lq]" instead of "\(lq"
+    $html =~ s/\[lq\]/&ldquo;/gms;
+    $html =~ s/\[rq\]/&rdquo;/gms;
 
-  # fix double quotes. in groff, use "\[lq]" instead of "\(lq"
-  $html =~ s/\[lq\]/&ldquo;/gms;
-  $html =~ s/\[rq\]/&rdquo;/gms;
+    # remove index anchors
+    $html =~ s/<A NAME="[a-zA-Z]+">&nbsp;<\/A>\n//gms;
 
-  # remove index anchors
-  $html =~ s/<A NAME="[a-zA-Z]+">&nbsp;<\/A>\n//gms;
+    # change H2 into H1
+    $html =~ s/<H2/<H1/gms;
+    $html =~ s/<\/H2>/<\/H1>/gms;
+  }
+  else
+  {
+    # use "groff" for conversion
+    my $cmd = "/usr/bin/groff -Txhtml -mandoc";
+    $cmd .= " -P -l" unless($page->{MAN_ENABLE_SECTION_LINKS});
+    $cmd .= " -P -r" unless($page->{MAN_ENABLE_HEADER_FOOTER_LINE});
+
+    # add ".RE 0" line after each ".SH *" line
+    $cmd = "/bin/cat $sfile | /bin/sed '" . '/^\.SH\s/ s/$/\n.RE 0/' . "' | " . $cmd;
+
+    $html = `$cmd`;
+    chomp($html);
+
+    # extract body
+    $html =~ s/^.*<body>/<div class="grohtml">/ms;
+    $html =~ s/<\/body>.*/<\/div>/ms;
+
+    # remove header
+    $html =~ s/<h1>.*?<\/h1>//gms;
+
+    # change H2 into H1
+    $html =~ s/<h2/<h1/gms;
+    $html =~ s/<\/h2>/<\/h1>/gms;
+  }
+
   return $html;
 }
 
