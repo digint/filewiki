@@ -73,9 +73,9 @@
 [% IF RESOURCE.POSTER.URI %]
 <div class="gallery_video">
 <video controls="controls" preload="metadata" poster="[% RESOURCE.POSTER.URI %]" style="max-width:[% RESOURCE.POSTER.WIDTH %]px;">
-[% FOREACH href IN RESOURCE.values %]
-[% NEXT UNLESS href.MIME_TYPE.match('^video') %]
-<source src="[% href.URI %]" type="[% href.MIME_TYPE %]"/>
+[% FOREACH key IN RESOURCE.keys.sort %]
+[% NEXT UNLESS RESOURCE.$key.MIME_TYPE.match('^video') %]
+<source src="[% RESOURCE.$key.URI %]" type="[% RESOURCE.$key.MIME_TYPE %]"/>
 [% END %]
 </video>
 </div>
