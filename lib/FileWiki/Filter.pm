@@ -34,22 +34,22 @@ use warnings;
 use FileWiki::Logger;
 use Template;
 
-our $VERSION = "0.40";
+our $VERSION = "0.51";
 
 
 sub read_source
 {
   my $in = shift;
   my $page = shift;
+  my $data;
 
   if($page->{SRC_TEXT})
   {
     DEBUG "Got " . length($page->{SRC_TEXT}) . " bytes of dynamic data, ignoring input file.";
-    return $page->{SRC_TEXT};
+    $data = $page->{SRC_TEXT};
   }
   else
   {
-    my $data;
     my $sfile = $page->{SRC_FILE};
     DEBUG "Reading file: $sfile";
     open(INFILE, "<$sfile") or die "Failed to open file \"$sfile\": $!";
@@ -60,9 +60,30 @@ sub read_source
     close(INFILE);
 
     WARN "Overwriting " . length($in) . " bytes of data with page source" if($in);
-
-    return $data;
   }
+
+  if($page->{SRC_REGEXP}) {
+    my $regexp_list = (ref($page->{SRC_REGEXP}) eq 'ARRAY') ? $page->{SRC_REGEXP} : [ $page->{SRC_REGEXP} ];
+    foreach my $regexp_expr (@$regexp_list) {
+      if($regexp_expr =~ /^s\/(.*?[^\\])\/(.*)\/(g?)$/) {  # 's/match/replace/'
+        my ($match, $replace, $flags) = ($1, "\"$2\"", $3);  # quote $2, because of eval (.../ee) below
+
+        DEBUG "Applying regexp on source (SRC_REGEXP=\"$regexp_expr\")";
+        my $success;
+        if($flags eq 'g') {
+          $success = ($data =~ s/$match/$replace/gee);
+        } else {
+          $success = ($data =~ s/$match/$replace/ee);
+        }
+        DEBUG "Regular expression failed: match=\"$match\", replace=$replace" unless($success);
+      }
+      else {
+        WARN "Malformed SRC_REGEXP: $regexp_expr";
+      }
+    }
+  }
+
+  return $data;
 }
 
 
@@ -73,7 +94,6 @@ sub strip_nested_vars
   $in =~ s/^.?[<\[]filewiki_vars[>\]].*?^.?[<\[]\/filewiki_vars[>\]]\n//ms;
   return $in;
 }
-
 
 sub strip_xml_comments
 {

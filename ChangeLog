@@ -80,3 +80,8 @@
     the same functionality is provided by the more generic
     ImageMagick, ExtCmd, and EXIF plugins, in combination with plugin
     grouping
+
+* filewiki-current
+  - added SRC_REGEXP system variable
+  - create reproducible output (always order hashes in templates)
+  - use "grohtml" for man page conversion (in FileWiki::Plugin::Man)
