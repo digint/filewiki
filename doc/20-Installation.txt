@@ -13,12 +13,12 @@ are available on CPAN. The Makefile will complain about missing modules.
 
 Depending on what plugins you enable, you will need:
 
-- Text::Markdown (needed for the example sites)
-- Text::Textile
-- Pod::Simple::HTML
-- Image::ExifTool (needed for gallery sites)
-- Image::Magick (needed for gallery sites)
-- ...
+  * Text::Markdown (needed for the example sites)
+  * Text::Textile
+  * Pod::Simple::HTML
+  * Image::ExifTool (needed for gallery sites)
+  * Image::Magick (needed for gallery sites)
+  * ...
 
 
 Instructions
@@ -73,9 +73,9 @@ gallery] scripts in `examples/gallery.org/scripts/blueimp-gallery/`:
 By default, FileWiki gallery depends on external tools to convert your
 image and video resources:
 
- - PerlMagick API from the [ImageMagick] suite (package called
-   `ImageMagick-perl` on some distros)
- - `ffmpeg` tool from [FFmpeg]
+  * PerlMagick API from the [ImageMagick] suite (package called
+    `ImageMagick-perl` on some distros)
+  * `ffmpeg` tool from [FFmpeg]
 
 Now if everything is set up, you can now build your personal gallery:
 

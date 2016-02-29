@@ -15,11 +15,11 @@ format. Variable expansion is performed in occurrence of either
 `$myvar`, `${myvar}`, or `${{myvar}}` (see "Variable Expansion"
 below).
 
-  - Lines starting with '#' (hash) are ignored
-  - Trailing whitespaces are cut off
-  - Double quotes are removed at beginning and end of value
-  - Keys starting with '+' (plus) are appended to an array
-  - Values starting with '\\\' are multi-line, with '\\\' on last line
+  * Lines starting with '#' (hash) are ignored
+  * Trailing whitespaces are cut off
+  * Double quotes are removed at beginning and end of value
+  * Keys starting with '+' (plus) are appended to an array
+  * Values starting with '\\\' are multi-line, with '\\\' on last line
 
 Example:
 
@@ -115,16 +115,16 @@ variables through directories.
 
 Early expansion for expressions is accepted in form:
 
-  - `$KEY`: expand to the value of variable `KEY`, or "" if `KEY` is
+  * `$KEY`: expand to the value of variable `KEY`, or "" if `KEY` is
     not found.
 
-  - `${KEY_EXPR}`: expression in form `${KEY0[|KEY1...]}`, returning the
+  * `${KEY_EXPR}`: expression in form `${KEY0[|KEY1...]}`, returning the
     first valid value from KEYn.
 
-  - `${KEY_EXPR[/MATCH/REPLACE]}`: performs a regular expression
+  * `${KEY_EXPR[/MATCH/REPLACE]}`: performs a regular expression
     `s/MATCH/REPLACE/` on the value of `KEY_EXPR`.
 
-  - `${KEY_EXPR[//MATCH/REPLACE]}`: performs a global regular
+  * `${KEY_EXPR[//MATCH/REPLACE]}`: performs a global regular
     expression `s/MATCH/REPLACE/g` on the value of `KEY_EXPR`.
 
 Examples:
@@ -164,7 +164,7 @@ Expressions in form `$((...))` are executed at late expansion time.
 
 Logical expressions are accepted in form:
 
-  - `$(( [[!]CONDITION:] EXPR0 || EXPR1 || ... ))`: expands to
+  * `$(( [[!]CONDITION:] EXPR0 || EXPR1 || ... ))`: expands to
     expression `EXPR0`, or to `EXPR1`..., whichever expression
     resolves to true first. Expands to an empty string if `CONDITION`
     resolves to false.

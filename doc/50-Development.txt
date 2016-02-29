@@ -17,11 +17,11 @@ Your contributions are welcome!
 
 If you would like to contribute or found bugs:
 
-- visit the [FileWiki project page on GitHub] and use the [issues
-  tracker] there
-- talk to us on Freenode in #filewiki
-- contact the author via email (the email address can be found in the
-  sources)
+  * visit the [FileWiki project page on GitHub] and use the
+    [issues tracker] there.
+  * talk to us on Freenode in `#filewiki`.
+  * contact the author via email (the email address can be found in
+    the sources)
 
 Any feedback is appreciated!
 

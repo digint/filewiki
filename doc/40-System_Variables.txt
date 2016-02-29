@@ -38,17 +38,18 @@ Example:
 Mandatory. Defines a list of plugins to be enabled. There are three
 types of plugins:
 
-- Page handler: Create a web page (e.g. Markdown, Copy,
-  GenericPageHandler), or more generically spoken: Generates a target
-  by transforming a source file. Only one page handler is allowed per
-  source file. If no page handler plugin is enabled, the source file
-  will not be processed.
+  * Page handler: Create a web page (e.g. Markdown, Copy,
+    GenericPageHandler), or more generically spoken: Generates a
+    target by transforming a source file. Only one page handler is
+    allowed per source file. If no page handler plugin is enabled, the
+    source file will not be processed.
 
-- Vars provider: Provide extra variables (e.g. Git, EXIF). Multiple
-  vars provider are allowed.
+  * Vars provider: Provide extra variables (e.g. Git, EXIF). Multiple
+    vars provider are allowed.
 
-- Resource creator: Creates additional resources for a page
-  (e.g. ImageMagick, ExtCmd). Multiple resiource creators are allowed.
+  * Resource creator: Creates additional resources for a page
+    (e.g. ImageMagick, ExtCmd). Multiple resiource creators are
+    allowed.
 
 Refer to FileWiki::Plugin::* modules documentation for further
 information about each plugin.
@@ -224,10 +225,10 @@ Key to use for sorting pages within a directory. Defaults to "INDEX".
 Strategy to use for sorting pages within a directory. Supported values
 are:
 
-- `sortkey-only`: sort by SORT_KEY (default).
-- `dir-first`: sort by SORT_KEY, but put directories in front.
-- `dir-last`: sort by SORT_KEY, but push directories to back.
-- `none`: do not sort (useful when using INCLUDE).
+  * `sortkey-only`: sort by SORT_KEY (default).
+  * `dir-first`: sort by SORT_KEY, but put directories in front.
+  * `dir-last`: sort by SORT_KEY, but push directories to back.
+  * `none`: do not sort (useful when using INCLUDE).
 
 
 ### SORT_ORDER
@@ -235,8 +236,8 @@ are:
 Order to use for sorting pages within a directory. Supported values
 are:
 
-- `asc`: sort ascending (default).
-- `desc`: sort descending.
+  * `asc`: sort ascending (default).
+  * `desc`: sort descending.
 
 
 ### INCLUDE_VARS
