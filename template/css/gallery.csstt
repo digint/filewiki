@@ -342,6 +342,42 @@ a:visited {
     opacity: 1;
 }
 
+[% IF gallery_fullscreen %]
+.blueimp-gallery > .fullscreen {
+    display: none;
+    background-image: url("[% URI_PREFIX %]/img/fullscreen.svg");
+    background-size: 20px 20px;
+    cursor: pointer;
+    opacity: 0.5;
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    width: 20px;
+    height: 20px;
+}
+.blueimp-gallery-controls > .fullscreen {
+    display: block;
+}
+.blueimp-gallery > .fullscreen:hover {
+    color: #fff;
+    opacity: 1;
+}
+
+/* for some reason, comma-separated list does not work here... */
+.blueimp-gallery:fullscreen > .fullscreen {
+    background-image: url("[% URI_PREFIX %]/img/fullscreen_exit.svg");
+}
+.blueimp-gallery:-webkit-full-screen > .fullscreen {
+    background-image: url("[% URI_PREFIX %]/img/fullscreen_exit.svg");
+}
+.blueimp-gallery:-moz-full-screen > .fullscreen {
+    background-image: url("[% URI_PREFIX %]/img/fullscreen_exit.svg");
+}
+.blueimp-gallery:-ms-fullscreen > .fullscreen {
+    background-image: url("[% URI_PREFIX %]/img/fullscreen_exit.svg");
+}
+[% END %]
+
 [% END %]
 
 

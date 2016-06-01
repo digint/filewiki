@@ -5,8 +5,9 @@ title=Slide Show
 [/filewiki_vars]
 
 [% DEFAULT
-  stylesheet_blueimp    = "$scripts_dir/blueimp-gallery/css/blueimp-gallery.min.css"
-  script_blueimp        = "$scripts_dir/blueimp-gallery/js/blueimp-gallery.min.js"
+  stylesheet_blueimp        = "$scripts_dir/blueimp-gallery/css/blueimp-gallery.min.css"
+  script_blueimp            = "$scripts_dir/blueimp-gallery/js/blueimp-gallery.min.js"
+  script_blueimp_fullscreen = "$scripts_dir/blueimp-gallery/js/blueimp-gallery-fullscreen.js"
 
   script_jquery         = "$scripts_dir/jquery-latest.min.js"
   script_galleria       = "$scripts_dir/galleria/galleria.min.js"
@@ -105,6 +106,9 @@ title=Slide Show
 [% END %]
       <p><span class="gallery_header_title"></span></p>
     </div>
+[% IF gallery_fullscreen %]
+    <a class="fullscreen" onclick="toggleFullScreen()"></a>
+[% END +%]
     <a class="prev">‹</a>
     <a class="next">›</a>
     <a class="close">×</a>
@@ -114,6 +118,9 @@ title=Slide Show
 
 [%~# Note: blueimp does not work if we load the scripts in <head> +%]
 <script src="[% script_blueimp %]"></script>
+[%+ IF gallery_fullscreen %]
+<script src="[% script_blueimp_fullscreen %]"></script>
+[% END +%]
 <script>
 var media_list = [
 [% FOREACH href IN DIR.TREE %]
@@ -160,7 +167,7 @@ if(match_name !== null) {
 }
 
 /* credits for blueimp gallery go to: <https://github.com/blueimp/Gallery> */
-blueimp.Gallery(media_list,
+var bi_gallery = blueimp.Gallery(media_list,
 {
   index: media_index,
   container: '#blueimp-container',
@@ -181,6 +188,16 @@ blueimp.Gallery(media_list,
       window.location.href = '[% DIR.INDEX_PAGE.URI %]';
   }
 });
+
+[% IF gallery_fullscreen +%]
+function toggleFullScreen() {
+  if (bi_gallery.getFullScreenElement()) {
+    bi_gallery.exitFullScreen()
+  } else {
+    bi_gallery.requestFullScreen(bi_gallery.container[0])
+  }
+}
+[% END +%]
 </script>
 <noscript>
 <div class="gallery_header">
