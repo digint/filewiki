@@ -71,9 +71,9 @@ sub read_source
         DEBUG "Applying regexp on source (SRC_REGEXP=\"$regexp_expr\")";
         my $success;
         if($flags eq 'g') {
-          $success = ($data =~ s/$match/$replace/gee);
+          $success = ($data =~ s/$match/$replace/mgee);
         } else {
-          $success = ($data =~ s/$match/$replace/ee);
+          $success = ($data =~ s/$match/$replace/mee);
         }
         DEBUG "Regular expression failed: match=\"$match\", replace=$replace" unless($success);
       }
