@@ -324,7 +324,7 @@ sub read_vars
     $val =~ s/"$//;
 
     # expand variables
-    $val =~ s/(\${[^{].*?[^}]})/expand_expr(\%vars, $1, debug_file => $file)/eg;
+    $val =~ s/(\$\{[^{].*?[^}]\})/expand_expr(\%vars, $1, debug_file => $file)/eg;
     $val =~ s/(\$$var_decl)/expand_expr(\%vars, $1, debug_file => $file)/eg;
 
     # include vars
@@ -382,7 +382,7 @@ sub expand_late_vars
     }
 
     # expand late-expand values of form: ${{myvar}}
-    if($vars->{$key} =~ s/(\${{.*?}})/expand_expr($vars, $1, enable_late_expansion => 1)/eg) {
+    if($vars->{$key} =~ s/(\$\{\{.*?\}\})/expand_expr($vars, $1, enable_late_expansion => 1)/eg) {
       $warn_system_variable = 1;
     }
 
