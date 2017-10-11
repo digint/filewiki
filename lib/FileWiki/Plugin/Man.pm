@@ -14,13 +14,34 @@ FileWiki::Plugin::Man - man page plugin for FileWiki
 - Applies the template specified by the TEMPLATE variable to the
   unmodified source file text.
 
+=head1 CONFIGURATION VARIABLES
+
+=head2 MAN_CONVERT
+
+Specify conversion tool. Supported values: "groff" or "man2html",
+defaults to "groff".
+
+=head1 VARIABLE PRESETS
+
+=head2 NAME
+
+Sets the NAME back to "name.1" (push file extension back to NAME).
+
+=head2 MAN_NAME
+
+The name of the man page, e.g. "name(1)" (extracted from file name).
+
+=head2 MAN_SECTION
+
+The section (1..8) of the man page (extracted from file name).
+
 =head1 AUTHOR
 
 Axel Burri <axel@tty0.ch>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2015 Axel Burri. All rights reserved.
+Copyright (c) 2015-2017 Axel Burri. All rights reserved.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -62,7 +83,7 @@ sub new
     name => $class,
     page_handler     => 1,
     vars_provider    => 1,
-    target_file_ext  => 'html',
+    target_file_ext  => 'html', # NOTE: we override get_uri_filename() below!
     filter => [
       \&convert_source,
       \&FileWiki::Filter::apply_template,
@@ -79,16 +100,30 @@ sub update_vars
   my $self = shift;
   my $page = shift;
 
-  $page->{MAN_NAME} = $page->{NAME};
-  if($page->{SRC_FILE} =~ /\.([1-8])$/) {
-    DEBUG "Setting variable MAN_SECTION=$1";
-    $page->{MAN_SECTION} = $1;
-    $page->{MAN_NAME} .= "($1)";
-  }
-  else {
-    WARN "Failed to determine MAN_SECTION, setting to 0";
-    $page->{MAN_SECTION} = 0;
-  }
+  my $man_section = 0;
+  $man_section = $1 if($page->{SRC_FILE} =~ /\.([1-8])$/);
+  DEBUG "Setting variable MAN_SECTION=$1";
+  WARN "Failed to determine MAN_SECTION, setting to 0" unless($man_section);
+
+  $page->{MAN_SECTION} = $man_section;
+  $page->{MAN_NAME} = "$page->{NAME}($man_section)";
+
+  # re-add man section in NAME, this was eaten up by FileWiki (remove file extension)
+  $page->{NAME} .= '.' . $man_section;
+}
+
+
+# add MAN_SECTION to filename (this is eaten up from NAME by FileWiki)
+sub get_uri_filename
+{
+  my $self = shift;
+  my $page = shift;
+  my $name = $page->{NAME} || die("No NAME specified");
+  my $target_file_ext = $self->{target_file_ext} || die("No target_file_ext specified: $self");
+
+  my $man_section = 0;
+  $man_section = $1 if($page->{SRC_FILE} =~ /\.([1-8])$/);
+  return "$name.$man_section.$target_file_ext";
 }
 
 
