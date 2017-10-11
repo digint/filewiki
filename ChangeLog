@@ -86,3 +86,4 @@
   - create reproducible output (always order hashes in templates)
   - use "grohtml" for man page conversion (in FileWiki::Plugin::Man)
   - produce "name.1.html" instead of "name.html" (FileWiki::Plugin::Man)
+  - added FileWiki::Plugin::Asciidoc
