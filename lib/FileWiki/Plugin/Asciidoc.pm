@@ -32,6 +32,18 @@ The name of the man page, e.g. "name(1)" (extracted from file name).
 
 The section (1..8) of the man page (extracted from file name).
 
+=head2 MAN_SOURCE
+
+Extracted from source content ":man source: xxx".
+
+=head2 MAN_REVISION
+
+Extracted from source content ":revision: xxx".
+
+=head2 MAN_DATE
+
+Extracted from source content ":date: xxx".
+
 =head2 PLUGIN_STYLESHEET
 
 Copied from value of $ASCIIDOC_STYLESHEET.
@@ -86,6 +98,8 @@ sub new
     vars_provider    => 1,
     target_file_ext  => 'html',
     filter => [
+      \&FileWiki::Filter::read_source,
+      \&FileWiki::Filter::sanitize_newlines,
       \&convert_source,
       \&FileWiki::Filter::sanitize_newlines,
       \&FileWiki::Filter::apply_template,
@@ -110,6 +124,7 @@ sub update_vars
     DEBUG "Setting variable MAN_SECTION=$1";
     $page->{MAN_SECTION} = $man_section;
     $page->{MAN_NAME} = "$name($man_section)";
+    $page->{MAN_MANNAME} = "$name";
   }
 }
 
@@ -118,15 +133,44 @@ sub convert_source
 {
   my $in = shift;
   my $page = shift;
+
+  # parse mandoc
+  if($in =~ /^:date:\s*([0-9-]+)/ms) {
+    $page->{MAN_DATE} = $1;
+    DEBUG "Setting variable MAN_DATE=$1";
+  }
+  if($in =~ /^:revision:\s*([0-9a-zA-Z-.]+)/ms) {
+    $page->{MAN_REVISION} = $1;
+    DEBUG "Setting variable MAN_REVISION=$1";
+  }
+  if($in =~ /^:man source:\s*([0-9a-zA-Z-.]+)/ms) {
+    $page->{MAN_SOURCE} = $1;
+    DEBUG "Setting variable MAN_SOURCE=$1";
+  }
+
+  # NOTE: asciidoc command will read from file, NOT $in !
+
   my $sfile = $page->{SRC_FILE};
   my $asciidoc_backend = $page->{ASCIIDOC_BACKEND} // "html";
   my $asciidoc_doctype = $page->{ASCIIDOC_DOCTYPE} // "article";
   my $cmd = "/usr/bin/asciidoc --backend $asciidoc_backend --doctype $asciidoc_doctype --no-header-footer -o - $sfile";
   DEBUG "Converting asciidoc: $cmd";
 
+  # build header
   my $html = '<div class="fw-asciidoc">';
+  if($page->{MAN_SOURCE}) {
+    $html .= '<div id="fw-asciidoc-header">';
+    $html .= "<h1>$page->{MAN_MANNAME} Man Page</h1>";
+    $html .= "<span>$page->{MAN_NAME},</span>";
+    $html .= '<span id="revnumber">version ' . $page->{MAN_REVISION} . ',</span>' if($page->{MAN_REVISION});
+    $html .= '<span id="revdate">' . $page->{MAN_DATE} . '</span>' if($page->{MAN_DATE});
+    $html .= '</div>'; # id="fw-asciidoc-header"
+  }
+  $html .= '<div id="fw-asciidoc-content">';
+
   $html .= `$cmd`;
-  $html .= '</div>';
+  $html .= '</div>'; # id="fw-asciidoc-content
+  $html .= '</div>'; # class="fw-asciidoc"
 
   return $html;
 }
