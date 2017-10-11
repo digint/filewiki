@@ -36,6 +36,10 @@
 <link rel="stylesheet" href="[% style_file %]" type="text/css"/>
 [%+ END %]
 
+[% FOREACH style_file IN PLUGIN_STYLESHEET.split(':') %]
+<link rel="stylesheet" href="[% style_file %]" type="text/css"/>
+[%+ END %]
+
 [% IF filewiki_controls %]
 <link rel="stylesheet" href="[% stylesheet_filewiki %]" type="text/css"/>
 [%+ END %]
