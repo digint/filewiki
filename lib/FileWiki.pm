@@ -63,7 +63,7 @@ use File::Path qw(mkpath);
 use File::Spec::Functions qw(splitpath);
 use Data::Dumper;
 
-our $VERSION = "0.50";
+our $VERSION = "0.51";
 
 # Defaults
 our $default_time_format = '%C';

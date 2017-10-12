@@ -35,7 +35,7 @@ Wiki editor.
 
 Official home page: <http://www.digint.ch/filewiki>
 
-Current version: `0.50`
+Current version: `0.51`
 
 
 DOCUMENTATION

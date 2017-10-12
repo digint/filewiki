@@ -1,4 +1,4 @@
-FileWiki-current
+FileWiki-0.51
 
   * added SRC_REGEXP system variable
   * create reproducible output (always order hashes in templates)
