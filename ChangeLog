@@ -1,89 +1,96 @@
-* filewiki-0.10
-  - initial revision
+FileWiki-current
 
-* filewiki-0.20
-  - added plugin framework
-  - added FileWiki::Plugin::Gallery
-  - added example site for photo gallery
-  - renamed TARGET_DIR to OUTPUT_DIR
-  - removed RAW_COPY system variable (now handled by FileWiki::Plugin::Copy)
-  - added SKIP_PREVNEXT system variable
-  - added MAKE_INDEX_PAGE system variable
-  - added transformation variables: MATCH_<var>, DIR_MATCH_<var>, SANITIZE_<var>
-  - changed delimiter for INCLUDE system variable to ':'
+  * added SRC_REGEXP system variable
+  * create reproducible output (always order hashes in templates)
+  * use "grohtml" for man page conversion (in FileWiki::Plugin::Man)
+  * produce "name.1.html" instead of "name.html" (FileWiki::Plugin::Man)
+  * added FileWiki::Plugin::Asciidoc
 
-* filewiki-0.21
-  - added video support for Gallery plugin
-  - minor bugfixes
+FileWiki-0.50
 
-* filewiki-0.30
-  - more generic approach for image resizes and still image commands
-  - enhancements in exif info table
-  - fixed gallery trail: trail goes down as long as gallery_trail variable is set
-  - moved all gallery templates to common template directory
-  - added INCLUDE_VARS system variable
-  - added FileWiki::Plugin::CSS, with template and minimizing support
-  - added FileWiki::Plugin::JavaScript, with minimizing support
-  - fixed INCLUDE variable handling
-  - added EXIF sidecar support (GALLERY_SIDECAR_POSTFIX variable)
-  - renamed GALLERY_RESIZE_<TYPE> to GALLERY_IMAGE_<TYPE>
-
-* filewiki-0.40
-  - generate XHTML in FileWiki::Plugin::POD
-  - Template::Plugin::FileWiki->PageTree() generates <ul class="collapse">
-  - Template::Plugin::FileWiki->PageTree() generates "highlight" class:
-    - in <li> if "highlight_list_item" is set
-    - in <a> if "highlight_link" is set
-  - adapted plugin framework to allow vars-provider plugins
-  - added FileWiki::Plugin::Git, which provides variables such as "git commit date"
-  - added FileWiki::Plugin::Perl, which provides PERL_PACKAGE and PERL_VERSION
-  - enhanced variable declaration:
-    - support for array variable declaration of form: "+mykey=value"
-    - support for eval expressions on variables
-    - support variable expansion in form: ${myvar} and ${myvar//match/replace}
-    - support variable late expansion in form: ${{myvar}} and ${{myvar//match/replace}}
-    - support logical expressions in form: $(( [[!]CONDITION:] EXPR0 || EXPR1 || ... ))
-    - removed obsolete NAME_MATCH, MATCH_<var>, DIR_MATCH_<var> and SANITIZE_<var>
-      hacks, this can now be solved with variable substitution and eval expressions
-  - Gallery changes:
-    - replaced GALLERY_IMAGE_<TYPE> declaration by GALLERY_IMAGE_TARGETS
-    - replaced GALLERY_CONVERT_OPTIONS by GALLERY_IMAGE_CMD_JPG
-    - replaced mobile_view variable by gallery_image_link, gallery_prevnext_bottom,
-      gallery_prevnext_top and gallery_button_simple
-    - added GALLERY_DISABLE_EXIF_WARNINGS
-    - gallery templates: refactoring of gallery mosaic display (use
-      display-block instead of tables): introduced new mosaic_* classes.
-    - gallery templates: support for smartphones (two columns, fixed to
-      50% width) and tablets (resized images, maximum height of 120px)
-    - gallery templates: added mobile_view variable
-
-* filewiki-0.50
-  - added FileWiki::Plugin::Man, which processes man pages
-  - added EXCLUDE system variable
-  - added RESOURCES_FORCE_REBUILD system variable
-  - changed default PLUGIN_MARKDOWN_MATCH=\.(md|txt)$
-  - allow array vars for INCLUDE, EXCLUDE and PLUGIN variables (e.g. +INCLUDE=foo)
-  - added SORT_STRATEGY=none (no sorting, useful when using INCLUDE)
-  - added Template::Plugin::SwissTopo (swiss map plugin for Template Toolkit)
-  - added support for blueimp gallery slideshow scripts (alternative to galleria)
-  - added option "slideshow" for gallery_image_link variable
-  - added variable gallery_popout, which displays a popout action link if set
-  - added support for multiline variables (starting/ending with '\\\')
-  - added resource-creator plugin framework
-  - added plugin groups and constructor arguments
-  - added FileWiki::Plugin::ImageMagick, which uses the PerlMagick API
+  * added FileWiki::Plugin::Man, which processes man pages
+  * added EXCLUDE system variable
+  * added RESOURCES_FORCE_REBUILD system variable
+  * changed default PLUGIN_MARKDOWN_MATCH=\.(md|txt)$
+  * allow array vars for INCLUDE, EXCLUDE and PLUGIN variables (e.g. +INCLUDE=foo)
+  * added SORT_STRATEGY=none (no sorting, useful when using INCLUDE)
+  * added Template::Plugin::SwissTopo (swiss map plugin for Template Toolkit)
+  * added support for blueimp gallery slideshow scripts (alternative to galleria)
+  * added option "slideshow" for gallery_image_link variable
+  * added variable gallery_popout, which displays a popout action link if set
+  * added support for multiline variables (starting/ending with '\\\')
+  * added resource-creator plugin framework
+  * added plugin groups and constructor arguments
+  * added FileWiki::Plugin::ImageMagick, which uses the PerlMagick API
     for creating image resources
-  - added FileWiki::Plugin::ExtCmd, which calls a user-defined command
+  * added FileWiki::Plugin::ExtCmd, which calls a user-defined command
     for creating page resources
-  - added FileWiki::Plugin::EXIF, providing EXIF information in vars
-  - removed FileWiki::Plugin::Gallery, which is no longer required as
+  * added FileWiki::Plugin::EXIF, providing EXIF information in vars
+  * removed FileWiki::Plugin::Gallery, which is no longer required as
     the same functionality is provided by the more generic
     ImageMagick, ExtCmd, and EXIF plugins, in combination with plugin
     grouping
 
-* filewiki-current
-  - added SRC_REGEXP system variable
-  - create reproducible output (always order hashes in templates)
-  - use "grohtml" for man page conversion (in FileWiki::Plugin::Man)
-  - produce "name.1.html" instead of "name.html" (FileWiki::Plugin::Man)
-  - added FileWiki::Plugin::Asciidoc
+FileWiki-0.40
+
+  * generate XHTML in FileWiki::Plugin::POD
+  * Template::Plugin::FileWiki->PageTree() generates <ul class="collapse">
+  * Template::Plugin::FileWiki->PageTree() generates "highlight" class:
+    * in <li> if "highlight_list_item" is set
+    * in <a> if "highlight_link" is set
+  * adapted plugin framework to allow vars-provider plugins
+  * added FileWiki::Plugin::Git, which provides variables such as "git commit date"
+  * added FileWiki::Plugin::Perl, which provides PERL_PACKAGE and PERL_VERSION
+  * enhanced variable declaration:
+    * support for array variable declaration of form: "+mykey=value"
+    * support for eval expressions on variables
+    * support variable expansion in form: ${myvar} and ${myvar//match/replace}
+    * support variable late expansion in form: ${{myvar}} and ${{myvar//match/replace}}
+    * support logical expressions in form: $(( [[!]CONDITION:] EXPR0 || EXPR1 || ... ))
+    * removed obsolete NAME_MATCH, MATCH_<var>, DIR_MATCH_<var> and SANITIZE_<var>
+      hacks, this can now be solved with variable substitution and eval expressions
+  * Gallery changes:
+    * replaced GALLERY_IMAGE_<TYPE> declaration by GALLERY_IMAGE_TARGETS
+    * replaced GALLERY_CONVERT_OPTIONS by GALLERY_IMAGE_CMD_JPG
+    * replaced mobile_view variable by gallery_image_link, gallery_prevnext_bottom,
+      gallery_prevnext_top and gallery_button_simple
+    * added GALLERY_DISABLE_EXIF_WARNINGS
+    * gallery templates: refactoring of gallery mosaic display (use
+      display-block instead of tables): introduced new mosaic_* classes.
+    * gallery templates: support for smartphones (two columns, fixed to
+      50% width) and tablets (resized images, maximum height of 120px)
+    * gallery templates: added mobile_view variable
+
+FileWiki-0.30
+
+  * more generic approach for image resizes and still image commands
+  * enhancements in exif info table
+  * fixed gallery trail: trail goes down as long as gallery_trail variable is set
+  * moved all gallery templates to common template directory
+  * added INCLUDE_VARS system variable
+  * added FileWiki::Plugin::CSS, with template and minimizing support
+  * added FileWiki::Plugin::JavaScript, with minimizing support
+  * fixed INCLUDE variable handling
+  * added EXIF sidecar support (GALLERY_SIDECAR_POSTFIX variable)
+  * renamed GALLERY_RESIZE_<TYPE> to GALLERY_IMAGE_<TYPE>
+
+FileWiki-0.21
+
+  * added video support for Gallery plugin
+  * minor bugfixes
+
+FileWiki-0.20
+
+  * added plugin framework
+  * added FileWiki::Plugin::Gallery
+  * added example site for photo gallery
+  * renamed TARGET_DIR to OUTPUT_DIR
+  * removed RAW_COPY system variable (now handled by FileWiki::Plugin::Copy)
+  * added SKIP_PREVNEXT system variable
+  * added MAKE_INDEX_PAGE system variable
+  * added transformation variables: MATCH_<var>, DIR_MATCH_<var>, SANITIZE_<var>
+  * changed delimiter for INCLUDE system variable to ':'
+
+FileWiki-0.10
+
+  * initial revision
