@@ -33,7 +33,7 @@ FileWiki comes with a command-line client, as well as a in-browser
 Wiki editor.
 
 
-Official home page: <http://www.digint.ch/filewiki>
+Official home page: <https://digint.ch/filewiki>
 
 Current version: `0.51`
 
@@ -43,7 +43,7 @@ DOCUMENTATION
 
 You can find the main documentation in the `doc/` directory of the
 FileWiki project. The latest version is also available [online]
-(http://www.digint.ch/filewiki/doc/introduction.html).
+(https://digint.ch/filewiki/doc/introduction.html).
 
 The perl module documentation is distributed in POD format. The POD
 pages are installed when you 'make install' and can be viewed using

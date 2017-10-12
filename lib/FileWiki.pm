@@ -20,7 +20,7 @@ FileWiki is a simple but powerful web site generator.
 It parses a directory tree and generates static web pages defined by
 templates, which make use of variables seeded within the tree.
 
-The full documentation is available at L<http://www.digint.ch/filewiki>.
+The full documentation is available at L<https://digint.ch/filewiki>.
 
 =head1 BUGS
 

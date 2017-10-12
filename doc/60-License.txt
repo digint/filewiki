@@ -9,6 +9,6 @@ License, Version 3][GPLv3].
 
 If you are using FileWiki, you are encouraged to put a
 "Powered By FileWiki" [badge] on your web site, pointing back to
-<http://www.digint.ch/filewiki>.
+<https://digint.ch/filewiki>.
 
-  [badge]: http://www.digint.ch/download/filewiki/img/filewiki_badge.png
+  [badge]: https://digint.ch/download/filewiki/img/filewiki_badge.png
