@@ -161,6 +161,12 @@ text_key is not set.  Useful if you want to make sure that all
 directories are displayed in the PageTree.
 Defaults to undef.
 
+=item uri_key
+
+The page-var key to be set as "href" attribute in the link.
+Note that if the page-var is not set, the default value is used.
+Defaults to "URI" (or {INDEX_PAGE}->{URI} for dir pages).
+
 =item title_key
 
 The page-var key to be set as "title" attribute in the link.
@@ -282,6 +288,7 @@ sub page_link
   my $page = shift;
   my $args = shift;
   my $uri = $page->{INDEX_PAGE}->{URI} || $page->{URI}; # directories point to their index_page
+  $uri = $page->{$args->{uri_key}} if($args->{uri_key} && $page->{$args->{uri_key}});
 
   # set text and title
   my $text_key = $args->{text_key};
