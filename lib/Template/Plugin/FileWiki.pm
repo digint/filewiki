@@ -181,6 +181,12 @@ Defaults to false.
 If set, also tag all parents of the current page with class "highlight".
 Defaults to false.
 
+=item list_item_class_key
+
+The page-var key to be set as "class" attribute in the list item
+element.
+Defaults to undef.
+
 =item match
 
 Hash reference to match expressions: the key defines the page-var, the
@@ -338,8 +344,15 @@ sub tree_item
     }
   }
 
+  my @classes;
+  push(@classes, 'highlight') if($args->{highlight_list_item} && highlight($page, $args));
+  if($args->{list_item_class_key}) {
+    my $cc = $page->{$args->{list_item_class_key}};
+    push(@classes, ref($cc) ? @$cc : $cc) if($cc);
+  }
+
   $html .= '<li';
-  $html .=  ' class="highlight"' if($args->{highlight_list_item} && highlight($page, $args));
+  $html .= ' class="' . join(' ', @classes) . '"' if(scalar(@classes));
   $html .= '>';
   push @$tag_stack, '</li>';
 
