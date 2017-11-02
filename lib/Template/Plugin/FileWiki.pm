@@ -181,6 +181,11 @@ Defaults to false.
 If set, also tag all parents of the current page with class "highlight".
 Defaults to false.
 
+=item list_item_id_key
+
+The page-var key to be set as "id" attribute in the list item element.
+Defaults to undef.
+
 =item list_item_class_key
 
 The page-var key to be set as "class" attribute in the list item
@@ -351,7 +356,9 @@ sub tree_item
     push(@classes, ref($cc) ? @$cc : $cc) if($cc);
   }
 
+  my $id_attribute = $args->{list_item_id_key} ? $page->{$args->{list_item_id_key}} : undef;
   $html .= '<li';
+  $html .= " id=\"$id_attribute\"" if($id_attribute);
   $html .= ' class="' . join(' ', @classes) . '"' if(scalar(@classes));
   $html .= '>';
   push @$tag_stack, '</li>';
