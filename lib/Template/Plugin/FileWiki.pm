@@ -9,7 +9,7 @@ use FileWiki;
 use HTML::Entities;
 use FileWiki::Logger;
 
-our $VERSION = "0.40";
+our $VERSION = "0.52";
 
 =head1 NAME
 
@@ -98,6 +98,12 @@ Example:
 
 This shows a list of all perl modules in "libdir" (page-var),
 reformatted in perl notation (Example::TestModule).
+
+=head2 PageTrail
+
+Generate a HTML list (backwards list of PARENT_DIR chain).
+
+See L</Generic Function Arguments> below for the arguments taken.
 
 
 =head2 Sitemap
@@ -485,6 +491,34 @@ sub PageTree
 
   $html .= pop @tag_stack while(@tag_stack);
   return $html;
+}
+
+
+sub PageTrail
+{
+  my $self = shift;
+  my $args = shift;
+  my $page = $self->{_CONTEXT}->{STASH};
+  my $arrow = $args->{trail_arrow} || " &raquo;&nbsp;"; # defaults to: " >> "
+
+  DEBUG "Creating PageTrail: $page->{URI}"; INDENT 1;
+
+  # assemble trail (backwards from current page)
+  my @dirtrail = ( $page );
+  my $parent_dir = $page->{IS_DIR} ? $page->{PARENT_DIR} : $page->{DIR};
+  while($parent_dir) {
+    unshift @dirtrail, $parent_dir;
+    $parent_dir = $parent_dir->{PARENT_DIR};
+  }
+
+  # print links for directory nodes
+  my @trail_html;
+  foreach(@dirtrail) {
+    push @trail_html, page_link($_, $args);
+  }
+
+  INDENT -1;
+  return join($arrow, @trail_html);
 }
 
 
