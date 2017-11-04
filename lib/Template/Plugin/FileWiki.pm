@@ -150,16 +150,14 @@ Defaults to false.
 
 =item text_key
 
-The page-var key to be displayed in the link. Pages with this key not
-set are not displayed.
+The page-var key (scalar or arrayref) to be displayed in the
+link. Unless the "list_empty_text_key" argument is set, pages with an
+empty text_key are not displayed.
 Defaults to "NAME" in PageTree, and "URI" in PageList.
 
-=item text_key_dir_alt
+=item list_empty_text_key
 
-The dir-var key to be displayed in the link for directories if the
-text_key is not set.  Useful if you want to make sure that all
-directories are displayed in the PageTree.
-Defaults to undef.
+If set, also list pages with text_key unset (and print a warning).
 
 =item uri_key
 
@@ -186,6 +184,10 @@ Defaults to false.
 
 If set, also tag all parents of the current page with class "highlight".
 Defaults to false.
+
+=item list_item_element
+
+The html element to use. Defaults to "a" or "span" (if no uri).
 
 =item list_item_id_key
 
@@ -287,41 +289,58 @@ sub page_link
 {
   my $page = shift;
   my $args = shift;
-  my $uri = $page->{INDEX_PAGE}->{URI} || $page->{URI}; # directories point to their index_page
-  $uri = $page->{$args->{uri_key}} if($args->{uri_key} && $page->{$args->{uri_key}});
+  my $uri;
+  if($args->{uri_key} && $page->{$args->{uri_key}}) {
+    $uri = $page->{$args->{uri_key}};
+  }
+  $uri ||= $page->{INDEX_PAGE}->{URI};  # directories point to their INDEX_PAGE, always preferred
+  $uri ||= $page->{URI};
 
   # set text and title
-  my $text_key = $args->{text_key};
   my $title_key = $args->{title_key};
-  my $text = $page->{$text_key};
   my $title = $title_key ? $page->{$title_key} : '';
-
-  my $text_key_dir_alt = $args->{text_key_dir_alt};
-  unless($text) {
-    # set alternative text for directories
-    if($page->{IS_DIR} && $text_key_dir_alt) {
-      $text = $page->{$text_key_dir_alt};
-      $text =~ s/_/ /g;
-      DEBUG "Undefined variable \"$text_key\", using alternative $text_key_dir_alt=\"$text\": $uri";
-    } else {
-      TRACE "Skipping item (undefined \"$text_key\"): $uri";
-      return "";
+  my @text_keys = ref($args->{text_key}) ? @{$args->{text_key}} : $args->{text_key};
+  my $text = "";
+  foreach(@text_keys) {
+    next unless($_);
+    if($page->{$_}) {
+      $text = $page->{$_};
+      last;
     }
+  }
+  unless($text || $args->{list_empty_text_key}) {
+    TRACE "Skipping item (no defined variables \"" . join(';',@text_keys) . "\"): $page->{SRC_FILE}";
+    return "";
+  }
+  unless($text) {
+    WARN "Processing page link with empty text (no defined variables \"" . join(';',@text_keys) . "\"): $page->{SRC_FILE}";
   }
 
   # process regexp
   $text =~ s/$_->{match}/$_->{replace}/g  foreach (@{$args->{regexp}});
 
-  DEBUG "Creating link item \"$text\": $uri";
+  DEBUG "Creating link item \"$text\": $page->{URI}";
 
   # create the html link
+  my $list_item_element = $uri ? "a" : "span";
+  if(ref($args->{list_item_element})) {
+    # hash: { LEVEL => ELEMENT, ... }
+    $list_item_element = $args->{list_item_element}{$page->{LEVEL}} if($args->{list_item_element}{$page->{LEVEL}});
+  } elsif($args->{list_item_element}) {
+    $list_item_element = $args->{list_item_element};
+  }
+  my $link_onclick;
+  $link_onclick = $args->{link_onclick}{$page->{LEVEL}} if(ref($args->{link_onclick}) && $args->{link_onclick}{$page->{LEVEL}});
+
   my $html;
-  $html .= "<a href=\"$uri\"";
+  $html .= "<${list_item_element}";
+  $html .= " href=\"$uri\""        if($list_item_element eq "a");
   $html .= " title=\"$title\""     if($title);
   $html .= " class=\"highlight\""  if($args->{highlight_link} && highlight($page, $args));
+  $html .= " onclick=\"$link_onclick\""  if($link_onclick);
   $html .= ">";
-  $html .= "$text";
-  $html .= "</a>\n";
+  $html .= $text;
+  $html .= "</${list_item_element}>\n";
 
   return $html;
 }
