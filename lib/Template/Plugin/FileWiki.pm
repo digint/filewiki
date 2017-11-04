@@ -191,6 +191,25 @@ Defaults to false.
 If set, also tag all parents of the current page with class "highlight".
 Defaults to false.
 
+=item list_id_key
+
+The dir-var (sic!) key to be set as "id" attribute in the "ul" list
+element.
+Defaults to undef.
+
+=item list_item_onclick_handler
+
+Function name of the onclick handler called on list_item_element (only
+set if list_id_key is valid!). The handler is called with arguments:
+"<list_id>, event".
+Defaults to undef.
+
+=item list_onclick_class, list_item_onclick_button_class
+
+Class to be set on elements "ul" (list_onclick_class) or
+list_item_element (list_item_onclick_button_class) if list_id_key is valid.
+Defaults to undef.
+
 =item list_item_element
 
 The html element to use. Defaults to "a" or "span" (if no uri).
@@ -335,15 +354,18 @@ sub page_link
   } elsif($args->{list_item_element}) {
     $list_item_element = $args->{list_item_element};
   }
-  my $link_onclick;
-  $link_onclick = $args->{link_onclick}{$page->{LEVEL}} if(ref($args->{link_onclick}) && $args->{link_onclick}{$page->{LEVEL}});
+
+  my $list_id = $args->{list_id_key} ? $page->{$args->{list_id_key}} : undef;
+  my @classes;
+  push @classes, 'highlight' if($args->{highlight_link} && highlight($page, $args));
+  push @classes, $args->{list_item_onclick_button_class} if($list_id && $args->{list_item_onclick_button_class});
 
   my $html;
   $html .= "<${list_item_element}";
   $html .= " href=\"$uri\""        if($list_item_element eq "a");
   $html .= " title=\"$title\""     if($title);
-  $html .= " class=\"highlight\""  if($args->{highlight_link} && highlight($page, $args));
-  $html .= " onclick=\"$link_onclick\""  if($link_onclick);
+  $html .= ' class="' . join(' ', @classes) . '"' if(scalar(@classes));
+  $html .= " onclick=\"$args->{list_item_onclick_handler}('$list_id',event);\"" if($list_id && $args->{list_item_onclick_handler});
   $html .= ">";
   $html .= $text;
   $html .= "</${list_item_element}>\n";
@@ -365,8 +387,13 @@ sub tree_item
   return ""  unless($item_html);
 
   if(($$prev_level < $level)) {
+    my $list_id = $args->{list_id_key} ? $page->{DIR}{$args->{list_id_key}} : undef; # a bit hacky using DIR
+    my @ul_classes;
+    push @ul_classes, 'collapse' if($flags{collapse});
+    push @ul_classes, $args->{list_onclick_class} if($list_id && $args->{list_onclick_class});
     $html .= '<ul';
-    $html .= ' class="collapse"' if($flags{collapse});
+    $html .= " id=\"$list_id\"" if($list_id);
+    $html .= ' class="' . join(' ', @ul_classes) . '"' if(scalar(@ul_classes));
     $html .= '>';
     push @$tag_stack, '</ul>';
   }
