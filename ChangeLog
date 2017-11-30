@@ -1,3 +1,12 @@
+FileWiki-0.52
+
+  * Template::Plugin::Filewiki: add PageTrail function
+  * Template::Plugin::Filewiki: add "list_onclick"
+  * Template::Plugin::Filewiki: add "list_item_element": define html element
+  * Template::Plugin::Filewiki: add uri_key: override page URI
+  * Template::Plugin::Filewiki: add list_item_class_key,
+    list_item_id_key: define additional class/id attribute for page
+
 FileWiki-0.51
 
   * added SRC_REGEXP system variable
