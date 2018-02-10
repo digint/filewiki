@@ -194,7 +194,7 @@ use Image::Size qw(imgsize);
 use Image::Magick;
 use File::Path qw(mkpath);
 
-our $VERSION = "0.51";
+our $VERSION = "0.53";
 
 our $MATCH_DEFAULT = '\.(bmp|gif|jpeg|jpeg2000|mng|png|psd|raw|svg|tif|tiff|gif|jpeg|jpg|png|pdf|BMP|GIF|JPEG|JPEG2000|MNG|PNG|PSD|RAW|SVG|TIF|TIFF|GIF|JPEG|JPG|PNG|PDF)$';
 
@@ -285,8 +285,15 @@ sub create_image_resource
   my $src_file = $page->{SRC_FILE};
   if($self->{src_file_key}) {
     if(exists($page->{RESOURCE}) && exists($page->{RESOURCE}->{$self->{src_file_key}})) {
-      $src_file = $page->{RESOURCE}->{$self->{src_file_key}}->{TARGET_FILE};
+      my $src_resource = $page->{RESOURCE}->{$self->{src_file_key}};
+      $src_file = $src_resource->{TARGET_FILE};
       DEBUG "Chaining source file from target of resource \"$self->{src_file_key}\": $src_file";
+      unless($src_resource->{WIDTH} && $src_resource->{HEIGHT}) {
+        # make sure the chained source also has WIDTH/HEIGHT.
+        # note that this is not strictly required, but is useful as it sanitizes RESOURCES passed by Plugin::ExtCmd.
+        DEBUG "Adding missing WIDTH/HEIGHT from chained resource \"$self->{src_file_key}\"";
+        ($src_resource->{WIDTH}, $src_resource->{HEIGHT}) = imgsize($src_file);
+      }
     }
     else {
       ERROR "Resource chaining failed: no resource '$self->{src_file_key}'. Check your PLUGINS declaration: ImageMagick(@" . $self->{src_file_key} . ")";
