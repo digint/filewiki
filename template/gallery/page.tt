@@ -70,13 +70,11 @@
 [% gallery_image_href = "slideshow.html?display=$NAME" %]
 [% END %]
 
-[% IF RESOURCE.POSTER.URI %]
+[% IF RESOURCE.WEBM.URI || RESOURCE.MP4.URI %]
 <div class="gallery_video">
 <video controls="controls" preload="metadata" poster="[% RESOURCE.POSTER.URI %]" style="max-width:[% RESOURCE.POSTER.WIDTH %]px;">
-[% FOREACH key IN RESOURCE.keys.sort %]
-[% NEXT UNLESS RESOURCE.$key.MIME_TYPE.match('^video') %]
-<source src="[% RESOURCE.$key.URI %]" type="[% RESOURCE.$key.MIME_TYPE %]"/>
-[% END %]
+[% IF RESOURCE.WEBM.URI %]<source src="[% RESOURCE.WEBM.URI %]" type="[% RESOURCE.WEBM.MIME_TYPE %][% webm_type_postfix %]">[% END %]
+[% IF RESOURCE.MP4.URI %]<source src="[% RESOURCE.MP4.URI %]" type="[% RESOURCE.MP4.MIME_TYPE %][% mp4_type_postfix %]">[% END %]
 </video>
 </div>
 [% ELSE %]
