@@ -1,5 +1,7 @@
 [%~### displays exif data table ###~%]
 
+[%~# NOTE: make sure this matches exifjson.tt ~%]
+
 [% BLOCK exif_section %]
 
 [% IF tag_list %]

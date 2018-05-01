@@ -1,0 +1,43 @@
+[%~### displays exif JSON data ###~%]
+
+[%~# NOTE: make sure this matches exiftable.tt ~%]
+
+[% BLOCK exif_json %]
+
+[% IF tag_list %]
+[% SET keys = [] %]
+[% FOREACH key IN tag_list.split(',') %]
+[% NEXT UNLESS EXIF_INFO.$key %]
+[% keys.push(key) %]
+[% END %]
+
+[% IF keys.size %]
+[
+[%~ separator_ = "" ~%]
+[% FOREACH key IN keys %]
+[% separator_ %]
+["[% EXIF_INFO.$key.desc.dquote %]","[% EXIF_INFO.$key.print.dquote %]"]
+[% separator_ = "," %]
+[% END %]
+]
+[% ELSE %]
+null
+[% END %]
+[% END %]
+
+[% END %]
+
+
+[%~### BLOCK END ###~%]
+
+
+[% IF exif_tags_main || exif_tags_exposure || exif_tags_additional || exif_tags_geo %]
+
+[                                                                               [%~ # chomp ~%]
+["Photo Properties", [% INCLUDE exif_json tag_list=exif_tags_main       %] ],   [%~ # chomp ~%]
+["Exposure",         [% INCLUDE exif_json tag_list=exif_tags_exposure   %] ],   [%~ # chomp ~%]
+["Camera Details",   [% INCLUDE exif_json tag_list=exif_tags_additional %] ],   [%~ # chomp ~%]
+["Geolocation",      [% INCLUDE exif_json tag_list=exif_tags_geo        %] ]    [%~ # chomp ~%]
+]
+
+[% END %]
