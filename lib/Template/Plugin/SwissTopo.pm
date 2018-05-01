@@ -8,7 +8,7 @@ use base qw( Template::Plugin );
 use HTML::Entities;
 use FileWiki::Logger;
 
-our $VERSION = "0.50";
+our $VERSION = "0.53";
 
 =head1 NAME
 
@@ -33,7 +33,8 @@ longitude) to CH-1903 (swiss coordinate system).
 
 =head2 URL
 
-Generate a SwissTopo URL.
+Generate a SwissTopo URL. Returns an empty string if coordinates are
+not covered by the map.
 
 Arguments:
 
@@ -41,6 +42,7 @@ Arguments:
  - long:      WGS-84 longitude (mandatory)
  - zoom:      zoom factor [0..13], defaults to 8
  - crosshair: draw crosshair. supported values: "cross", "circle", "bowl" and "point"
+ - encode:    if set, returns URL encoded string
 
 Example:
 
@@ -229,17 +231,17 @@ sub URL
 {
   my $self = shift;
   my $args = shift;
-  my $long = $args->{long};
-  my $lat = $args->{lat};
+  my $long = $args->{long} || 0;
+  my $lat = $args->{lat} || 0;
   my $crosshair = $args->{crosshair} || "bowl";
   my $zoom = $args->{zoom} // 8;
   my $bg_layer = $args->{bg_layer} || "ch.swisstopo.pixelkarte-farbe";
+  my $encode = $args->{encode} // 1;
 
-  unless(defined($long) && defined($lat)) {
-    ERROR "SwissTopo URL: missing arguments: lat/long";
+  unless(($long >= 5) && ($lat >= 45.5) && ($long <= 11) && ($lat <= 48)) {
+    DEBUG "Skipping SwissTopo URL (not in map): [$lat, $long]";
     return "";
   }
-
   TRACE "Creating SwissTopo URL from coordinates: [$lat, $long]";
 
   # <http://help.geo.admin.ch/?id=54&lang=en>
@@ -252,7 +254,11 @@ sub URL
   $url .= "&bgLayer=" . $bg_layer;
 #  $url .= "&topic=ech";
 
-  return encode_entities($url);
+  if($encode) {
+    return encode_entities($url);
+  } else {
+    return $url;
+  }
 }
 
 1;

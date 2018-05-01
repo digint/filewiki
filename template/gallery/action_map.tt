@@ -1,7 +1,10 @@
+[% USE SwissTopo %]
+
 [% DEFAULT
     geo_longitude  = EXIF_INFO.GPSLongitude.value
     geo_latitude   = EXIF_INFO.GPSLatitude.value
     swisstopo_zoom = 8
+    swisstopo_url  = SwissTopo.URL(lat => geo_latitude, long => geo_longitude, crosshair => "cross", zoom => swisstopo_zoom)
 %]
 
 
@@ -22,12 +25,10 @@
 
 [%~### SwissTopo Map link ###~%]
 
-[% IF (geo_longitude >= 5) && (geo_latitude >= 45.5) && (geo_longitude <= 11) && (geo_latitude <= 48) %]
-
-[% USE SwissTopo %]
+[% IF swisstopo_url %]
 
 <span class="gallery_action">
-<a href="[% SwissTopo.URL(lat => geo_latitude, long => geo_longitude, crosshair => "cross", zoom => swisstopo_zoom) %]" target="_blank">
+<a href="[% swisstopo_url %]" target="_blank">
 <img alt="map" src="[% swisstopo_icon %]" />
 </a>
 </span>
