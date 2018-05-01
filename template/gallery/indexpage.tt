@@ -14,14 +14,19 @@ SKIP_PREVNEXT=1
   #
 %]
 
+[% IF gallery_viewer == "photoswipe" %]
+[%   photoswipe_style  = "${scripts_dir}/photoswipe/photoswipe.css:${scripts_dir}/photoswipe/default-skin/default-skin.css" %]
+[%   photoswipe_script = "${scripts_dir}/photoswipe/photoswipe.min.js:${scripts_dir}/photoswipe/photoswipe-ui-filewiki.js"  %]
+[% END %]
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 [% USE FileWiki %]
 [%+ INCLUDE filewiki/head.tt
      title = DIR.title || DIR.NAME
-     javascript = "${scripts_dir}/showhide.js:${scripts_dir}/photoswipe//photoswipe.min.js:${scripts_dir}/photoswipe/photoswipe-ui-default.js"
-     stylesheet = "${stylesheet}:${scripts_dir}/photoswipe/photoswipe.css:${scripts_dir}/photoswipe/default-skin/default-skin.css"
+     javascript = "${scripts_dir}/showhide.js:${photoswipe_script}"
+     stylesheet = "${stylesheet}:${photoswipe_style}"
 %]
 
 [%# provide "pagelist" variable needed below %]
@@ -69,9 +74,11 @@ SKIP_PREVNEXT=1
 [% PROCESS gallery/bottom.tt %]
 [% PROCESS filewiki/debug.tt %]
 
+[% IF gallery_viewer == "photoswipe" %]
 [% PROCESS gallery/photoswipe.tt %]
 <script type="text/javascript" src="mediainfo.js"></script>
 <script type="text/javascript" src="[% scripts_dir %]/indexpage.js"></script>
+[% END %]
 
 </body>
 </html>
