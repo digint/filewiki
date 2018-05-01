@@ -243,7 +243,7 @@ sub URL
   TRACE "Creating SwissTopo URL from coordinates: [$lat, $long]";
 
   # <http://help.geo.admin.ch/?id=54&lang=en>
-  my $url = "http://map.geo.admin.ch/";
+  my $url = "https://map.geo.admin.ch/";
   $url .= "?X=" . sprintf("%.2f", WGStoCHx($lat, $long));
   $url .= "&Y=" . sprintf("%.2f", WGStoCHy($lat, $long));
   $url .= "&zoom=" . $zoom;

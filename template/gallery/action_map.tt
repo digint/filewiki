@@ -14,7 +14,7 @@
    # - q: search query. if it is prefixed by "loc:" then google assumes it is a lat lon separated by a +
 ~%]
 
-<a href="http://maps.google.com?q=loc:[% geo_latitude %]+[% geo_longitude %]&amp;t=h" target="_blank">
+<a href="https://maps.google.com?q=loc:[% geo_latitude %]+[% geo_longitude %]&amp;t=h" target="_blank">
 <img alt="map" src="[% map_icon %]" />
 </a>
 </span>
