@@ -35,7 +35,7 @@ use FileWiki;
 use FileWiki::Logger;
 
 
-our $VERSION = "0.50";
+our $VERSION = "0.53";
 
 # returns true if the plugin is to be enabled for a given page
 sub enabled
@@ -121,7 +121,7 @@ sub get_uri_filename
   my $self = shift;
   my $page = shift;
   my $name = $page->{NAME} || die("No NAME specified");
-  my $target_file_ext = $self->{target_file_ext} || die("No target_file_ext specified: $self");
+  my $target_file_ext = $page->{TARGET_FILE_EXT} || $self->{target_file_ext} || die("No target_file_ext specified: $self");
 
   return $name . '.' . $target_file_ext;
 }
