@@ -130,7 +130,7 @@ var media_list = [
   NAME: '[% href.NAME %]',
   URI: '[% href.URI %]',
 [% IF href.title +%]
-  title: '[% href.title.replace('\'', '\\\'') %]',
+  title: '[% href.title.squote %]',
 [% END %]
 [% IF href.RESOURCE.POSTER.URI +%]
   type:  'video/*',
@@ -220,7 +220,7 @@ function toggleFullScreen() {
 [% NEXT IF href.SKIP_PREVNEXT %]
 [% NEXT IF href.IS_DIR %]
 [% NEXT UNLESS href.RESOURCE.MINITHUMB.NAME %]
-<a href="[% href.RESOURCE.BIG.NAME || href.RESOURCE.SCALED.NAME %]" title="[% href.title.replace('"', '\\"') || href.SRC_FILE_NAME %]">
+<a href="[% href.RESOURCE.BIG.NAME || href.RESOURCE.SCALED.NAME %]" title="[% href.title.dquote || href.SRC_FILE_NAME %]">
 <img src="[% href.RESOURCE.MINITHUMB.NAME %]" alt="[% href.title || href.SRC_FILE_NAME %]"/>
 </a>
 [% END %]
