@@ -246,15 +246,33 @@ var initPhotoSwipe = function() {
 	gallery.listen('gettingData', function(index, item) {
             // make sure there is always a title, or addCaptionHTMLFn() will not be called...
             item.title = item.title || item.pid;
-	    if( useLargeImages ) {
-		item.src = item.o.src;
-		item.w = item.o.w;
-		item.h = item.o.h;
-	    } else {
-		item.src = item.m.src;
-		item.w = item.m.w;
-		item.h = item.m.h;
-	    }
+            if(item.v) {
+                // item is a video, create html
+                // see: http://photoswipe.com/documentation/custom-html-in-slides.html
+                if(!item.html) {
+                    // TODO: use modal view after ".pswp__scroll-wrap"
+                    item.html =
+                        '<div style="position:fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50%);">' +
+                        '<div style="position:relative;max-width:100vh;">' +
+                        '<a href="' + item.fwuri + '">' +
+                        '<img src="' + item.v.src + '" width="' + item.v.w + '" height="' + item.v.h + '">' +
+                        '</a>' +
+                        '<img style="position:absolute;top:16px;right:16px;" src="/img/video.png">' +
+                        '</div>' +
+                        '</div>';
+                }
+            }
+            else {
+	        if( useLargeImages ) {
+		    item.src = item.o.src;
+		    item.w = item.o.w;
+		    item.h = item.o.h;
+	        } else {
+		    item.src = item.m.src;
+		    item.w = item.m.w;
+		    item.h = item.m.h;
+	        }
+            }
 	});
 
 	gallery.init();
@@ -264,7 +282,11 @@ var initPhotoSwipe = function() {
     var galleryElements = document.querySelectorAll('div.gallery_mosaic_file a');
     for(var i = 0, l = galleryElements.length; i < l; i++) {
         var el = galleryElements[i];
-	el.onclick = onThumbnailsClick;
+
+        // add click handler
+        if(!el.children[0].classList.contains('gallery_mosaic_video')) {
+	    el.onclick = onThumbnailsClick;
+        }
 
         // add link to element, used by getThumbBoundsFn()
         var item = findItem(el.getAttribute('href'));

@@ -13,6 +13,7 @@
 [%
     link_uri              = page.index.IS_DIR ? page.index.INDEX_PAGE.URI : page.index.URI
     mosaic_outer_class    = page.index.IS_DIR ? "gallery_mosaic_dir" : "gallery_mosaic_file"
+    mosaic_type_class     = page.index.RESOURCE.POSTER.URI ? " gallery_mosaic_video" : ""
 
     overlay_shade_events      = page.index.IS_DIR ? "" : " onmouseover=\"show('shaded$counter')\" onmouseout=\"hide('shaded$counter')\""
     overlay_shade_target_attr = page.index.IS_DIR ? "" : " id=\"shaded$counter\" style=\"display: none;\""
@@ -39,7 +40,7 @@
 <div class="gallery_mosaic_wrap">
 <div class="[% mosaic_outer_class %]" [% overlay_shade_events %]>
 <a href="[% link_uri %]">
-<div class="gallery_mosaic" [% mosaic_style_attr %] [% margin_top %]>
+<div class="gallery_mosaic [%~ mosaic_type_class %]" [% mosaic_style_attr %] [% margin_top %]>
 [% IF page.highlight.RESOURCE.THUMB.URI %]
 <img src="[% page.highlight.RESOURCE.THUMB.URI %]" alt="[% page.index.NAME %]" width="[% page.highlight.RESOURCE.THUMB.WIDTH %]" height="[% page.highlight.RESOURCE.THUMB.HEIGHT %]"/>
 [% IF page.index.RESOURCE.POSTER.URI %]
