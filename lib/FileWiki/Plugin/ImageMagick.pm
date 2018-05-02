@@ -112,6 +112,10 @@ Rotate the image (degrees, clockwise). If no <resource_key> is
 provided, the rotate feature will be enabled per default for all
 resources.
 
+=head2 IMAGEMAGICK_TINT, IMAGEMAGICK_TINE_<resource_key>
+
+Tint the image with color (e.g. "#FF0000", "rgb(255, 0, 0)").
+
 =head2 IMAGEMAGICK_STRIP, IMAGEMAGICK_STRIP_<resource_key>
 
 If set, strips image of all profiles and comments (EXIF data,
@@ -330,8 +334,13 @@ sub create_image_resource
 
     # use this to stretch the image
     #$x = $image->Scale(height => "720");
-    my $geometry = $page->{"IMAGEMAGICK_SCALE_$key"} || $page->{"IMAGEMAGICK_SCALE"};
-    im_assert($image->Scale(geometry => $geometry)) if($geometry);
+    if(my $geometry = $page->{"IMAGEMAGICK_SCALE_$key"} || $page->{"IMAGEMAGICK_SCALE"}) {
+      im_assert($image->Scale(geometry => $geometry));
+    }
+
+    if(my $fill = $page->{"IMAGEMAGICK_TINT_$key"} || $page->{"IMAGEMAGICK_TINT"}) {
+      im_assert($image->Tint(fill => $fill));
+    }
 
     # set attributes
     my %attr_quality;
