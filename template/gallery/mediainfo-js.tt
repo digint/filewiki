@@ -1,0 +1,80 @@
+[filewiki_vars]
+NAME=mediainfo
+TARGET_FILE_EXT=js
+TEMPLATE=0
+SKIP_PREVNEXT=1
+[/filewiki_vars]
+
+[%~
+  #
+  # NOTE: This file is included by every directory defined in "gallery.tree.vars".
+  #
+~%]
+
+[% USE SwissTopo %]
+
+[%~ separator_ = "" ~%]
+
+gallery_media = [
+[% FOREACH href IN DIR.TREE %]
+[% NEXT IF href.SKIP_PREVNEXT %]
+[% NEXT IF href.IS_DIR %]
+
+[% lat_  = href.geo_latitude  || href.EXIF_INFO.GPSLatitude.value
+   lon_  = href.geo_longitude || href.EXIF_INFO.GPSLongitude.value
+   zoom_ = href.swisstopo_zoom.defined ? href.swisstopo_zoom : 8
+%]
+
+[% separator_ %]
+{
+  pid: "[% href.NAME %]",
+[% IF href.title +%]
+  title: "[% href.title.dquote %]",
+[% END %]
+[% IF href.date +%]
+  date: "[% href.date.dquote %]",
+[% END %]
+[% IF href.summary +%]
+  summary: "[% href.summary.dquote %]",
+[% END %]
+[% IF href.desc +%]
+  desc: "[% href.desc.dquote %]",
+[% END %]
+[% IF href.author +%]
+  author: "[% href.author.dquote %]",
+[% END +%]
+  msrc: "[% href.RESOURCE.THUMB.URI %]",
+  fwuri: "[% href.URI %]",    [%~ # this acts as index, must match "<a href="   %]
+[% IF href.RESOURCE.SCALED +%]
+  m: {
+    src: "[% href.RESOURCE.SCALED.URI %]",
+    w: [%+ href.RESOURCE.SCALED.WIDTH %],
+    h: [%+ href.RESOURCE.SCALED.HEIGHT +%]
+  },
+[% END %]
+[% IF href.RESOURCE.BIG +%]
+  o: {
+    src: "[% href.RESOURCE.BIG.URI %]",
+    w: [%+ href.RESOURCE.BIG.WIDTH %],
+    h: [%+ href.RESOURCE.BIG.HEIGHT +%]
+  },
+[% END %]
+[% IF href.RESOURCE.WEBM.URI || href.RESOURCE.MP4.URI +%]
+  v: {
+    src: "[% href.RESOURCE.POSTER.URI %]",
+    w: [%+ href.RESOURCE.POSTER.WIDTH %],
+    h: [%+ href.RESOURCE.POSTER.HEIGHT +%]
+  },
+[% END %]
+[% IF lat_ && lon_ +%]
+  geo: [ [% lat_ || "null" %],[% lon_ || "null" %] ],
+[% swisstopo_url  = SwissTopo.URL(lat => lat_, long => lon_, crosshair => "cross", zoom => zoom_, encode => 0) %]
+[% IF swisstopo_url +%]
+  swisstopo: "[% swisstopo_url %]",
+[% END %]
+[% END +%]
+  exif: [%+ INCLUDE gallery/exifjson.tt EXIF_INFO=href.EXIF_INFO +%]
+}
+[% separator_ = "," %]
+[% END %]
+];
