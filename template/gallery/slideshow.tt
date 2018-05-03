@@ -67,9 +67,9 @@ title=Slide Show
 [% FOREACH href IN DIR.TREE %]
 [% NEXT IF href.SKIP_PREVNEXT %]
 [% NEXT IF href.IS_DIR %]
-<a href="[% href.RESOURCE.SCALED.NAME %]">
+<a href="[% href.RESOURCE.LOWRES.NAME %]">
 <img src="[% href.RESOURCE.MINITHUMB.NAME %]" data-title="[% href.title || href.SRC_FILE_NAME %]" data-description="[% href.desc %]"
-[% IF href.RESOURCE.BIG.NAME || href.RESOURCE.ORIGINAL.NAME +%] data-big="[% href.RESOURCE.BIG.NAME || href.RESOURCE.ORIGINAL.NAME %]"[% END %]
+[% IF href.RESOURCE.HIGHRES.NAME || href.RESOURCE.ORIGINAL.NAME +%] data-big="[% href.RESOURCE.HIGHRES.NAME || href.RESOURCE.ORIGINAL.NAME %]"[% END %]
 />
 </a>
 [% END %]
@@ -142,8 +142,8 @@ var media_list = [
 [% END +%]
   ],
 [% ELSE +%]
-  href:  '[% href.RESOURCE.BIG.NAME || href.RESOURCE.SCALED.NAME %]',
-  type:  '[% href.RESOURCE.BIG.MIME_TYPE || href.RESOURCE.SCALED.MIME_TYPE %]',
+  href:  '[% href.RESOURCE.HIGHRES.NAME || href.RESOURCE.LOWRES.NAME %]',
+  type:  '[% href.RESOURCE.HIGHRES.MIME_TYPE || href.RESOURCE.LOWRES.MIME_TYPE %]',
   thumbnail: '[% href.RESOURCE.MINITHUMB.NAME %]',
 [% END +%]
 },
@@ -220,7 +220,7 @@ function toggleFullScreen() {
 [% NEXT IF href.SKIP_PREVNEXT %]
 [% NEXT IF href.IS_DIR %]
 [% NEXT UNLESS href.RESOURCE.MINITHUMB.NAME %]
-<a href="[% href.RESOURCE.BIG.NAME || href.RESOURCE.SCALED.NAME %]" title="[% href.title.dquote || href.SRC_FILE_NAME %]">
+<a href="[% href.RESOURCE.HIGHRES.NAME || href.RESOURCE.LOWRES.NAME %]" title="[% href.title.dquote || href.SRC_FILE_NAME %]">
 <img src="[% href.RESOURCE.MINITHUMB.NAME %]" alt="[% href.title || href.SRC_FILE_NAME %]"/>
 </a>
 [% END %]

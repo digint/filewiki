@@ -4,7 +4,7 @@ FileWiki::Plugin::ImageMagick - Image resource creator plugin for FileWiki
 
 =head1 SYNOPSIS
 
-    PLUGINS=ImageMagick(BIG,SCALED,THUMB,MINITHUMB)
+    PLUGINS=ImageMagick(HIGHRES,LOWRES,THUMB,MINITHUMB)
 
     IMAGEMAGICK_FORMAT                    JPG
     IMAGEMAGICK_FORMAT_MINITHUMB          PNG
@@ -13,8 +13,8 @@ FileWiki::Plugin::ImageMagick - Image resource creator plugin for FileWiki
 
     IMAGEMAGICK_SCALE_THUMB               x180
     IMAGEMAGICK_SCALE_MINITHUMB           72x72
-    IMAGEMAGICK_SCALE_SCALED              x720
-    IMAGEMAGICK_SCALE_BIG                 2560x1440
+    IMAGEMAGICK_SCALE_LOWRES              x720
+    IMAGEMAGICK_SCALE_HIGHRES             2560x1440
 
     IMAGEMAGICK_QUALITY                   75
     IMAGEMAGICK_QUALITY_MINITHUMB         50
@@ -92,11 +92,11 @@ proportionally. Uses ImageMagicks "resize" function (slower than
 
 Example:
 
-    IMAGEMAGICK_SCALE_SCALED              x720
-    IMAGEMAGICK_SCALE_BIG                 2560x1440
+    IMAGEMAGICK_SCALE_LOWRES              x720
+    IMAGEMAGICK_SCALE_HIGHRES             2560x1440
 
-Here, the SCALED resource is scaled proportionally to a height of
-720px. The BIG resource is SCALED proportionaly to a maximum width of
+Here, the LOWRES resource is scaled proportionally to a height of
+720px. The HIGHRES resource is scaled proportionaly to a maximum width of
 2560px and a maximum height of 1440px.
 
 =head2 IMAGEMAGICK_XSCALE, IMAGEMAGICK_XSCALE_<resource_key>

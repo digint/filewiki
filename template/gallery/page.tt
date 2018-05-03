@@ -22,7 +22,7 @@
 <span class="header_links">
 [% INCLUDE gallery/action_info.tt  id="shaded_info" %]
 [% IF gallery_popout %]
-  [% INCLUDE gallery/action_popout.tt  link=(RESOURCE.MP4.URI || RESOURCE.ORIGINAL.URI || RESOURCE.BIG.URI) %]
+  [% INCLUDE gallery/action_popout.tt  link=(RESOURCE.MP4.URI || RESOURCE.ORIGINAL.URI || RESOURCE.HIGHRES.URI) %]
 [% END %]
 [%# no need for slideshow button, the link is already on the image %]
 [%# IF gallery_slideshow == "blueimp" %]
@@ -65,7 +65,7 @@
 [% IF gallery_image_link == "next" %]
 [% gallery_image_href = PAGE_NEXT.URI %]
 [% ELSIF gallery_image_link == "original" %]
-[% gallery_image_href = RESOURCE.ORIGINAL.URI || RESOURCE.BIG.URI %]
+[% gallery_image_href = RESOURCE.ORIGINAL.URI || RESOURCE.HIGHRES.URI %]
 [% ELSIF gallery_image_link == "slideshow" %]
 [% gallery_image_href = "slideshow.html?display=$NAME" %]
 [% END %]
@@ -80,7 +80,7 @@
 [% ELSE %]
 <div class="gallery_image">
 [% IF gallery_image_href %]<a href="[% gallery_image_href %]">[% END %]
-<img src="[% RESOURCE.SCALED.URI %]" alt="[% SRC_FILE_NAME %]" style="max-width:[% RESOURCE.SCALED.WIDTH %]px;"/>
+<img src="[% RESOURCE.LOWRES.URI %]" alt="[% SRC_FILE_NAME %]" style="max-width:[% RESOURCE.LOWRES.WIDTH %]px;"/>
 [% IF gallery_image_href %]</a>[% END %]
 </div>
 [% END %]

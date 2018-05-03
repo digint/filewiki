@@ -45,18 +45,18 @@ gallery_media = [
 [% END +%]
   msrc: "[% href.RESOURCE.THUMB.URI %]",
   fwuri: "[% href.URI %]",    [%~ # this acts as index, must match "<a href="   %]
-[% IF href.RESOURCE.SCALED +%]
+[% IF href.RESOURCE.LOWRES +%]
   m: {
-    src: "[% href.RESOURCE.SCALED.URI %]",
-    w: [%+ href.RESOURCE.SCALED.WIDTH %],
-    h: [%+ href.RESOURCE.SCALED.HEIGHT +%]
+    src: "[% href.RESOURCE.LOWRES.URI %]",
+    w: [%+ href.RESOURCE.LOWRES.WIDTH %],
+    h: [%+ href.RESOURCE.LOWRES.HEIGHT +%]
   },
 [% END %]
-[% IF href.RESOURCE.BIG +%]
+[% IF href.RESOURCE.HIGHRES +%]
   o: {
-    src: "[% href.RESOURCE.BIG.URI %]",
-    w: [%+ href.RESOURCE.BIG.WIDTH %],
-    h: [%+ href.RESOURCE.BIG.HEIGHT +%]
+    src: "[% href.RESOURCE.HIGHRES.URI %]",
+    w: [%+ href.RESOURCE.HIGHRES.WIDTH %],
+    h: [%+ href.RESOURCE.HIGHRES.HEIGHT +%]
   },
 [% END %]
 [% IF href.RESOURCE.WEBM.URI || href.RESOURCE.MP4.URI +%]

@@ -53,13 +53,13 @@ expand the following placeholders:
 
 Example (create a scaled JPG file using imagemagick):
 
-    EXTCMD_TARGET_POSTFIX_SCALED        _scaled.jpg
-    EXTCMD_MIME_TYPE_SCALED             image/jpeg
-    EXTCMD_SCALED                       convert __OPTIONS__ __INFILE__ __OUTFILE__
-    EXTCMD_SCALED_OPTION_GEOMETRY       -scale '2560x1440>'
-    EXTCMD_SCALED_OPTION_ORIENT         -auto-orient
-    EXTCMD_SCALED_OPTION_QUALITY        -quality 75
-    EXTCMD_SCALED_OPTION_STRIP          -strip
+    EXTCMD_TARGET_POSTFIX_LOWRES        _lowres.jpg
+    EXTCMD_MIME_TYPE_LOWRES             image/jpeg
+    EXTCMD_LOWRES                       convert __OPTIONS__ __INFILE__ __OUTFILE__
+    EXTCMD_LOWRES_OPTION_GEOMETRY       -scale '2560x1440>'
+    EXTCMD_LOWRES_OPTION_ORIENT         -auto-orient
+    EXTCMD_LOWRES_OPTION_QUALITY        -quality 75
+    EXTCMD_LOWRES_OPTION_STRIP          -strip
 
 =head2 EXTCMD_<resource_key>_OPTION_<option_key>
 
@@ -70,10 +70,10 @@ file.
 
 Example (in "my_important_image.jpg.vars", to continue example above)
 
-    EXTCMD_SCALED_OPTION_QUALITY        -quality 90
+    EXTCMD_LOWRES_OPTION_QUALITY        -quality 90
 
-This will set the image quality for "my_important_image_scaled.jpg" to
-a higher value as the other SCALED resources.
+This will set the image quality for "my_important_image_lowres.jpg" to
+a higher value as the other LOWRES resources.
 
 =head1 VARIABLE PRESETS
 
