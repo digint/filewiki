@@ -94,6 +94,12 @@ Here, the SCALED resource is scaled proportionally to a height of
 720px. The BIG resource is SCALED proportionaly to a maximum width of
 2560px and a maximum height of 1440px.
 
+=head2 IMAGEMAGICK_XSCALE, IMAGEMAGICK_XSCALE_<resource_key>
+
+Enhanced SCALE. The ratio of the image snaps to common ratios (1:1,
+3:2, 4:3, 16:9, 16:10). For portrait images, the given height becomes
+width. Images smaller than the given height will not be scaled.
+
 =head2 IMAGEMAGICK_QUALITY, IMAGEMAGICK_QUALITY_<resource_key>
 
 Set the JPEG/MIFF/PNG compression level (0-100). If no <resource_key>
@@ -338,6 +344,44 @@ sub create_image_resource
 
     if(my $fill = $page->{"IMAGEMAGICK_TINT_$key"} || $page->{"IMAGEMAGICK_TINT"}) {
       im_assert($image->Tint(fill => $fill));
+    }
+
+    my $xscale = $page->{"IMAGEMAGICK_XSCALE_$key"} || $page->{"IMAGEMAGICK_XSCALE"};
+    if($xscale && $xscale =~ /^([0-9]+)?x([0-9]+)$/) {
+      my $xmax = $1 // "";
+      my $xh = $2 // die;
+      my $iw = $image->Get('width')  || die;
+      my $ih = $image->Get('height') || die;
+      my $ratio = ($iw > $ih) ? ($iw / $ih) : ($ih / $iw);
+      my $geometry;
+      if($xh > (($iw > $ih) ? $ih : $iw)) {
+        INFO "IMAGEMAGICK_XSCALE_$key: no upscaling (dimension=${iw}x${ih}, xscale=${xmax}x${xh}): $target_file";
+      }
+      else {
+        my @known_ratio = ( 1/1, 3/2, 4/3, 16/9, 16/10 );
+        foreach (@known_ratio) {
+          my $distance = abs($_ - $ratio);
+          if($distance < 0.02) {  # hardcoded ratio distance = 0.02
+            my $xw = int(($xh * $_) + 0.5);
+            if($xmax && ($xw > $xmax)) {
+              INFO "IMAGEMAGICK_XSCALE_$key: too wide (dimension=${iw}x${ih}), scaling to " . (($iw > $ih) ? "${xmax}x${xh}" : "${xh}x${xmax}") . ": $target_file";
+            }
+            else {
+              DEBUG "IMAGEMAGICK_XSCALE_$key: snap to ratio=${xw}x${xh} (distance=$distance): $target_file";
+              $geometry = ($iw > $ih) ? "${xw}x${xh}!" : "${xh}x${xw}!";
+            }
+            last;
+          }
+        }
+        unless($geometry) {
+          INFO "IMAGEMAGICK_XSCALE_$key: unknown ratio=${iw}x${ih}: $src_file";
+          $geometry = ($iw > $ih) ? "${xmax}x${xh}" : "${xh}x${xmax}";
+        }
+        im_assert($image->Resize(geometry => $geometry));
+      }
+    }
+    elsif($xscale) {
+      die "Failed to parse XSCALE=\"$xscale\": $src_file";
     }
 
     # set attributes
