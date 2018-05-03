@@ -79,11 +79,11 @@ Example:
 
 =head2 IMAGEMAGICK_SCALE, IMAGEMAGICK_SCALE_<resource_key>
 
-Define the geometry "<width>x<height>" of the image resource. If no
-<resource_key> is provided, the given mime type will be used as
-default for all resources. The <width> and <height> values specify the
-maximum dimensions. If either <width> or <height> is zero, the source
-image is scaled proportionally.
+Define the geometry "<width>x<height>" of the image resource. The
+<width> and <height> values specify the maximum dimensions. If either
+<width> or <height> is zero, the source image is scaled
+proportionally. Uses ImageMagicks "resize" function (slower than
+"scale", but produces better output).
 
 Example:
 
@@ -332,10 +332,8 @@ sub create_image_resource
     im_assert($image->Rotate(defined($page->{"IMAGEMAGICK_ROTATE_$key"}) ? $page->{"IMAGEMAGICK_ROTATE_$key"} : $page->{"IMAGEMAGICK_ROTATE"})) if(defined($page->{"IMAGEMAGICK_ROTATE_$key"}) || defined($page->{"IMAGEMAGICK_ROTATE"}));
     im_assert($image->Strip()) if(defined($page->{"IMAGEMAGICK_STRIP_$key"}) ? $page->{"IMAGEMAGICK_STRIP_$key"} : $page->{"IMAGEMAGICK_STRIP"});
 
-    # use this to stretch the image
-    #$x = $image->Scale(height => "720");
     if(my $geometry = $page->{"IMAGEMAGICK_SCALE_$key"} || $page->{"IMAGEMAGICK_SCALE"}) {
-      im_assert($image->Scale(geometry => $geometry));
+      im_assert($image->Resize(geometry => $geometry));
     }
 
     if(my $fill = $page->{"IMAGEMAGICK_TINT_$key"} || $page->{"IMAGEMAGICK_TINT"}) {
