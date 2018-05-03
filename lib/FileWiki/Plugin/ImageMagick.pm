@@ -77,6 +77,11 @@ Example:
     IMAGEMAGICK_MIME_TYPE                 image/jpeg
     IMAGEMAGICK_MIME_TYPE_MINITHUMB       image/png
 
+=head2 IMAGEMAGICK_POSTFIX_<resource_key>
+
+Filename postfix of the generated target file. Defaults to lowercase
+<resource_key>.
+
 =head2 IMAGEMAGICK_SCALE, IMAGEMAGICK_SCALE_<resource_key>
 
 Define the geometry "<width>x<height>" of the image resource. The
@@ -289,7 +294,8 @@ sub create_image_resource
   my $format = $page->{"IMAGEMAGICK_FORMAT_$key"} || $page->{IMAGEMAGICK_FORMAT} || $format_default;
   $format = uc($format);
   my $mime_type = $page->{"IMAGEMAGICK_MIME_TYPE_$key"} || $page->{IMAGEMAGICK_MIME_TYPE};
-  my $name = $page->{NAME} . "_" . lc($key) . '.' . lc($format);
+  my $postfix = $page->{"IMAGEMAGICK_POSTFIX_$key"} || "_" . lc($key);
+  my $name = $page->{NAME} . $postfix . '.' . lc($format);
   my $target_dir = $page->{TARGET_DIR};
   my $target_file = $target_dir . $name;
   my $src_file = $page->{SRC_FILE};
