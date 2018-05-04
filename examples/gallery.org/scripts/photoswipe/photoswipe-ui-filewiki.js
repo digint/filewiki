@@ -1,6 +1,7 @@
 /*! PhotoSwipe Default UI - 4.1.2 - 2017-04-05
 * http://photoswipe.com
-* Copyright (c) 2017 Dmitry Semenov; */
+* Copyright (c) 2017 Dmitry Semenov;
+* Adaptions for FileWiki by Axel Burri */
 /**
 *
 * UI on top of main sliding area (caption, arrows, close button, etc.).
@@ -13,7 +14,7 @@
 	} else if (typeof exports === 'object') {
 		module.exports = factory();
 	} else {
-		root.PhotoSwipeUI_Default = factory();
+		root.PhotoSwipeUI_FileWiki = factory();
 	}
 })(this, function () {
 
@@ -21,7 +22,7 @@
 
 
 
-var PhotoSwipeUI_Default =
+var PhotoSwipeUI_FileWiki =
  function(pswp, framework) {
 
 	var ui = this;
@@ -30,6 +31,10 @@ var PhotoSwipeUI_Default =
 		_fullscrenAPI,
 		_controls,
 		_captionContainer,
+		_infoContainer,
+		_infoContent,
+		_infoCloseBtn,
+		_infoHidden = true,
 		_fakeCaptionContainer,
 		_indexIndicator,
 		_shareButton,
@@ -62,6 +67,13 @@ var PhotoSwipeUI_Default =
 				return true;
 			},
 
+			addInfoHTMLFn: function(/* item, infoContentEl */) {
+				return false;
+			},
+
+			infoEl:true,
+			mapEl:true,
+			swisstopoEl:true,
 			closeEl:true,
 			captionEl: true,
 			fullscreenEl: true,
@@ -70,6 +82,8 @@ var PhotoSwipeUI_Default =
 			counterEl: true,
 			arrowEl: true,
 			preloaderEl: true,
+
+			swisstopoCombined:false, /* single "map" button: use swisstopo is available, fallback to google maps */
 
 			tapToClose: false,
 			tapToToggleControls: true,
@@ -446,9 +460,56 @@ var PhotoSwipeUI_Default =
 			}
 		},
 		{
+			name: 'info',
+			option: 'infoEl',
+			onInit: function(el) {
+			    _infoContainer = el;
+                            _infoContent = el.getElementsByClassName('pswp__info__content')[0];
+                            _infoCloseBtn = el.getElementsByClassName('pswp__info__btnclose')[0];
+                            _infoCloseBtn.onclick = function() {
+                                _infoHidden = true;
+                                _togglePswpClass(_infoContainer, 'info--hidden', _infoHidden);
+                            };
+			}
+		},
+		{
+			name: 'button--info',
+			option: 'infoEl',
+			onTap: function() {
+			    _infoHidden = !_infoHidden;
+                            _togglePswpClass(_infoContainer, 'info--hidden', _infoHidden);
+				//_toggleShareModal(true);
+			},
+		},
+		{
 			name: 'button--zoom',
 			option: 'zoomEl',
 			onTap: pswp.toggleDesktopZoom
+		},
+		{
+			name: 'button--map',
+			option: 'mapEl',
+			onTap: function() {
+                            if(_options.swisstopoCombined && pswp.currItem.swisstopo) {
+                                var win = window.open(pswp.currItem.swisstopo, '_blank');
+                                win.focus();
+                            }
+                            else if(pswp.currItem.geo) {
+                                var url = "https://maps.google.com?q=loc:" + pswp.currItem.geo[0] + "+" + pswp.currItem.geo[1] + "&t=h";
+                                var win = window.open(url, '_blank');
+                                win.focus();
+                            }
+                        },
+		},
+		{
+			name: 'button--swisstopo',
+			option: 'swisstopoEl',
+			onTap: function() {
+                            if(pswp.currItem.swisstopo) {
+                                var win = window.open(pswp.currItem.swisstopo, '_blank');
+                                win.focus();
+                            }
+                        },
 		},
 		{
 			name: 'counter',
@@ -630,8 +691,14 @@ var PhotoSwipeUI_Default =
 			if(_shareModal) {
 				_shareModal.children[0].onclick = null;
 			}
+
+                        if(_infoCloseBtn) {
+                            _infoCloseBtn.onclick = null;
+                        }
+
 			framework.removeClass(_controls, 'pswp__ui--over-close');
 			framework.addClass( _controls, 'pswp__ui--hidden');
+			framework.addClass( _infoContainer, 'pswp__info--hidden');
 			ui.setIdle(false);
 		});
 
@@ -681,6 +748,17 @@ var PhotoSwipeUI_Default =
 
 				_togglePswpClass(_captionContainer, 'caption--empty', !pswp.currItem.title);
 			}
+
+		        if(_options.infoEl) {
+				_options.addInfoHTMLFn(pswp.currItem, _infoContent);
+                        }
+
+			if(_options.mapEl) {
+				_togglePswpClass(_controls, 'geo--empty', !(pswp.currItem.geo || (_options.swisstopoCombined && pswp.currItem.swisstopo)));
+                        }
+			if(_options.swisstopoEl) {
+				_togglePswpClass(_controls, 'swisstopo--empty', !pswp.currItem.swisstopo);
+                        }
 
 			_overlayUIUpdated = true;
 
@@ -855,7 +933,7 @@ var PhotoSwipeUI_Default =
 
 
 };
-return PhotoSwipeUI_Default;
+return PhotoSwipeUI_FileWiki;
 
 
 });
