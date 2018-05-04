@@ -77,6 +77,29 @@ var initPhotoSwipe = function() {
 	return params;
     };
 
+    var buildTable = function(header, ary) {
+        var html = '<tr><th colspan="2">' + header + ':</th></tr>';
+        if(ary) {
+	    for(var i = 0, l = ary.length; i < l; i++) {
+                var data = ary[i];
+                html += '<tr><td>' + data[0] + '</td><td>' + data[1] + '</td></tr>';
+            }
+        }
+        else {
+            html += '<tr><td colspan="2">(not available)</td></tr>';
+        }
+        return html;
+    };
+    var buildExifTable = function(exif) {
+        var html = '<table class="gallery_exiftable"><tbody>';
+	for(var i = 0, l = exif.length; i < l; i++) {
+            var data = exif[i];
+            html += buildTable(data[0], data[1]);
+        }
+        html += '</tbody></table>';
+        return html;
+    };
+
     var openPhotoSwipe = function(index, galleryElement, disableAnimation, fromURL) {
 	var pswpElement = document.querySelectorAll('.pswp')[0],
 	    gallery,
@@ -88,6 +111,23 @@ var initPhotoSwipe = function() {
             galleryUID: 1,  // hardcoded, we only have a single gallery per page (TODO hack this away)
 
             galleryPIDs: true,
+
+            mapEl: true,
+            swisstopoEl: true,
+            swisstopoCombined: false,
+
+            // useful for debugging:
+            //timeToIdle: 400000,
+            //timeToIdleOutside: 100000,
+
+            // NOTE: default (44,auto) produces black bars on desktop, but transparent ones on mobile.
+            // This is pretty much required as the captions cannot be hidden on desktop!
+            // If you want to disable this:
+            //barsSize: { top:0, bottom:0 },
+	    barsSize: { top:44, bottom:'auto' },
+
+            closeOnScroll: false, // for info panel (scrollwheel exits gallery, wtf?)
+            clickToCloseNonZoomable: false, // close on click if non-zoomable
 
             shareButtons: [
                 //    {id:'facebook', label:'Share on Facebook', url:'https://www.facebook.com/sharer/sharer.php?u={{url}}'},
@@ -110,15 +150,32 @@ var initPhotoSwipe = function() {
 		    captionEl.children[0].innerText = '';
 		    return false;
 		}
-		captionEl.children[0].innerHTML = item.title +  '<br/><small>Photo: ' + item.author + '</small>';
-		return true;
-                // axel: add something like this:
-                //var captionElement = el.parentNode.getElementsByClassName('gallery_mosaic_caption');
-                //if(captionElement.length > 0) {
-                //  item.title = captionElement[0].innerHTML;
+                var html = '<b>' + (item.title || item.pid) + '</b>';
+                if(item.date) {
+                    html += ' <small style="margin-left:1em;">' + item.date + '</small>';
+                }
+                if(item.summary) {
+                    html += '<div>' + item.summary + '</div>';
+                }
+                if(item.desc) {
+                    html += '<div>' + item.desc + '</div>';
+                }
+                //if(item.author) {
+                //    html += '<footer><small>Photo: ' + item.author + '</small></footer>';
                 //}
-	    }
 
+		captionEl.children[0].innerHTML = html;
+		return true;
+	    },
+
+	    addInfoHTMLFn: function(item, infoContentEl) {
+		infoContentEl.innerHTML = buildExifTable(item.exif);
+            },
+
+            //isClickableElement: function(el) {
+            //    // TODO test this on mobile, not sure if needed (in order to close on click)
+            //    return (el.tagName === 'A') || (el.className === 'pswp__info__content');
+            //}
 	};
 
 
@@ -149,7 +206,7 @@ var initPhotoSwipe = function() {
 	}
 
 	// Pass data to PhotoSwipe and initialize it
-	gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options);
+	gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_FileWiki, items, options);
 
 	// see: http://photoswipe.com/documentation/responsive-images.html
 	var realViewportWidth,
@@ -158,19 +215,16 @@ var initPhotoSwipe = function() {
 	    imageSrcWillChange;
 
 	gallery.listen('beforeResize', function() {
-
 	    var dpiRatio = window.devicePixelRatio ? window.devicePixelRatio : 1;
 	    dpiRatio = Math.min(dpiRatio, 2.5);
 	    realViewportWidth = gallery.viewportSize.x * dpiRatio;
 
-
-//	    if(realViewportWidth >= 1200 || (!gallery.likelyTouchDevice && realViewportWidth > 800) ) {
+	    //if(realViewportWidth >= 1200 || (!gallery.likelyTouchDevice && realViewportWidth > 800) ) {
             if(realViewportWidth >= 1200 || (!gallery.likelyTouchDevice && realViewportWidth > 800) || screen.width > 1200 ) {
 		if(!useLargeImages) {
 		    useLargeImages = true;
 		    imageSrcWillChange = true;
 		}
-
 	    } else {
 		if(useLargeImages) {
 		    useLargeImages = false;
@@ -187,10 +241,11 @@ var initPhotoSwipe = function() {
 	    }
 
 	    imageSrcWillChange = false;
-
 	});
 
 	gallery.listen('gettingData', function(index, item) {
+            // make sure there is always a title, or addCaptionHTMLFn() will not be called...
+            item.title = item.title || item.pid;
 	    if( useLargeImages ) {
 		item.src = item.o.src;
 		item.w = item.o.w;

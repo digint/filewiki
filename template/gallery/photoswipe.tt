@@ -31,6 +31,9 @@
                 <button class="pswp__button pswp__button--share" title="Share"></button>               [% # chomp %]
                 <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>      [% # chomp %]
                 <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>          [% # chomp %]
+                <button class="pswp__button pswp__button--info" title="Image details"></button>        [% # chomp %]
+                <button class="pswp__button pswp__button--map" title="Google map"></button>            [% # chomp %]
+                <button class="pswp__button pswp__button--swisstopo" title="SwissTopo map"></button>   [% # chomp %]
 
                 [% # Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR %]
                 [% # element will get class pswp__preloader--active when preloader is running %]
@@ -45,6 +48,9 @@
 
             <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">  [% # chomp %]
                 <div class="pswp__share-tooltip"></div>                                 [% # chomp %]
+
+                [% # TODO: exif info table should go here! %]
+
             </div>                                                                      [% # chomp %]
 
             <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>  [% # chomp %]
@@ -52,6 +58,13 @@
 
             <div class="pswp__caption">                      [% # chomp %]
                 <div class="pswp__caption__center"></div>    [% # chomp %]
+            </div>                                           [% # chomp %]
+
+            <div class="pswp__info pswp__info--hidden">      [% # chomp %]
+                <div class="pswp__info__wrap">               [% # chomp %]
+                     <div class="pswp__info__content"></div> [% # chomp %]
+                     <div class="pswp__info__btnclose pswp__button pswp__button--wclose"></div> [% # chomp %]
+                </div>                                       [% # chomp %]
             </div>                                           [% # chomp %]
 
         </div>   [% # chomp %]
