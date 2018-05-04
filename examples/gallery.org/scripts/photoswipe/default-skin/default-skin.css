@@ -132,6 +132,35 @@
   right: 6px;
   background-position: -94px -44px; }
 
+.pswp__button--info {
+    /* NOTE: we have to escape '#' to '%23' in URLs, see: https://www.chromestatus.com/features/5656049583390720 */
+  background-image: url('data:image/svg+xml,<svg fill="%23FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 9h2V7h-2v2z"/></svg>') !important;
+}
+.pswp__button--map {
+  background-image: url('data:image/svg+xml,<svg fill="%23FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/><path d="M0 0h24v24H0z" fill="none"/></svg>') !important;
+}
+.pswp__button--wclose {
+  background-image: url('data:image/svg+xml,<svg fill="%23000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/><path d="M0 0h24v24H0z" fill="none"/></svg>') !important;
+}
+.pswp__button--swisstopo {
+  background-image: url('../../../img/swisstopo.png') !important;
+  background-position: 4px 6px;
+  background-size: 32px 32px;
+}
+.pswp__button--wclose,
+.pswp__button--info,
+.pswp__button--map {
+  background-position: 10px 10px;
+  background-size: 24px 24px;
+}
+
+.pswp__geo--empty .pswp__button--map {
+  display: none;
+}
+.pswp__swisstopo--empty .pswp__button--swisstopo {
+  display: none;
+}
+
 /*
 
 	2. Share modal/popup and links
@@ -286,6 +315,40 @@ a.pswp__share--download:hover {
 .pswp__caption--fake {
   visibility: hidden; }
 
+.pswp__info {
+  cursor: default; /* text selection does not work anyways */
+  display: block;
+  position: fixed;
+  top: 56px;
+  right: 44px;
+  bottom: 0;  /* for "overflow: auto" below */
+}
+.pswp__info__wrap {
+  position: relative;
+  max-width: 480px;
+  max-height: 100%;
+  overflow: auto;
+}
+.pswp__info__content {
+  padding: 0 1em 1em 1em;
+}
+.pswp__info__btnclose {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.pswp__info--hidden {
+  visibility: hidden;  /* do not fade out (but still fade in) */
+  opacity: 0;
+}
+@media screen and (max-width: 520px) {  /* roughly "left" + "max-width" */
+  .pswp__info {
+    top: 44px;
+    left: 0;
+    right: 0;
+  }
+}
+
 /*
 
 	5. Loading indicator (preloader)
@@ -427,6 +490,7 @@ a.pswp__share--download:hover {
   height: 44px;
   width: 100%; }
 
+.pswp__info,
 .pswp__caption,
 .pswp__top-bar,
 .pswp--has_mouse .pswp__button--arrow--left,
@@ -441,6 +505,12 @@ a.pswp__share--download:hover {
 .pswp--has_mouse .pswp__button--arrow--right {
   visibility: visible; }
 
+.pswp__info__wrap {
+  color: #000;
+  background-color: rgba(252, 232, 178, 0.95);
+  border-radius: 0 0 6px 0;
+  box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.25);
+}
 .pswp__top-bar,
 .pswp__caption {
   background-color: rgba(0, 0, 0, 0.5); }
@@ -463,6 +533,7 @@ a.pswp__share--download:hover {
 	e.g. when user taps to toggle visibility of controls
 */
 .pswp__ui--hidden .pswp__top-bar,
+.pswp__ui--hidden .pswp__info,
 .pswp__ui--hidden .pswp__caption,
 .pswp__ui--hidden .pswp__button--arrow--left,
 .pswp__ui--hidden .pswp__button--arrow--right {
