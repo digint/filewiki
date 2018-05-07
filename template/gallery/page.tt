@@ -70,11 +70,14 @@
 [% gallery_image_href = "slideshow.html?display=$NAME" %]
 [% END %]
 
-[% IF RESOURCE.WEBM.URI || RESOURCE.MP4.URI %]
+[% USE Resources %]
+[% video_resources = Resources.list(type => "video", sort => [ "webm", "mp4" ]) %]
+[% IF video_resources %]
 <div class="gallery_video">
 <video controls="controls" preload="metadata" poster="[% RESOURCE.POSTER.URI %]" width="[% RESOURCE.POSTER.WIDTH %]" height="[% RESOURCE.POSTER.HEIGHT %]">
-[% IF RESOURCE.WEBM.URI %]<source src="[% RESOURCE.WEBM.URI %]" type="[% RESOURCE.WEBM.MIME_TYPE %][% webm_type_postfix %]">[% END %]
-[% IF RESOURCE.MP4.URI %]<source src="[% RESOURCE.MP4.URI %]" type="[% RESOURCE.MP4.MIME_TYPE %][% mp4_type_postfix %]">[% END %]
+[% FOREACH res IN video_resources %]
+<source src="[% res.URI %]" type="[% res.MIME_TYPE %]">
+[% END %]
 </video>
 </div>
 [% ELSE %]
