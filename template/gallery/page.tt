@@ -72,7 +72,7 @@
 
 [% IF RESOURCE.WEBM.URI || RESOURCE.MP4.URI %]
 <div class="gallery_video">
-<video controls="controls" preload="metadata" poster="[% RESOURCE.POSTER.URI %]" style="max-width:[% RESOURCE.POSTER.WIDTH %]px;">
+<video controls="controls" preload="metadata" poster="[% RESOURCE.POSTER.URI %]" width="[% RESOURCE.POSTER.WIDTH %]" height="[% RESOURCE.POSTER.HEIGHT %]">
 [% IF RESOURCE.WEBM.URI %]<source src="[% RESOURCE.WEBM.URI %]" type="[% RESOURCE.WEBM.MIME_TYPE %][% webm_type_postfix %]">[% END %]
 [% IF RESOURCE.MP4.URI %]<source src="[% RESOURCE.MP4.URI %]" type="[% RESOURCE.MP4.MIME_TYPE %][% mp4_type_postfix %]">[% END %]
 </video>
@@ -80,7 +80,7 @@
 [% ELSE %]
 <div class="gallery_image">
 [% IF gallery_image_href %]<a href="[% gallery_image_href %]">[% END %]
-<img src="[% RESOURCE.LOWRES.URI %]" alt="[% SRC_FILE_NAME %]" style="max-width:[% RESOURCE.LOWRES.WIDTH %]px;"/>
+<img src="[% RESOURCE.LOWRES.URI %]" alt="[% SRC_FILE_NAME %]" width="[% RESOURCE.LOWRES.WIDTH %]" height="[% RESOURCE.LOWRES.HEIGHT %]">
 [% IF gallery_image_href %]</a>[% END %]
 </div>
 [% END %]
