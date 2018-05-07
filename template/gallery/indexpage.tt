@@ -14,9 +14,16 @@ SKIP_PREVNEXT=1
   #
 %]
 
+[% DEFAULT
+  stylesheet_photoswipe  = "${scripts_dir}/photoswipe/photoswipe.css:${scripts_dir}/photoswipe/default-skin/default-skin.css"
+  script_photoswipe      = "${scripts_dir}/photoswipe/photoswipe.min.js:${scripts_dir}/photoswipe/photoswipe-ui-filewiki.js"
+%]
+
+[% head_script = "${scripts_dir}/showhide.js" %]
+[% head_style  = "${stylesheet}" %]
 [% IF gallery_viewer == "photoswipe" %]
-[%   photoswipe_style  = "${scripts_dir}/photoswipe/photoswipe.css:${scripts_dir}/photoswipe/default-skin/default-skin.css" %]
-[%   photoswipe_script = "${scripts_dir}/photoswipe/photoswipe.min.js:${scripts_dir}/photoswipe/photoswipe-ui-filewiki.js"  %]
+[%   head_style  = "${head_style}:${stylesheet_photoswipe}"  %]
+[%   head_script = "${head_script}:${script_photoswipe}"  %]
 [% END %]
 
 <!DOCTYPE html>
@@ -25,8 +32,8 @@ SKIP_PREVNEXT=1
 [% USE FileWiki %]
 [%+ INCLUDE filewiki/head.tt
      title = DIR.title || DIR.NAME
-     javascript = "${scripts_dir}/showhide.js:${photoswipe_script}"
-     stylesheet = "${stylesheet}:${photoswipe_style}"
+     javascript = "$head_script"
+     stylesheet = "$head_style"
 %]
 
 [%# provide "pagelist" variable needed below %]
