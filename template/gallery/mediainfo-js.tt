@@ -9,9 +9,25 @@ SKIP_PREVNEXT=1
   #
   # NOTE: This file is included by every directory defined in "gallery.tree.vars".
   #
+  # NOTE: We use RESOURCE.NAME instead of RESOURCE.URI here (keep it small, resources are in same folder anyways)
+  #
 ~%]
 
+[% BLOCK resource_json %]
+[% IF resource_ +%]
+  [%+ key_ %]: {
+    src: "[% resource_.NAME %]",
+    t: "[% resource_.MIME_TYPE %]",
+    w: [%+ resource_.WIDTH %],
+    h: [%+ resource_.HEIGHT +%]
+  },
+[% END %]
+[% END %]
+
+
+
 [% USE SwissTopo %]
+[% USE Resources %]
 
 [%~ separator_ = "" ~%]
 
@@ -27,7 +43,8 @@ gallery_media = [
 
 [% separator_ %]
 {
-  pid: "[% href.NAME %]",
+  NAME: "[% href.NAME %]",
+  URI: "[% href.URI %]",    [%~ # this acts as index, must match "<a href="   %]
 [% IF href.title +%]
   title: "[% href.title.dquote %]",
 [% END %]
@@ -43,29 +60,26 @@ gallery_media = [
 [% IF href.author +%]
   author: "[% href.author.dquote %]",
 [% END +%]
-  msrc: "[% href.RESOURCE.THUMB.URI %]",
-  fwuri: "[% href.URI %]",    [%~ # this acts as index, must match "<a href="   %]
-[% IF href.RESOURCE.LOWRES +%]
-  lo: {
-    src: "[% href.RESOURCE.LOWRES.URI %]",
-    w: [%+ href.RESOURCE.LOWRES.WIDTH %],
-    h: [%+ href.RESOURCE.LOWRES.HEIGHT +%]
-  },
-[% END %]
-[% IF href.RESOURCE.HIGHRES +%]
-  hi: {
-    src: "[% href.RESOURCE.HIGHRES.URI %]",
-    w: [%+ href.RESOURCE.HIGHRES.WIDTH %],
-    h: [%+ href.RESOURCE.HIGHRES.HEIGHT +%]
-  },
-[% END %]
-[% IF href.RESOURCE.WEBM.URI || href.RESOURCE.MP4.URI +%]
-  v: {
-    src: "[% href.RESOURCE.POSTER.URI %]",
+
+[% INCLUDE resource_json key_="thumb"  resource_=href.RESOURCE.THUMB     %]
+[% INCLUDE resource_json key_="mthumb" resource_=href.RESOURCE.MINITHUMB %]
+[% INCLUDE resource_json key_="lo"     resource_=href.RESOURCE.LOWRES    %]
+[% INCLUDE resource_json key_="hi"     resource_=href.RESOURCE.HIGHRES   %]
+
+[% video_resources = Resources.list(base => href, type => "video", sort => [ "webm", "mp4" ]) %]
+[% IF video_resources +%]
+  video: {
+    poster: "[% href.RESOURCE.POSTER.NAME %]",
     w: [%+ href.RESOURCE.POSTER.WIDTH %],
-    h: [%+ href.RESOURCE.POSTER.HEIGHT +%]
+    h: [%+ href.RESOURCE.POSTER.HEIGHT +%],
+    srcs: [
+[% FOREACH res IN video_resources +%]
+      { t: "[% res.MIME_TYPE %]", src: "[% res.NAME %]" },
+[% END +%]
+    ]
   },
 [% END %]
+
 [% IF lat_ && lon_ +%]
   geo: [ [% lat_ || "null" %],[% lon_ || "null" %] ],
 [% swisstopo_url  = SwissTopo.URL(lat => lat_, long => lon_, crosshair => "cross", zoom => zoom_, encode => 0) %]

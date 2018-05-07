@@ -14,7 +14,7 @@ var initPhotoSwipe = function() {
             return;
         }
 	for (var i = 0, l = gallery_media.length; i < l; i++) {
-            if(gallery_media[i].fwuri === fwuri) {
+            if(gallery_media[i].URI === fwuri) {
                 return i;
 	    }
 	}
@@ -150,7 +150,7 @@ var initPhotoSwipe = function() {
 		    captionEl.children[0].innerText = '';
 		    return false;
 		}
-                var html = '<b>' + (item.title || item.pid) + '</b>';
+                var html = '<b>' + (item.title || item.NAME) + '</b>';
                 if(item.date) {
                     html += ' <small style="margin-left:1em;">' + item.date + '</small>';
                 }
@@ -184,7 +184,7 @@ var initPhotoSwipe = function() {
 		// parse real index when custom PIDs are used
 		// http://photoswipe.com/documentation/faq.html#custom-pid-in-url
 		for(var j = 0; j < items.length; j++) {
-		    if(items[j].pid == index) {
+		    if(items[j].NAME == index) {
 			options.index = j;
 			break;
 		    }
@@ -209,9 +209,10 @@ var initPhotoSwipe = function() {
 	gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_FileWiki, items, options);
 
 	gallery.listen('gettingData', function(index, item) {
+            item.pid = item.NAME;
             // make sure there is always a title, or addCaptionHTMLFn() will not be called...
-            item.title = item.title || item.pid;
-            if(item.v) {
+            item.title = item.title || item.NAME;
+            if(item.video) {
                 // item is a video, create html
                 // see: http://photoswipe.com/documentation/custom-html-in-slides.html
                 if(!item.html) {
@@ -219,8 +220,8 @@ var initPhotoSwipe = function() {
                     item.html =
                         '<div style="position:fixed; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50%);">' +
                         '<div style="position:relative;max-width:100vh;">' +
-                        '<a href="' + item.fwuri + '">' +
-                        '<img src="' + item.v.src + '" width="' + item.v.w + '" height="' + item.v.h + '">' +
+                        '<a href="' + item.URI + '">' +
+                        '<img src="' + item.video.poster + '" width="' + item.video.w + '" height="' + item.video.h + '">' +
                         '</a>' +
                         '<img style="position:absolute;top:16px;right:16px;" src="/img/video.png">' +
                         '</div>' +
@@ -229,6 +230,7 @@ var initPhotoSwipe = function() {
             }
             else {
                 var image_resource = item[fwquality] || item.lo;
+                item.msrc = item.thumb.src;
                 if(image_resource) {
                     item.src = image_resource.src;
                     item.w = image_resource.w;
@@ -236,6 +238,8 @@ var initPhotoSwipe = function() {
                 }
                 else {
                     console.error("missing image resource, quality=" + fwquality);
+                    item.w = item.thumb.w;
+                    item.h = item.thumb.h;
                 }
             }
 	});
