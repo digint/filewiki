@@ -1,0 +1,8 @@
+ [% # NOTE: element is hidden by default, enabled by indexpage.js (only if scripts available) %]
+<span class="gallery_action" id="fwquality" style="display:none;">
+<select>
+[% #  <option value="hi">4k</option>
+   #  <option value="lo">720p</option>
+%]
+</select>
+</span>

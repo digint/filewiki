@@ -172,6 +172,10 @@ a:visited {
     cursor: pointer;
 }
 
+.gallery_action select {
+    /* for action_quality.tt */
+    vertical-align: text-bottom;
+}
 .gallery_action img {
     vertical-align: top;
 }

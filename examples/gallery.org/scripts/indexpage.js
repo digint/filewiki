@@ -208,41 +208,6 @@ var initPhotoSwipe = function() {
 	// Pass data to PhotoSwipe and initialize it
 	gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_FileWiki, items, options);
 
-	// see: http://photoswipe.com/documentation/responsive-images.html
-	var realViewportWidth,
-	    useLargeImages = false,
-	    firstResize = true,
-	    imageSrcWillChange;
-
-	gallery.listen('beforeResize', function() {
-	    var dpiRatio = window.devicePixelRatio ? window.devicePixelRatio : 1;
-	    dpiRatio = Math.min(dpiRatio, 2.5);
-	    realViewportWidth = gallery.viewportSize.x * dpiRatio;
-
-	    //if(realViewportWidth >= 1200 || (!gallery.likelyTouchDevice && realViewportWidth > 800) ) {
-            if(realViewportWidth >= 1200 || (!gallery.likelyTouchDevice && realViewportWidth > 800) || screen.width > 1200 ) {
-		if(!useLargeImages) {
-		    useLargeImages = true;
-		    imageSrcWillChange = true;
-		}
-	    } else {
-		if(useLargeImages) {
-		    useLargeImages = false;
-		    imageSrcWillChange = true;
-		}
-	    }
-
-	    if(imageSrcWillChange && !firstResize) {
-		gallery.invalidateCurrItems();
-	    }
-
-	    if(firstResize) {
-		firstResize = false;
-	    }
-
-	    imageSrcWillChange = false;
-	});
-
 	gallery.listen('gettingData', function(index, item) {
             // make sure there is always a title, or addCaptionHTMLFn() will not be called...
             item.title = item.title || item.pid;
@@ -263,22 +228,67 @@ var initPhotoSwipe = function() {
                 }
             }
             else {
-	        if( useLargeImages ) {
-		    item.src = item.o.src;
-		    item.w = item.o.w;
-		    item.h = item.o.h;
-	        } else {
-		    item.src = item.m.src;
-		    item.w = item.m.w;
-		    item.h = item.m.h;
-	        }
+                var image_resource = item[fwquality] || item.lo;
+                if(image_resource) {
+                    item.src = image_resource.src;
+                    item.w = image_resource.w;
+                    item.h = image_resource.h;
+                }
+                else {
+                    console.error("missing image resource, quality=" + fwquality);
+                }
             }
 	});
 
 	gallery.init();
     };
 
-    // select all gallery elements
+    if(!gallery_media || !gallery_quality_desc || !gallery_quality_desc.length) {
+        // resources not available (mediainfo-js.tt), use fallback non-script version
+        return;
+    }
+
+    // initialize FileWiki quality selector
+    var fwquality,
+        qualitySelect,
+        qualityEl = document.getElementById('fwquality');
+
+    var saneQuality = function(qq) {
+        return (qq || gallery_quality_desc[0][0]);
+    }
+
+    var setQuality = function() {
+        fwquality = saneQuality(qualitySelect.value);
+        localStorage.setItem("fwquality", fwquality);
+    };
+
+    if(qualityEl) {
+        // setup <select> form
+        qualitySelect = qualityEl.getElementsByTagName('select')[0];
+        qualitySelect.options.length = 0; // reset
+        for(var i = 0, l = gallery_quality_desc.length; i < l; i++) {
+            qualitySelect.options[i] = new Option(gallery_quality_desc[i][1], gallery_quality_desc[i][0], (i==0));
+        }
+
+        // set value from localStorage (fallback to default)
+        try {
+            fwquality = saneQuality(localStorage.getItem('fwquality'));
+        }
+        catch(e) {
+            console.warn("no localStorage");
+        }
+
+        qualitySelect.value = fwquality;
+        qualitySelect.onchange = setQuality;
+
+        qualityEl.style.display = "initial";
+    }
+    else {
+        // no quality selector present, always use default
+        fwquality = saneQuality(false);
+    }
+
+    // initialize all gallery elements
     var galleryElements = document.querySelectorAll('div.gallery_mosaic_file a');
     for(var i = 0, l = galleryElements.length; i < l; i++) {
         var el = galleryElements[i];

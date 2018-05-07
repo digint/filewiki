@@ -46,14 +46,14 @@ gallery_media = [
   msrc: "[% href.RESOURCE.THUMB.URI %]",
   fwuri: "[% href.URI %]",    [%~ # this acts as index, must match "<a href="   %]
 [% IF href.RESOURCE.LOWRES +%]
-  m: {
+  lo: {
     src: "[% href.RESOURCE.LOWRES.URI %]",
     w: [%+ href.RESOURCE.LOWRES.WIDTH %],
     h: [%+ href.RESOURCE.LOWRES.HEIGHT +%]
   },
 [% END %]
 [% IF href.RESOURCE.HIGHRES +%]
-  o: {
+  hi: {
     src: "[% href.RESOURCE.HIGHRES.URI %]",
     w: [%+ href.RESOURCE.HIGHRES.WIDTH %],
     h: [%+ href.RESOURCE.HIGHRES.HEIGHT +%]
@@ -77,4 +77,9 @@ gallery_media = [
 }
 [% separator_ = "," %]
 [% END %]
+];
+
+gallery_quality_desc = [
+["hi","[% highres_name || "HighRes" %]"],  [%~ # NOTE: first is taken as default value ~%]
+["lo","[% lowres_name || "LowRes" %]"]
 ];
