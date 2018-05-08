@@ -671,9 +671,11 @@ sub _site_tree
     foreach my $include (split_var(':', $dir_vars{INCLUDE})) {
       DEBUG "Including file from dir_vars{INCLUDE}: $include";
       my $overlay = $1 if($include =~ s/\[(\w+)\]//);
+      my $plugins = $1 if($include =~ s/\s*>\s*(.+)//);
       $include =~ s/\/*$//;
 
       $tree_vars{VARS_OVERLAY}->{$include} = "$src_dir/$overlay" if($overlay);
+      $tree_vars{PLUGINS_OVERRIDE}->{$include} = $plugins if($plugins);
       push @files, $include;
     }
   }
@@ -737,6 +739,7 @@ sub _site_tree
 
     # assign plugins to the page
     $page{SRC_FILE} = $file;
+    $page{PLUGINS} = $tree_vars{PLUGINS_OVERRIDE}->{$file} if($tree_vars{PLUGINS_OVERRIDE}->{$file});
     assign_plugins(\%page);
     unless($page{HANDLER}) {
       TRACE "No page handler plugin match, ignoring file: $file"; INDENT -1;

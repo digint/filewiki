@@ -262,6 +262,14 @@ This includes the file specified. The vars for the included file will
 be read from `myprefix.vars` in the current directory.
 
 
+Example (include file and assign plugin):
+
+    INCLUDE=/my/special/script.js > JavaScript
+
+This includes the file specified, and sets `PLUGINS=JavaScript` in
+page vars.
+
+
 Example (include directories):
 
     INCLUDE=/my/include/directory[myprefix]:/my/other/include_dir
