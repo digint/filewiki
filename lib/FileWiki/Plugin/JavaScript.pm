@@ -9,9 +9,21 @@ FileWiki::Plugin::JavaScript - JavaScript plugin for FileWiki
 
 =head1 DESCRIPTION
 
-- Transforms the source using TemplateToolkit.
+- Honors nested vars.
+
+- Strips the nested vars from the source (for ".jstt" files, or forced
+  if "process_template" argument is set).
+
+- Transforms the source using TemplateToolkit (for ".jstt" files, or
+  forced if "process_template" argument is set).
 
 - Minifies the JavaScript using JavaScript::Minifier
+
+=head1 PLUGIN ARGUMENTS
+
+- disable_minify: skip minify
+
+- process_template: if set, run TemplateToolkit on source
 
 =head1 AUTHOR
 
@@ -47,16 +59,19 @@ use base qw( FileWiki::Plugin );
 use FileWiki::Logger;
 use FileWiki::Filter;
 
-our $VERSION = "0.50";
+our $VERSION = "0.53";
 
-our $MATCH_DEFAULT = '\.js$';
+our $MATCH_DEFAULT = '\.(js|jstt)$';
 
 
 sub new
 {
   my $class = shift;
   my $page = shift;
-  my $args = shift;
+  my @args = split(/,\s*/, shift);
+  my $disable_minify   = grep "disable_minify", @args;
+  my $process_template = grep "process_template", @args;
+  $process_template = 1 if($page->{SRC_FILE} =~ /\.jstt$/);
 
   my $self = {
     name => $class,
@@ -66,9 +81,9 @@ sub new
     filter => [
       \&FileWiki::Filter::read_source,
       \&FileWiki::Filter::sanitize_newlines,
-      # \&FileWiki::Filter::strip_nested_vars,
-      # \&FileWiki::Filter::process_template,
-      \&minify_javascript,
+      $process_template ? \&FileWiki::Filter::strip_nested_vars : (),
+      $process_template ? \&FileWiki::Filter::process_template : (),
+      $disable_minify ? () : \&minify_javascript,
      ],
   };
 
