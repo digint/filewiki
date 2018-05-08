@@ -248,7 +248,7 @@ var initPhotoSwipe = function() {
     };
 
     if(!gallery_media || !gallery_quality_desc || !gallery_quality_desc.length) {
-        // resources not available (mediainfo-js.tt), use fallback non-script version
+        // resources not available (mediainfo.jstt), use fallback non-script version
         return;
     }
 
