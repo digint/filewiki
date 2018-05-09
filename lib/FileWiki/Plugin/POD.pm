@@ -25,7 +25,7 @@ Axel Burri <axel@tty0.ch>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2011-2017 Axel Burri. All rights reserved.
+Copyright (c) 2011-2018 Axel Burri. All rights reserved.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
