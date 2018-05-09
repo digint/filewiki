@@ -155,9 +155,16 @@ sub expand_expr
 {
   # expand expressions in form 'KEY' or 'KEY:REGEXP'
   my ($vars, $expr, %args) = @_;
-  my $debug_location = $args{debug_file} ? " in $args{debug_file} line $." : " for $vars->{SRC_FILE}";
+  my $debug_location = $args{debug_key} ? " for variable \"$args{debug_key}\"" : "";
+  $debug_location .= $args{debug_file} ? " in $args{debug_file} line $." : " for $vars->{SRC_FILE}";
   my $saved_expr = $expr;
+  my $rdepth = ($args{rdepth} // -1) + 1;
   my $expanded;
+
+  if($rdepth >= 16) {
+    ERROR "Deep recursion while expanding expression \"$expr\"${debug_location}, aborting";
+    return "";
+  }
 
   $expr =~ s/^\$//;  # remove '$'
 
@@ -187,7 +194,7 @@ sub expand_expr
     {
       # handle '$(( A || B ))' (very simple matching, sorry...)
       foreach (split(/ \|\| /, $expr)) {
-        my $ret = expand_expr($vars, $_, %args);
+        my $ret = expand_expr($vars, $_, %args, rdepth => $rdepth);
         if($ret) {
           $expanded = $ret;
           last;
@@ -217,6 +224,15 @@ sub expand_expr
 
     # expand variable
     $expanded = expand_var($vars, $var_expr, %args);
+
+    # expand recursively (only in late expansion for now)
+    if(defined($expanded) && $args{enable_late_expansion}) {
+      # logical expressions: $((myexpr))
+      $expanded =~ s/(\$\(\(.*?\)\))/expand_expr($vars, $1, %args, rdepth => $rdepth)/eg;
+
+      # values of form: ${{myvar}}
+      $expanded =~ s/(\$\{\{.*?\}\})/expand_expr($vars, $1, %args, rdepth => $rdepth)/eg;
+    }
 
     # apply regular expression
     if(defined($expanded) && defined($regexp_expr))
@@ -377,12 +393,12 @@ sub expand_late_vars
     my $warn_system_variable = 0;
 
     # expand late-expand logical expressions of form: $((myexpr))
-    if($vars->{$key} =~ s/(\$\(\(.*?\)\))/expand_expr($vars, $1, enable_late_expansion => 1)/eg) {
+    if($vars->{$key} =~ s/(\$\(\(.*?\)\))/expand_expr($vars, $1, debug_key => $key, enable_late_expansion => 1)/eg) {
       $warn_system_variable = 1;
     }
 
     # expand late-expand values of form: ${{myvar}}
-    if($vars->{$key} =~ s/(\$\{\{.*?\}\})/expand_expr($vars, $1, enable_late_expansion => 1)/eg) {
+    if($vars->{$key} =~ s/(\$\{\{.*?\}\})/expand_expr($vars, $1, debug_key => $key, enable_late_expansion => 1)/eg) {
       $warn_system_variable = 1;
     }
 
