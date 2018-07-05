@@ -1,3 +1,31 @@
+FileWiki-0.53
+
+  * Add support for PhotoSwipe on indexpage
+  * FileWiki: add plugin override option for INCLUDE vars
+  * FileWiki: recursively expand variables and expressions
+  * FileWiki::Plugin: add TARGET_FILE_EXT
+  * FileWiki::Plugin::ImageMagick: add WIDTH/HEIGHT to chained source
+  * FileWiki::Plugin::ImageMagick: add IMAGEMAGICK_TINT
+  * FileWiki::Plugin::ImageMagick: add IMAGEMAGICK_XSCALE
+  * FileWiki::Plugin::ImageMagick: add IMAGEMAGICK_POSTFIX_<key>
+  * FileWiki::Plugin::ImageMagick: use "resize" instead of "scale" for
+    IMAGEMAGICK_SCALE (slower, better results)
+  * Template::Plugin::Resources: add Resources.list() function
+  * Template::Plugin::SwissTopo: return empty string if coordinates
+    are not covered by the map
+  * FileWiki::Plugin::JavaScript: add "process_template" and
+    "disable_minify" arguments
+  * use https for admin.ch and google.com links
+  * examples: gallery.org: use VP9 (two-pass) for WEBM video; use
+    "aac" instead of "libfdk_aac" for MP4
+  * rename SCALED -> LOWRES, and BIG -> HIGHRES
+  * examples: gallery.org: use postfix "lo", "hi", "thumb", "mini" for
+    image resources
+  * examples: gallery.org: add quality selector on indexpage (for
+    PhotoSwipe)
+  * template: gallery/page.tt: set width/height on <img> and <video>
+    instead of style; adapt style in gallery.csstt
+
 FileWiki-0.52
 
   * Template::Plugin::Filewiki: add PageTrail function
