@@ -56,7 +56,7 @@ SKIP_PREVNEXT=1
 [% IF gallery_slideshow && slideshow_enable %]
 [% PROCESS gallery/action_slideshow.tt  link="slideshow.html" %]
 [% END %]
-[% IF gallery_viewer == "photoswipe" %]
+[% IF gallery_viewer == "photoswipe" && gallery_quality_selector %]
 [% PROCESS gallery/action_quality.tt %]
 [% END %]
 </span>
