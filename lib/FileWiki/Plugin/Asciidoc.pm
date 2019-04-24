@@ -40,6 +40,10 @@ Extracted from source content ":man source: xxx".
 
 Extracted from source content ":revision: xxx".
 
+=head2 MAN_RELEASE_VERSION
+
+Extracted from source content ":release-version: xxx".
+
 =head2 MAN_DATE
 
 Extracted from source content ":date: xxx".
@@ -82,7 +86,7 @@ use base qw( FileWiki::Plugin );
 use FileWiki::Logger;
 use FileWiki::Filter;
 
-our $VERSION = "0.51";
+our $VERSION = "0.54";
 
 our $MATCH_DEFAULT = '\.(asciidoc|adoc)$';
 
@@ -143,6 +147,10 @@ sub convert_source
     $page->{MAN_REVISION} = $1;
     DEBUG "Setting variable MAN_REVISION=$1";
   }
+  if($in =~ /^:release-version:\s*([0-9a-zA-Z-.]+)/ms) {
+    $page->{MAN_RELEASE_VERSION} = $1;
+    DEBUG "Setting variable MAN_RELEASE_VERSION=$1";
+  }
   if($in =~ /^:man source:\s*([0-9a-zA-Z-.]+)/ms) {
     $page->{MAN_SOURCE} = $1;
     DEBUG "Setting variable MAN_SOURCE=$1";
@@ -159,10 +167,11 @@ sub convert_source
   # build header
   my $html = '<div class="fw-asciidoc">';
   if($page->{MAN_SOURCE}) {
+    my $release_version = $page->{MAN_RELEASE_VERSION} // $page->{MAN_REVISION};
     $html .= '<div id="fw-asciidoc-header">';
     $html .= "<h1>$page->{MAN_MANNAME} Man Page</h1>";
     $html .= "<span>$page->{MAN_NAME},</span>";
-    $html .= '<span id="revnumber">version ' . $page->{MAN_REVISION} . ',</span>' if($page->{MAN_REVISION});
+    $html .= '<span id="revnumber">version ' . $release_version . ',</span>' if(defined($release_version));
     $html .= '<span id="revdate">' . $page->{MAN_DATE} . '</span>' if($page->{MAN_DATE});
     $html .= '</div>'; # id="fw-asciidoc-header"
   }
