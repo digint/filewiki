@@ -168,6 +168,9 @@ sub convert_source
     $cmd .= " -P -r" unless($page->{MAN_ENABLE_HEADER_FOOTER_LINE});
 
     # add ".RE 0" line after each ".SH *" line
+    # NOTE: as of groff-1.22.3, this does not work any more,
+    # paragraphs are still indented (with "margin-left:11%;"), see:
+    # groff-1.22.3/src/devices/grohtml/html-table.cpp L808
     $cmd = "/bin/cat $sfile | /bin/sed '" . '/^\.SH\s/ s/$/\n.RE 0/' . "' | " . $cmd;
 
     $html = `$cmd`;
