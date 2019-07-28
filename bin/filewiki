@@ -48,7 +48,7 @@ use FileWiki;
 use FileWiki::Logger;
 use Getopt::Std;
 
-our $VERSION = "0.53";
+our $VERSION = "0.54";
 
 my $version_info = "filewiki command line client, version $VERSION (FileWiki module version: $FileWiki::VERSION)";
 my $filewiki_home = '<https://digint.ch/filewiki>';

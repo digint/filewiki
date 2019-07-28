@@ -1,3 +1,8 @@
+FileWiki-0.54
+
+  * FileWiki::Plugin::Asciidoc: add MAN_RELEASE_VERSION, extracted
+    from source content ":release-version:"
+
 FileWiki-0.53
 
   * Add support for PhotoSwipe on indexpage
