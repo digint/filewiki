@@ -19,6 +19,9 @@
 [% END %]
 
 <title>[% head_title_prefix %][% title || NAME %]</title>
+[%+ IF webapp_manifest %]
+<link rel="manifest" href="[% webapp_manifest %]"/>
+[%+ END %]
 [%+ IF shortcut_icon %]
 <link rel="shortcut icon" type="image/x-icon" href="[% shortcut_icon %]"/>
 [%+ END %]
