@@ -1,0 +1,20 @@
+{
+  "name": "FileWiki Gallery",
+  "short_name": "Gallery",
+  "description": "FileWiki Gallery Example",
+
+  "lang": "en-US",
+  "start_url": "photos/index.html",
+  "display": "fullscreen",
+
+  "theme_color": "#277f80",
+  "background_color": "#333333",
+
+  "icons": [
+    {
+      "src": "img/webapp-icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    }
+  ]
+}
